@@ -110,7 +110,7 @@ export const NoteFormModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px]" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{editNote ? "Edit Note" : "Add New Note"}</DialogTitle>
         </DialogHeader>
@@ -140,6 +140,7 @@ export const NoteFormModal = ({
             <Popover>
               <PopoverTrigger asChild>
                 <Button
+                  type="button"
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal",
@@ -150,7 +151,7 @@ export const NoteFormModal = ({
                   {date ? format(date, "PPP") : "Pick a date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0" align="start" onClick={(e) => e.stopPropagation()}>
                 <Calendar
                   mode="single"
                   selected={date}

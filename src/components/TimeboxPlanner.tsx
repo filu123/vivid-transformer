@@ -10,6 +10,7 @@ export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [priorities, setPriorities] = useState([]);
+  const [notes, setNotes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPriorities = async () => {
@@ -41,8 +42,23 @@ export const TimeboxPlanner = () => {
     }
   };
 
+  const fetchNotes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("notes")
+        .select("*")
+        .eq("date", format(selectedDate, "yyyy-MM-dd"));
+
+      if (error) throw error;
+      setNotes(data || []);
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPriorities();
+    fetchNotes();
   }, [selectedDate]);
 
   const getDaysInMonth = () => {
@@ -108,7 +124,22 @@ export const TimeboxPlanner = () => {
                     )}
                   </Card>
                 ))}
-                {priorities.length === 0 && (
+
+                {notes.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-xl font-semibold mb-4">Notes</h3>
+                    {notes.map((note) => (
+                      <Card key={note.id} className="p-4 mb-4">
+                        <h4 className="font-medium">{note.title}</h4>
+                        {note.description && (
+                          <p className="text-sm text-gray-600 mt-2">{note.description}</p>
+                        )}
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {priorities.length === 0 && notes.length === 0 && (
                   <div className="text-center text-gray-500 py-8">
                     Nothing for today
                   </div>
