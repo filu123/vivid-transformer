@@ -6,6 +6,16 @@ import { PriorityFormModal } from "./PriorityFormModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
 import { format } from "date-fns";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface DayItem {
   id: string;
@@ -26,6 +36,7 @@ interface DayItemsProps {
 
 export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const getVariant = (type: DayItem["type"]) => {
@@ -63,6 +74,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         variant: "destructive",
       });
     }
+    setDeleteId(null);
   };
 
   const handleToggleDone = async (id: string, currentState: boolean) => {
@@ -110,21 +122,22 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
           Add Priority
         </Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-wrap gap-4">
         {items.map((item) => (
-          <TaskCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            startTime={item.startTime}
-            endTime={item.endTime}
-            duration={item.duration}
-            variant={getVariant(item.type)}
-            note={item.note}
-            isDone={item.isDone}
-            onDelete={() => handleDelete(item.id)}
-            onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
-          />
+          <div key={item.id} className="w-[calc(33.33%-1rem)]">
+            <TaskCard
+              id={item.id}
+              title={item.title}
+              startTime={item.startTime}
+              endTime={item.endTime}
+              duration={item.duration}
+              variant={getVariant(item.type)}
+              note={item.note}
+              isDone={item.isDone}
+              onDelete={() => setDeleteId(item.id)}
+              onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
+            />
+          </div>
         ))}
       </div>
       <PriorityFormModal
@@ -133,6 +146,22 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         selectedDate={date}
         onPriorityAdded={onItemsChange}
       />
+      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the priority.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
