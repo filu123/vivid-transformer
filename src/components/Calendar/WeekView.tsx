@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, addDays, isSameDay } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, addDays } from "date-fns";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-export const WeekView = ({ onDaySelect, selectedDate }: { onDaySelect: (date: Date) => void; selectedDate: Date }) => {
+export const WeekView = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const nextMonth = () => {
     setCurrentDate(addMonths(currentDate, 1));
@@ -33,44 +34,63 @@ export const WeekView = ({ onDaySelect, selectedDate }: { onDaySelect: (date: Da
   };
 
   return (
-    <div className="w-full space-y-4">
-      <div className="flex items-center justify-between mb-4">
-        <Button variant="ghost" size="icon" onClick={previousMonth} className="rounded-lg">
-          <ChevronLeft className="h-4 w-4" />
+    <div className="w-full space-y-6">
+      {/* Month Navigation */}
+      <div className="flex items-center justify-between mb-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={previousMonth}
+          className="rounded-lg"
+        >
+          <ChevronLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-4">
-          <span className="text-muted-foreground text-sm">
+          <span className="text-muted-foreground">
             {format(subMonths(currentDate, 1), "MMM")}
           </span>
-          <span className="text-lg font-semibold">
+          <span className="text-2xl font-semibold">
             {format(currentDate, "MMM")}
           </span>
-          <span className="text-muted-foreground text-sm">
+          <span className="text-muted-foreground">
             {format(addMonths(currentDate, 1), "MMM")}
           </span>
         </div>
-        <Button variant="ghost" size="icon" onClick={nextMonth} className="rounded-lg">
-          <ChevronRight className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={nextMonth}
+          className="rounded-lg"
+        >
+          <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-2">
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {getDaysInCurrentMonth().map((date, index) => (
           <Card
             key={date.toString()}
-            className={`p-2 ${
-              isSameDay(date, selectedDate)
-                ? "ring-2 ring-primary"
-                : ""
-            } bg-${getCardColor(index)} hover:shadow-md transition-shadow cursor-pointer relative group`}
-            onClick={() => onDaySelect(date)}
+            className={`p-6 bg-${getCardColor(index)} hover:shadow-md transition-shadow cursor-pointer relative group`}
           >
-            <div className="flex flex-col items-center">
-              <span className="text-xs font-medium text-muted-foreground">
-                {format(date, "EEE")}
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-muted-foreground">
+                {format(date, "EEEE")}
               </span>
-              <span className="text-lg font-bold">{format(date, "d")}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{format(date, "d")}</span>
+                <span className="text-xl font-semibold text-muted-foreground">
+                  {format(date, "MMM")}
+                </span>
+              </div>
             </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
           </Card>
         ))}
       </div>
