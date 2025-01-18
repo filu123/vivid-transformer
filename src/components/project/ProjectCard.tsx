@@ -13,6 +13,16 @@ import { useState } from "react";
 import { ProjectEditModal } from "./ProjectEditModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ProjectCardProps {
   id: string;
@@ -33,6 +43,7 @@ export const ProjectCard = ({
 }: ProjectCardProps) => {
   const navigate = useNavigate();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   
   const getStatusColor = (status: string) => {
@@ -49,7 +60,7 @@ export const ProjectCard = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Prevent navigation when clicking the dropdown
+    // Prevent navigation when clicking the dropdown or its children
     if ((e.target as HTMLElement).closest('.project-dropdown')) {
       e.stopPropagation();
       return;
@@ -72,6 +83,7 @@ export const ProjectCard = ({
       });
       
       onProjectUpdated();
+      setIsDeleteDialogOpen(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -102,12 +114,18 @@ export const ProjectCard = ({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
+                    <DropdownMenuItem onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditModalOpen(true);
+                    }}>
                       Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-red-600"
-                      onClick={handleDelete}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsDeleteDialogOpen(true);
+                      }}
                     >
                       Delete
                     </DropdownMenuItem>
@@ -130,12 +148,31 @@ export const ProjectCard = ({
           </div>
         </CardContent>
       </Card>
+
       <ProjectEditModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         project={{ id, name: title, status, dueDate }}
         onProjectUpdated={onProjectUpdated}
       />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the project
+              and all its associated tasks.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
