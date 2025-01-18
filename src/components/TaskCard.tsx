@@ -17,9 +17,17 @@ interface TaskCardProps {
   id: string;
   title: string;
   note?: string;
-  status: string;
-  projectId: string;
-  onTaskUpdated: () => void;
+  status?: string;
+  projectId?: string;
+  startTime?: string;
+  endTime?: string;
+  duration?: string;
+  variant?: string;
+  isDone?: boolean;
+  onTaskUpdated?: () => void;
+  onToggleDone?: () => void;
+  onDelete?: () => void;
+  onEdit?: () => void;
 }
 
 export const TaskCard = ({
@@ -28,7 +36,15 @@ export const TaskCard = ({
   note,
   status,
   projectId,
+  startTime,
+  endTime,
+  duration,
+  variant,
+  isDone,
   onTaskUpdated,
+  onToggleDone,
+  onDelete,
+  onEdit,
 }: TaskCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
@@ -48,6 +64,11 @@ export const TaskCard = ({
 
   const handleDelete = async () => {
     try {
+      if (onDelete) {
+        onDelete();
+        return;
+      }
+
       const { error } = await supabase
         .from("tasks")
         .delete()
@@ -60,7 +81,7 @@ export const TaskCard = ({
         description: "The task has been successfully deleted.",
       });
       
-      onTaskUpdated();
+      onTaskUpdated?.();
     } catch (error) {
       toast({
         title: "Error",
@@ -78,11 +99,20 @@ export const TaskCard = ({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <h3 className="font-medium">{title}</h3>
-                <Badge className={getStatusColor(status)} variant="secondary">
-                  {status}
-                </Badge>
+                {status && (
+                  <Badge className={getStatusColor(status)} variant="secondary">
+                    {status}
+                  </Badge>
+                )}
               </div>
               {note && <p className="text-sm text-gray-500">{note}</p>}
+              {startTime && endTime && (
+                <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <span>{startTime}</span>
+                  {duration && <span>{duration}</span>}
+                  <span>{endTime}</span>
+                </div>
+              )}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -91,7 +121,7 @@ export const TaskCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
+                <DropdownMenuItem onClick={() => onEdit ? onEdit() : setIsEditModalOpen(true)}>
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -105,12 +135,14 @@ export const TaskCard = ({
           </div>
         </CardContent>
       </Card>
-      <TaskFormModal
-        projectId={projectId}
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        editTask={{ id, title, note, status }}
-      />
+      {projectId && (
+        <TaskFormModal
+          projectId={projectId}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          editTask={{ id, title, note, status }}
+        />
+      )}
     </>
   );
 };
