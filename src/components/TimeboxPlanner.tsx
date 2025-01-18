@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TaskCard } from "./TaskCard";
+import { RichTextEditor } from "./RichTextEditor";
 
 interface TimeSlot {
   time: string;
@@ -67,11 +67,10 @@ export const TimeboxPlanner = () => {
 
         <Card className="p-6 bg-card-purple">
           <h3 className="text-xl font-semibold mb-4">Brain Dump</h3>
-          <Textarea
+          <RichTextEditor
             value={brainDump}
-            onChange={(e) => setBrainDump(e.target.value)}
-            placeholder="Dump your thoughts here..."
-            className="min-h-[300px] bg-white/50 resize-none"
+            onChange={setBrainDump}
+            className="min-h-[400px]"
           />
         </Card>
       </div>
@@ -98,7 +97,7 @@ export const TimeboxPlanner = () => {
           </div>
 
           <ScrollArea className="h-[calc(100vh-14rem)]">
-            <div className="space-y-2 pr-4 max-w-2xl mx-auto">
+            <div className="space-y-2 pr-4 max-w-xl mx-auto">
               {timeSlots.map((slot) => (
                 <div key={slot.time} className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-2 text-right font-medium">
