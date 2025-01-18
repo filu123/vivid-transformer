@@ -1,124 +1,97 @@
 import { useState } from "react";
-import { format, addDays, startOfWeek } from "date-fns";
-import { Plus } from "lucide-react";
+import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, addDays } from "date-fns";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-interface Event {
-  id: string;
-  title: string;
-  time: string;
-  variant: "purple" | "pink" | "blue" | "green";
-}
-
-const mockEvents: Record<string, Event[]> = {
-  "2024-03-13": [
-    { id: "1", title: "Meeting", time: "3:00 PM", variant: "purple" },
-  ],
-  "2024-03-14": [
-    { id: "2", title: "App Update", time: "10:00 AM", variant: "pink" },
-    { id: "3", title: "Meeting", time: "10:30 AM", variant: "pink" },
-  ],
-  "2024-03-15": [
-    { id: "4", title: "Web Update", time: "2:00 PM", variant: "green" },
-  ],
-};
+import { Card } from "@/components/ui/card";
 
 export const WeekView = () => {
-  const [selectedDate] = useState(new Date());
-  
-  // Get the start of the week
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 });
-  
-  // Generate array of 5 days (Monday to Friday)
-  const weekDays = Array.from({ length: 5 }).map((_, index) => {
-    const date = addDays(weekStart, index);
-    const dateStr = format(date, "yyyy-MM-dd");
-    const events = mockEvents[dateStr] || [];
-    
-    return {
-      date,
-      events,
-    };
-  });
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
-  const timeSlots = Array.from({ length: 9 }).map((_, index) => {
-    const hour = index + 9; // Start from 9 AM
-    return format(new Date().setHours(hour, 0), "h:mm a");
-  });
+  const nextMonth = () => {
+    setCurrentDate(addMonths(currentDate, 1));
+  };
 
-  const getEventVariantClass = (variant: Event["variant"]) => {
-    const baseClasses = "rounded-md px-3 py-1 text-sm font-medium";
-    const variantClasses = {
-      purple: "bg-card-purple text-primary",
-      pink: "bg-[#FFE4E6] text-primary",
-      blue: "bg-card-blue text-primary",
-      green: "bg-card-green text-primary",
-    };
-    return `${baseClasses} ${variantClasses[variant]}`;
+  const previousMonth = () => {
+    setCurrentDate(subMonths(currentDate, 1));
+  };
+
+  const getDaysInCurrentMonth = () => {
+    const daysInMonth = getDaysInMonth(currentDate);
+    const startDate = startOfMonth(currentDate);
+    const days = [];
+
+    for (let i = 0; i < daysInMonth; i++) {
+      days.push(addDays(startDate, i));
+    }
+
+    return days;
+  };
+
+  const getCardColor = (dayNum: number) => {
+    const colors = ["card.purple", "card.blue", "card.green", "card.yellow"];
+    return colors[dayNum % colors.length];
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 w-full">
-      <div className="grid grid-cols-[auto,repeat(5,1fr)] gap-4">
-        {/* Time slots column */}
-        <div className="space-y-6 pt-16">
-          {timeSlots.map((time) => (
-            <div key={time} className="text-sm text-muted-foreground h-12">
-              {time}
-            </div>
-          ))}
+    <div className="w-full space-y-6">
+      {/* Month Navigation */}
+      <div className="flex items-center justify-between mb-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={previousMonth}
+          className="rounded-lg"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Button>
+        <div className="flex items-center gap-4">
+          <span className="text-muted-foreground">
+            {format(subMonths(currentDate, 1), "MMM")}
+          </span>
+          <span className="text-2xl font-semibold">
+            {format(currentDate, "MMM")}
+          </span>
+          <span className="text-muted-foreground">
+            {format(addMonths(currentDate, 1), "MMM")}
+          </span>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={nextMonth}
+          className="rounded-lg"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </Button>
+      </div>
 
-        {/* Days columns */}
-        {weekDays.map(({ date, events }) => (
-          <div key={format(date, "yyyy-MM-dd")} className="min-w-[120px]">
-            <div className={`p-4 rounded-xl mb-4 ${
-              format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd")
-                ? "bg-card-purple"
-                : "bg-muted"
-            }`}>
-              <div className="text-sm font-medium">
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {getDaysInCurrentMonth().map((date, index) => (
+          <Card
+            key={date.toString()}
+            className={`p-6 bg-${getCardColor(index)} hover:shadow-md transition-shadow cursor-pointer relative group`}
+          >
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-muted-foreground">
                 {format(date, "EEEE")}
-              </div>
-              <div className="text-2xl font-semibold">
-                {format(date, "dd")}
-              </div>
-              <div className="text-lg">
-                {format(date, "MMM")}
+              </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-bold">{format(date, "d")}</span>
+                <span className="text-xl font-semibold text-muted-foreground">
+                  {format(date, "MMM")}
+                </span>
               </div>
             </div>
-
-            <div className="relative h-[calc(9*3rem)] border-l">
-              {events.map((event) => {
-                const hour = parseInt(event.time.split(":")[0]);
-                const meridiem = event.time.slice(-2);
-                const adjustedHour = meridiem === "PM" && hour !== 12 ? hour + 12 : hour;
-                const top = (adjustedHour - 9) * 3;
-
-                return (
-                  <div
-                    key={event.id}
-                    className={`absolute left-2 right-2 ${getEventVariantClass(event.variant)}`}
-                    style={{ top: `${top}rem` }}
-                  >
-                    {event.title}
-                  </div>
-                );
-              })}
-              
-              {timeSlots.map((_, index) => (
-                <Button
-                  key={index}
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-2 w-[calc(100%-1rem)] h-12"
-                  style={{ top: `${index * 3}rem` }}
-                >
-                  <Plus className="h-4 w-4 text-muted-foreground/40" />
-                </Button>
-              ))}
-            </div>
-          </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Plus className="h-5 w-5" />
+            </Button>
+          </Card>
         ))}
       </div>
     </div>
