@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Calendar, LayoutDashboard, Users, Settings, Bell, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Calendar, LayoutDashboard, Users, Settings, Bell, LogOut, FileText } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -19,13 +19,18 @@ import { toast } from "sonner";
 const items = [
   {
     title: "Dashboard",
-    url: "#",
+    url: "/",
     icon: LayoutDashboard,
   },
   {
     title: "Calendar",
     url: "#",
     icon: Calendar,
+  },
+  {
+    title: "Projects",
+    url: "/projects",
+    icon: FileText,
   },
   {
     title: "Team",
@@ -46,6 +51,7 @@ const items = [
 
 export function AppSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
@@ -81,8 +87,20 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url} className="flex items-center gap-3 px-4">
+                  <SidebarMenuButton
+                    asChild
+                    className={location.pathname === item.url ? "bg-accent" : ""}
+                  >
+                    <a
+                      href={item.url}
+                      className="flex items-center gap-3 px-4"
+                      onClick={(e) => {
+                        if (item.url !== "#") {
+                          e.preventDefault();
+                          navigate(item.url);
+                        }
+                      }}
+                    >
                       <item.icon className="h-4 w-4" />
                       <span className="font-medium">{item.title}</span>
                     </a>
