@@ -1,56 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { format, addMonths, subMonths, isSameDay } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { TaskCard } from "./TaskCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayItems } from "./DayItems";
-
-// Mock data with correct type literals
-const mockDayItems = {
-  tasks: [
-    {
-      id: "1",
-      title: "Team Meeting",
-      type: "task" as const,
-      startTime: "10:00 AM",
-      endTime: "11:00 AM",
-      duration: "1h",
-    },
-    {
-      id: "2",
-      title: "Daily Exercise",
-      type: "habit" as const,
-      startTime: "7:00 AM",
-      endTime: "8:00 AM",
-      duration: "1h",
-    },
-    {
-      id: "3",
-      title: "Doctor Appointment",
-      type: "reminder" as const,
-      startTime: "2:00 PM",
-      endTime: "3:00 PM",
-      duration: "1h",
-    },
-    {
-      id: "4",
-      title: "Project Ideas",
-      type: "note" as const,
-    },
-  ],
-};
+import { supabase } from "@/integrations/supabase/client";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [priorities, setPriorities] = useState<string[]>(["", "", ""]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [priorities, setPriorities] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handlePriorityChange = (index: number, value: string) => {
-    const newPriorities = [...priorities];
-    newPriorities[index] = value;
-    setPriorities(newPriorities);
+  const fetchPriorities = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from("priorities")
+        .select("*")
+        .eq("date", format(selectedDate, "yyyy-MM-dd"));
+
+      if (error) throw error;
+
+      const formattedPriorities = data.map((priority) => ({
+        id: priority.id,
+        title: priority.title,
+        type: "task",
+        startTime: priority.start_time ? format(new Date(`2000-01-01T${priority.start_time}`), "h:mm a") : undefined,
+        endTime: priority.end_time ? format(new Date(`2000-01-01T${priority.end_time}`), "h:mm a") : undefined,
+        duration: priority.start_time && priority.end_time ? "1h" : undefined,
+        note: priority.note,
+        isDone: priority.is_done,
+      }));
+
+      setPriorities(formattedPriorities);
+    } catch (error) {
+      console.error("Error fetching priorities:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  useEffect(() => {
+    fetchPriorities();
+  }, [selectedDate]);
 
   const nextMonth = () => {
     setCurrentMonth(addMonths(currentMonth, 1));
@@ -91,20 +84,19 @@ export const TimeboxPlanner = () => {
     setSelectedDate(date);
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-7 space-y-4">
-          {priorities.map((priority, index) => (
-            <TaskCard
-              key={index}
-              title={priority || `Priority ${index + 1}`}
-              startTime="9:00 AM"
-              endTime="10:00 AM"
-              duration="1h"
-              variant={index === 0 ? "yellow" : index === 1 ? "blue" : "purple"}
-            />
-          ))}
+        <div className="col-span-7">
+          <DayItems
+            date={selectedDate}
+            items={priorities}
+            onItemsChange={fetchPriorities}
+          />
         </div>
 
         <div className="col-span-5">
@@ -170,16 +162,6 @@ export const TimeboxPlanner = () => {
             </div>
           </Card>
         </div>
-      </div>
-
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-4">
-          {format(selectedDate, "MMMM d, yyyy")}
-        </h3>
-        <DayItems
-          date={selectedDate}
-          items={mockDayItems.tasks}
-        />
       </div>
     </div>
   );
