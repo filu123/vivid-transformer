@@ -97,28 +97,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
     }
   };
 
-  if (items.length === 0) {
-    return (
-      <>
-        <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 cursor-pointer hover:border-gray-400 transition-colors"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Plus className="h-8 w-8 text-gray-400 mb-2" />
-          <p className="text-gray-600">Add a priority for this day</p>
-        </div>
-        <PriorityFormModal
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setEditItem(null);
-          }}
-          selectedDate={date}
-          onPriorityAdded={onItemsChange}
-          editItem={editItem}
-        />
-      </>
-    );
-  }
+  const canAddMorePriorities = items.length < 3;
 
   return (
     <div className="space-y-4">
@@ -144,6 +123,23 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
           </div>
         ))}
       </div>
+
+      {items.length === 0 && (
+        <div className="mt-8 text-center text-gray-500">
+          Nothing for today
+        </div>
+      )}
+
+      {canAddMorePriorities && (
+        <div 
+          className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 cursor-pointer hover:border-gray-400 transition-colors mt-4"
+          onClick={() => setIsModalOpen(true)}
+        >
+          <Plus className="h-8 w-8 text-gray-400 mb-2" />
+          <p className="text-gray-600">Add a priority for this day</p>
+        </div>
+      )}
+
       <PriorityFormModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -154,12 +150,8 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         onPriorityAdded={onItemsChange}
         editItem={editItem}
       />
-      <AlertDialog 
-        open={!!deleteId} 
-        onOpenChange={(open) => {
-          if (!open) setDeleteId(null);
-        }}
-      >
+
+      <AlertDialog open={!!deleteId}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -168,7 +160,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setDeleteId(null)}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
               Delete
             </AlertDialogAction>

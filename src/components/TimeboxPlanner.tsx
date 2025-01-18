@@ -97,9 +97,7 @@ export const TimeboxPlanner = () => {
               <h2 className="text-2xl font-semibold">
                 {format(selectedDate, "MMMM d, yyyy")}
               </h2>
-              <Button variant="outline">Add Priority</Button>
             </div>
-            <p className="text-gray-600 mt-4">Nothing for today</p>
           </Card>
           <div className="space-y-4">
             <DayItems
