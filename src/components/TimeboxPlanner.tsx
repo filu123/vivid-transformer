@@ -92,11 +92,19 @@ export const TimeboxPlanner = () => {
     <div className="space-y-6">
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-7">
-          <DayItems
-            date={selectedDate}
-            items={priorities}
-            onItemsChange={fetchPriorities}
-          />
+          <Card className="p-6">
+            <h2 className="text-2xl font-semibold mb-4">
+              {format(selectedDate, "MMMM d, yyyy")}
+            </h2>
+            <p className="text-gray-600">Nothing for today</p>
+          </Card>
+          <div className="mt-6">
+            <DayItems
+              date={selectedDate}
+              items={priorities}
+              onItemsChange={fetchPriorities}
+            />
+          </div>
         </div>
 
         <div className="col-span-5">
