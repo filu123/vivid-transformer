@@ -5,7 +5,7 @@ interface TaskCardProps {
   startTime: string;
   endTime: string;
   duration: string;
-  variant: "yellow" | "blue" | "purple";
+  variant: "yellow" | "blue" | "purple" | "green";
   participants?: Array<{
     name: string;
     avatar: string;
@@ -36,17 +36,23 @@ export const TaskCard = ({
         )}
       </div>
       <div className="flex justify-between items-center">
-        <div className="space-y-1">
-          <div className="text-sm font-medium text-gray-600">Start</div>
-          <div className="text-lg">{startTime}</div>
-        </div>
-        <div className="px-4 py-1.5 rounded-full bg-black/10 text-sm font-medium">
-          {duration}
-        </div>
-        <div className="space-y-1">
-          <div className="text-sm font-medium text-gray-600">End</div>
-          <div className="text-lg">{endTime}</div>
-        </div>
+        {startTime && endTime ? (
+          <>
+            <div className="space-y-1">
+              <div className="text-sm font-medium text-gray-600">Start</div>
+              <div className="text-lg">{startTime}</div>
+            </div>
+            <div className="px-4 py-1.5 rounded-full bg-black/10 text-sm font-medium">
+              {duration}
+            </div>
+            <div className="space-y-1">
+              <div className="text-sm font-medium text-gray-600">End</div>
+              <div className="text-lg">{endTime}</div>
+            </div>
+          </>
+        ) : (
+          <div className="w-full text-gray-600">Note</div>
+        )}
       </div>
     </div>
   );
