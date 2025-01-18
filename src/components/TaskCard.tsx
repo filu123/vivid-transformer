@@ -43,7 +43,7 @@ export const TaskCard = ({
   return (
     <div
       className={cn(
-        `p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow relative`,
+        `p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow`,
         {
           "bg-emerald-100": isDone,
           [`bg-card-${variant}`]: !isDone,

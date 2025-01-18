@@ -108,7 +108,10 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         </div>
         <PriorityFormModal
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditItem(null);
+          }}
           selectedDate={date}
           onPriorityAdded={onItemsChange}
           editItem={editItem}
@@ -119,33 +122,26 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">
-          {format(date, "MMMM d, yyyy")}
-        </h2>
-        <Button onClick={() => setIsModalOpen(true)}>
-          Add Priority
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-wrap gap-4">
         {items.map((item) => (
-          <TaskCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            startTime={item.startTime}
-            endTime={item.endTime}
-            duration={item.duration}
-            variant={getVariant(item.type)}
-            note={item.note}
-            isDone={item.isDone}
-            onDelete={() => setDeleteId(item.id)}
-            onEdit={() => {
-              setEditItem(item);
-              setIsModalOpen(true);
-            }}
-            onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
-          />
+          <div key={item.id} className="w-full">
+            <TaskCard
+              id={item.id}
+              title={item.title}
+              startTime={item.startTime}
+              endTime={item.endTime}
+              duration={item.duration}
+              variant={getVariant(item.type)}
+              note={item.note}
+              isDone={item.isDone}
+              onDelete={() => setDeleteId(item.id)}
+              onEdit={() => {
+                setEditItem(item);
+                setIsModalOpen(true);
+              }}
+              onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
+            />
+          </div>
         ))}
       </div>
       <PriorityFormModal
@@ -159,7 +155,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         editItem={editItem}
       />
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent onPointerDownOutside={(e) => e.preventDefault()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
