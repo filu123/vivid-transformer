@@ -39,6 +39,7 @@ const Notes = () => {
             id={note.id}
             title={note.title}
             description={note.description}
+            date={note.date}
             onNoteUpdated={refetch}
           />
         ))}

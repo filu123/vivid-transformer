@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Calendar } from "lucide-react";
+import { format } from "date-fns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,6 +27,7 @@ interface NoteCardProps {
   id: string;
   title: string;
   description?: string;
+  date?: string;
   onNoteUpdated: () => void;
 }
 
@@ -33,6 +35,7 @@ export const NoteCard = ({
   id,
   title,
   description,
+  date,
   onNoteUpdated,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -74,6 +77,12 @@ export const NoteCard = ({
               {description && (
                 <p className="text-sm text-gray-500">{description}</p>
               )}
+              {date && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>{format(new Date(date), "PPP")}</span>
+                </div>
+              )}
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -100,7 +109,7 @@ export const NoteCard = ({
       <NoteFormModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        editNote={{ id, title, description }}
+        editNote={{ id, title, description, date }}
         onNoteAdded={onNoteUpdated}
       />
 
