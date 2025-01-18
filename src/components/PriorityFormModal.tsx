@@ -36,12 +36,19 @@ export const PriorityFormModal = ({
     e.preventDefault();
     
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No user found");
+      }
+
       const { error } = await supabase.from("priorities").insert({
         title,
         start_time: startTime || null,
         end_time: endTime || null,
         note: note || null,
         date: format(selectedDate, "yyyy-MM-dd"),
+        user_id: user.id,
       });
 
       if (error) throw error;
