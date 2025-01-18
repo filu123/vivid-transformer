@@ -1,8 +1,10 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, CheckSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectCardProps {
+  id: string;
   title: string;
   status: string;
   dueDate: string;
@@ -10,11 +12,14 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard = ({
+  id,
   title,
   status,
   dueDate,
   tasksCount,
 }: ProjectCardProps) => {
+  const navigate = useNavigate();
+  
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
@@ -29,7 +34,10 @@ export const ProjectCard = ({
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card 
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => navigate(`/projects/${id}`)}
+    >
       <CardHeader>
         <div className="flex justify-between items-start">
           <h3 className="text-xl font-semibold">{title}</h3>
