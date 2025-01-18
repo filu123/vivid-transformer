@@ -71,19 +71,50 @@ export const TimeboxPlanner = () => {
     <div className="space-y-6">
       <div className="grid grid-cols-12 gap-6">
         <div className="col-span-7">
-          <Card className="p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">
-                {format(selectedDate, "MMMM d, yyyy")}
-              </h2>
-            </div>
-          </Card>
-          <div className="space-y-4">
+          <div className="space-y-6">
             <DayItems
               date={selectedDate}
               items={priorities}
               onItemsChange={fetchPriorities}
             />
+            <div className="mt-8">
+              <h2 className="text-2xl font-semibold mb-6">
+                {format(selectedDate, "MMMM d, yyyy")}
+              </h2>
+              <div className="space-y-4">
+                {priorities.map((priority) => (
+                  <Card key={priority.id} className="p-6">
+                    <h3 className="text-xl font-semibold mb-4">{priority.title}</h3>
+                    {priority.startTime && priority.endTime && (
+                      <div className="flex items-center justify-between text-gray-600">
+                        <div>
+                          <div className="text-sm font-medium">Start</div>
+                          <div className="text-lg">{priority.startTime}</div>
+                        </div>
+                        <div className="px-4 py-1.5 rounded-full bg-gray-100">
+                          {priority.duration}
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium">End</div>
+                          <div className="text-lg">{priority.endTime}</div>
+                        </div>
+                      </div>
+                    )}
+                    {priority.note && (
+                      <div className="mt-4 text-gray-600">
+                        <div className="text-sm font-medium">Note</div>
+                        <p>{priority.note}</p>
+                      </div>
+                    )}
+                  </Card>
+                ))}
+                {priorities.length === 0 && (
+                  <div className="text-center text-gray-500 py-8">
+                    Nothing for today
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 

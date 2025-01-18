@@ -109,7 +109,10 @@ export const TaskCard = ({
             </div>
           </>
         ) : (
-          <div className="w-full text-gray-600">Note</div>
+          <div className="w-full">
+            <div className="text-sm font-medium text-gray-600">Note</div>
+            <p className="mt-1">{note}</p>
+          </div>
         )}
       </div>
       {participants && (
