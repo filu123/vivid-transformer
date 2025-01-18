@@ -154,8 +154,13 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         onPriorityAdded={onItemsChange}
         editItem={editItem}
       />
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent onPointerDownOutside={(e) => e.preventDefault()}>
+      <AlertDialog 
+        open={!!deleteId} 
+        onOpenChange={(open) => {
+          if (!open) setDeleteId(null);
+        }}
+      >
+        <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
