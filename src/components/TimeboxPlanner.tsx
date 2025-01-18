@@ -6,13 +6,13 @@ import { TaskCard } from "./TaskCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayItems } from "./DayItems";
 
-// Mock data for demonstration
+// Mock data with correct type literals
 const mockDayItems = {
   tasks: [
     {
       id: "1",
       title: "Team Meeting",
-      type: "task",
+      type: "task" as const,
       startTime: "10:00 AM",
       endTime: "11:00 AM",
       duration: "1h",
@@ -20,7 +20,7 @@ const mockDayItems = {
     {
       id: "2",
       title: "Daily Exercise",
-      type: "habit",
+      type: "habit" as const,
       startTime: "7:00 AM",
       endTime: "8:00 AM",
       duration: "1h",
@@ -28,7 +28,7 @@ const mockDayItems = {
     {
       id: "3",
       title: "Doctor Appointment",
-      type: "reminder",
+      type: "reminder" as const,
       startTime: "2:00 PM",
       endTime: "3:00 PM",
       duration: "1h",
@@ -36,7 +36,7 @@ const mockDayItems = {
     {
       id: "4",
       title: "Project Ideas",
-      type: "note",
+      type: "note" as const,
     },
   ],
 };
