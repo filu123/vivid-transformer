@@ -5,7 +5,7 @@ interface TaskCardProps {
   startTime: string;
   endTime: string;
   duration: string;
-  variant: "yellow" | "blue";
+  variant: "yellow" | "blue" | "purple";
   participants?: Array<{
     name: string;
     avatar: string;
