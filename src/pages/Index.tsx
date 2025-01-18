@@ -7,6 +7,11 @@ import { useState } from "react";
 
 const Index = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [activeView, setActiveView] = useState<"today" | "calendar">("today");
+
+  const handleViewChange = (view: "today" | "calendar") => {
+    setActiveView(view);
+  };
 
   return (
     <SidebarProvider>
@@ -14,7 +19,7 @@ const Index = () => {
         <AppSidebar />
         <main className="flex-1 p-8">
           <div className="max-w-[1200px] mx-auto">
-            <Header />
+            <Header onViewChange={handleViewChange} activeView={activeView} />
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
               <div className="lg:col-span-4">
