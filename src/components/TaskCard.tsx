@@ -12,6 +12,16 @@ import { useState } from "react";
 import { TaskFormModal } from "./project/TaskFormModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TaskCardProps {
   id: string;
@@ -47,6 +57,7 @@ export const TaskCard = ({
   onEdit,
 }: TaskCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const getStatusColor = (status: string) => {
@@ -82,6 +93,7 @@ export const TaskCard = ({
       });
       
       onTaskUpdated?.();
+      setIsDeleteDialogOpen(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -126,7 +138,7 @@ export const TaskCard = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className="text-red-600"
-                  onClick={handleDelete}
+                  onClick={() => setIsDeleteDialogOpen(true)}
                 >
                   Delete
                 </DropdownMenuItem>
@@ -135,6 +147,7 @@ export const TaskCard = ({
           </div>
         </CardContent>
       </Card>
+
       {projectId && (
         <TaskFormModal
           projectId={projectId}
@@ -143,6 +156,23 @@ export const TaskCard = ({
           editTask={{ id, title, note, status }}
         />
       )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this task.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
