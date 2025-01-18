@@ -85,20 +85,12 @@ const ProjectDetails = () => {
                 <TaskCard
                   key={task.id}
                   id={task.id}
+                  projectId={id}
                   title={task.title}
                   note={task.note}
-                  variant={
-                    task.status === "will do"
-                      ? "yellow"
-                      : task.status === "in progress"
-                      ? "blue"
-                      : "green"
-                  }
+                  status={task.status}
                   isDone={task.is_done}
-                  onToggleDone={() =>
-                    handleToggleTaskStatus(task.id, !task.is_done)
-                  }
-                  onDelete={() => handleDeleteTask(task.id)}
+                  onTaskUpdated={() => queryClient.invalidateQueries({ queryKey: ["tasks", id] })}
                 />
               ))
             )}
