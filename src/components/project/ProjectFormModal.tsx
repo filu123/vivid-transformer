@@ -11,6 +11,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -29,6 +30,7 @@ export const ProjectFormModal = ({ isOpen, onClose }: ProjectFormModalProps) => 
   const [status, setStatus] = useState<string>("ongoing");
   const [dueDate, setDueDate] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +55,9 @@ export const ProjectFormModal = ({ isOpen, onClose }: ProjectFormModalProps) => 
         title: "Project added successfully",
         description: "Your new project has been created.",
       });
+
+      // Invalidate and refetch projects
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
 
       onClose();
       setName("");
