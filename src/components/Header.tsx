@@ -2,23 +2,26 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Bell } from "lucide-react";
 
-export const Header = () => {
-  const [activeTab, setActiveTab] = useState<"today" | "calendar">("today");
+interface HeaderProps {
+  onViewChange: (view: "today" | "calendar") => void;
+  activeView: "today" | "calendar";
+}
 
+export const Header = ({ onViewChange, activeView }: HeaderProps) => {
   return (
     <div className="flex justify-between items-center">
       <div className="flex gap-2">
         <Button
-          variant={activeTab === "today" ? "default" : "ghost"}
+          variant={activeView === "today" ? "default" : "ghost"}
           className="rounded-lg"
-          onClick={() => setActiveTab("today")}
+          onClick={() => onViewChange("today")}
         >
           Today
         </Button>
         <Button
-          variant={activeTab === "calendar" ? "default" : "ghost"}
+          variant={activeView === "calendar" ? "default" : "ghost"}
           className="rounded-lg"
-          onClick={() => setActiveTab("calendar")}
+          onClick={() => onViewChange("calendar")}
         >
           Calendar
         </Button>
