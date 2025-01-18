@@ -21,7 +21,7 @@ export const TaskCard = ({
   participants,
 }: TaskCardProps) => {
   return (
-    <div className={`p-4 rounded-xl bg-card-${variant} mb-4`}>
+    <div className={`p-6 rounded-xl bg-card-${variant} shadow-sm hover:shadow-md transition-shadow`}>
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-xl font-semibold">{title}</h3>
         {participants && (
@@ -37,14 +37,14 @@ export const TaskCard = ({
       </div>
       <div className="flex justify-between items-center">
         <div className="space-y-1">
-          <div className="text-sm font-medium">Start</div>
+          <div className="text-sm font-medium text-gray-600">Start</div>
           <div className="text-lg">{startTime}</div>
         </div>
-        <div className="px-3 py-1 rounded-full bg-black/10 text-sm">
+        <div className="px-4 py-1.5 rounded-full bg-black/10 text-sm font-medium">
           {duration}
         </div>
         <div className="space-y-1">
-          <div className="text-sm font-medium">End</div>
+          <div className="text-sm font-medium text-gray-600">End</div>
           <div className="text-lg">{endTime}</div>
         </div>
       </div>
