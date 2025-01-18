@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { format } from "date-fns";
+import { format, isValid, parse } from "date-fns";
 
 interface DayItem {
   id: string;
@@ -48,8 +48,37 @@ export const PriorityFormModal = ({
   useEffect(() => {
     if (editItem) {
       setTitle(editItem.title);
-      setStartTime(editItem.startTime ? format(new Date(`2000-01-01T${editItem.startTime}`), "HH:mm") : "");
-      setEndTime(editItem.endTime ? format(new Date(`2000-01-01T${editItem.endTime}`), "HH:mm") : "");
+      
+      // Safely format start time
+      if (editItem.startTime) {
+        try {
+          const parsedStartTime = parse(editItem.startTime, 'HH:mm:ss', new Date());
+          if (isValid(parsedStartTime)) {
+            setStartTime(format(parsedStartTime, 'HH:mm'));
+          }
+        } catch (error) {
+          console.error('Invalid start time:', error);
+          setStartTime('');
+        }
+      } else {
+        setStartTime('');
+      }
+
+      // Safely format end time
+      if (editItem.endTime) {
+        try {
+          const parsedEndTime = parse(editItem.endTime, 'HH:mm:ss', new Date());
+          if (isValid(parsedEndTime)) {
+            setEndTime(format(parsedEndTime, 'HH:mm'));
+          }
+        } catch (error) {
+          console.error('Invalid end time:', error);
+          setEndTime('');
+        }
+      } else {
+        setEndTime('');
+      }
+
       setNote(editItem.note || "");
     } else {
       setTitle("");
