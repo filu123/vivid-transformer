@@ -4,7 +4,7 @@ import { ProjectCard } from "./ProjectCard";
 import { format } from "date-fns";
 
 export const ProjectList = () => {
-  const { data: projects, isLoading } = useQuery({
+  const { data: projects, isLoading, refetch } = useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -41,6 +41,7 @@ export const ProjectList = () => {
           status={project.status}
           dueDate={format(new Date(project.due_date), "MMM d, yyyy")}
           tasksCount={project.tasks_count || 0}
+          onProjectUpdated={refetch}
         />
       ))}
     </div>

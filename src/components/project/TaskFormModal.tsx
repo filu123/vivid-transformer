@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,12 +23,19 @@ interface TaskFormModalProps {
   projectId: string;
   isOpen: boolean;
   onClose: () => void;
+  editTask?: {
+    id: string;
+    title: string;
+    note?: string;
+    status: string;
+  };
 }
 
 export const TaskFormModal = ({
   projectId,
   isOpen,
   onClose,
+  editTask,
 }: TaskFormModalProps) => {
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
@@ -36,41 +43,75 @@ export const TaskFormModal = ({
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (editTask) {
+      setTitle(editTask.title);
+      setNote(editTask.note || "");
+      setStatus(editTask.status);
+    } else {
+      setTitle("");
+      setNote("");
+      setStatus("will do");
+    }
+  }, [editTask]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { error } = await supabase.from("tasks").insert({
-      project_id: projectId,
-      title,
-      note,
-      status,
-    });
+    try {
+      if (editTask) {
+        const { error } = await supabase
+          .from("tasks")
+          .update({
+            title,
+            note,
+            status,
+          })
+          .eq('id', editTask.id);
 
-    if (error) {
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Task updated successfully!",
+        });
+      } else {
+        const { error } = await supabase.from("tasks").insert({
+          project_id: projectId,
+          title,
+          note,
+          status,
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Task created successfully!",
+        });
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
+      onClose();
+      setTitle("");
+      setNote("");
+      setStatus("will do");
+    } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to create task. Please try again.",
+        description: editTask 
+          ? "Failed to update task. Please try again."
+          : "Failed to create task. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    queryClient.invalidateQueries({ queryKey: ["tasks", projectId] });
-    toast({
-      title: "Success",
-      description: "Task created successfully!",
-    });
-    onClose();
-    setTitle("");
-    setNote("");
-    setStatus("will do");
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Task</DialogTitle>
+          <DialogTitle>{editTask ? "Edit Task" : "Add New Task"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -105,7 +146,9 @@ export const TaskFormModal = ({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Create Task</Button>
+            <Button type="submit">
+              {editTask ? "Update Task" : "Create Task"}
+            </Button>
           </div>
         </form>
       </DialogContent>

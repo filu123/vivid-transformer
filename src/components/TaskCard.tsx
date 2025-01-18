@@ -1,130 +1,116 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Check, MoreVertical } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { MoreVertical } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { Button } from "./ui/button";
+import { useState } from "react";
+import { TaskFormModal } from "./project/TaskFormModal";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface TaskCardProps {
   id: string;
   title: string;
-  startTime?: string;
-  endTime?: string;
-  duration?: string;
-  variant: "yellow" | "blue" | "purple" | "green";
   note?: string;
-  isDone?: boolean;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onToggleDone?: () => void;
-  participants?: Array<{
-    name: string;
-    avatar: string;
-  }>;
+  status: string;
+  projectId: string;
+  onTaskUpdated: () => void;
 }
 
 export const TaskCard = ({
+  id,
   title,
-  startTime,
-  endTime,
-  duration,
-  variant,
   note,
-  isDone,
-  onEdit,
-  onDelete,
-  onToggleDone,
-  participants,
+  status,
+  projectId,
+  onTaskUpdated,
 }: TaskCardProps) => {
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { toast } = useToast();
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "in progress":
+        return "bg-blue-100 text-blue-800";
+      case "will do":
+        return "bg-yellow-100 text-yellow-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from("tasks")
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Task deleted",
+        description: "The task has been successfully deleted.",
+      });
+      
+      onTaskUpdated();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete the task. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div
-      className={cn(
-        `p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow`,
-        {
-          "bg-emerald-100": isDone,
-          [`bg-card-${variant}`]: !isDone,
-        }
-      )}
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 rounded-full"
-            onClick={onToggleDone}
-          >
-            <Check
-              className={cn("h-4 w-4", {
-                "text-emerald-600": isDone,
-                "text-gray-400": !isDone,
-              })}
-            />
-          </Button>
-          <h3
-            className={cn("text-xl font-semibold", {
-              "line-through": isDone,
-            })}
-          >
-            {title}
-          </h3>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={onDelete}
-              className="text-red-600"
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      {note && (
-        <p className="text-sm text-gray-600 mb-4">{note}</p>
-      )}
-      <div className="flex justify-between items-center">
-        {startTime && endTime ? (
-          <>
-            <div className="space-y-1">
-              <div className="text-sm font-medium text-gray-600">Start</div>
-              <div className="text-lg">{startTime}</div>
+    <>
+      <Card className="mb-4">
+        <CardContent className="pt-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium">{title}</h3>
+                <Badge className={getStatusColor(status)} variant="secondary">
+                  {status}
+                </Badge>
+              </div>
+              {note && <p className="text-sm text-gray-500">{note}</p>}
             </div>
-            <div className="px-4 py-1.5 rounded-full bg-black/10 text-sm font-medium">
-              {duration}
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm font-medium text-gray-600">End</div>
-              <div className="text-lg">{endTime}</div>
-            </div>
-          </>
-        ) : (
-          <div className="w-full">
-            <div className="text-sm font-medium text-gray-600">Note</div>
-            <p className="mt-1">{note}</p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="text-red-600"
+                  onClick={handleDelete}
+                >
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        )}
-      </div>
-      {participants && (
-        <div className="flex -space-x-2 mt-4">
-          {participants.map((participant, index) => (
-            <Avatar key={index} className="w-8 h-8 border-2 border-white">
-              <AvatarImage src={participant.avatar} alt={participant.name} />
-              <AvatarFallback>{participant.name[0]}</AvatarFallback>
-            </Avatar>
-          ))}
-        </div>
-      )}
-    </div>
+        </CardContent>
+      </Card>
+      <TaskFormModal
+        projectId={projectId}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        editTask={{ id, title, note, status }}
+      />
+    </>
   );
 };
