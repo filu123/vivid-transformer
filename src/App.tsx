@@ -2,12 +2,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "react-hot-toast";
 import { Routes, Route, Outlet } from "react-router-dom";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppSidebar } from "@/components/AppSidebar";
-import { Auth } from "@/pages/Auth";
-import { Index } from "@/pages/Index";
-import { Projects } from "@/pages/Projects";
-import { ProjectDetails } from "@/pages/ProjectDetails";
+import Auth from "@/pages/Auth";
+import Index from "@/pages/Index";
+import Projects from "@/pages/Projects";
+import ProjectDetails from "@/pages/ProjectDetails";
 
 const queryClient = new QueryClient();
 

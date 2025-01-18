@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ProjectCard } from "./ProjectCard";
 import { format } from "date-fns";
@@ -36,6 +36,7 @@ export const ProjectList = () => {
       {projects.map((project) => (
         <ProjectCard
           key={project.id}
+          id={project.id}
           title={project.name}
           status={project.status}
           dueDate={format(new Date(project.due_date), "MMM d, yyyy")}
