@@ -1,11 +1,6 @@
-import { TaskCard } from "./TaskCard";
-import { Plus } from "lucide-react";
-import { Button } from "./ui/button";
 import { useState } from "react";
-import { PriorityFormModal } from "./PriorityFormModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "./ui/use-toast";
-import { format } from "date-fns";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +11,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { PriorityFormModal } from "./priority/PriorityFormModal";
+import { PriorityList } from "./priority/PriorityList";
+import { AddPriorityButton } from "./priority/AddPriorityButton";
 
 interface DayItem {
   id: string;
@@ -39,19 +37,6 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<DayItem | null>(null);
   const { toast } = useToast();
-
-  const getVariant = (type: DayItem["type"]) => {
-    switch (type) {
-      case "task":
-        return "yellow";
-      case "habit":
-        return "blue";
-      case "reminder":
-        return "purple";
-      case "note":
-        return "green";
-    }
-  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -101,28 +86,15 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-4">
-        {items.map((item) => (
-          <div key={item.id} className="w-full">
-            <TaskCard
-              id={item.id}
-              title={item.title}
-              startTime={item.startTime}
-              endTime={item.endTime}
-              duration={item.duration}
-              variant={getVariant(item.type)}
-              note={item.note}
-              isDone={item.isDone}
-              onDelete={() => setDeleteId(item.id)}
-              onEdit={() => {
-                setEditItem(item);
-                setIsModalOpen(true);
-              }}
-              onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
-            />
-          </div>
-        ))}
-      </div>
+      <PriorityList
+        items={items}
+        onEdit={(item) => {
+          setEditItem(item);
+          setIsModalOpen(true);
+        }}
+        onDelete={(id) => setDeleteId(id)}
+        onToggleDone={handleToggleDone}
+      />
 
       {items.length === 0 && (
         <div className="mt-8 text-center text-gray-500">
@@ -131,13 +103,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
       )}
 
       {canAddMorePriorities && (
-        <div 
-          className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 cursor-pointer hover:border-gray-400 transition-colors mt-4"
-          onClick={() => setIsModalOpen(true)}
-        >
-          <Plus className="h-8 w-8 text-gray-400 mb-2" />
-          <p className="text-gray-600">Add a priority for this day</p>
-        </div>
+        <AddPriorityButton onClick={() => setIsModalOpen(true)} />
       )}
 
       <PriorityFormModal
