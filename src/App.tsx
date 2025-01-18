@@ -9,6 +9,7 @@ import Auth from "@/pages/Auth";
 import Index from "@/pages/Index";
 import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
+import Notes from "@/pages/Notes";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ function App() {
               <Route index element={<Index />} />
               <Route path="projects" element={<Projects />} />
               <Route path="projects/:id" element={<ProjectDetails />} />
+              <Route path="notes" element={<Notes />} />
             </Route>
           </Routes>
         </SidebarProvider>
