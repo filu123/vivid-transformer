@@ -5,6 +5,8 @@ import { DayItems } from "./DayItems";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarHeader } from "./calendar/CalendarHeader";
 import { CalendarGrid } from "./calendar/CalendarGrid";
+import { DayPriorities } from "./calendar/DayPriorities";
+import { DayNotes } from "./calendar/DayNotes";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -98,47 +100,8 @@ export const TimeboxPlanner = () => {
                 {format(selectedDate, "MMMM d, yyyy")}
               </h2>
               <div className="space-y-4">
-                {priorities.map((priority) => (
-                  <Card key={priority.id} className="p-6">
-                    <h3 className="text-xl font-semibold mb-4">{priority.title}</h3>
-                    {priority.startTime && priority.endTime && (
-                      <div className="flex items-center justify-between text-gray-600">
-                        <div>
-                          <div className="text-sm font-medium">Start</div>
-                          <div className="text-lg">{priority.startTime}</div>
-                        </div>
-                        <div className="px-4 py-1.5 rounded-full bg-gray-100">
-                          {priority.duration}
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium">End</div>
-                          <div className="text-lg">{priority.endTime}</div>
-                        </div>
-                      </div>
-                    )}
-                    {priority.note && (
-                      <div className="mt-4 text-gray-600">
-                        <div className="text-sm font-medium">Note</div>
-                        <p>{priority.note}</p>
-                      </div>
-                    )}
-                  </Card>
-                ))}
-
-                {notes.length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="text-xl font-semibold mb-4">Notes</h3>
-                    {notes.map((note) => (
-                      <Card key={note.id} className="p-4 mb-4">
-                        <h4 className="font-medium">{note.title}</h4>
-                        {note.description && (
-                          <p className="text-sm text-gray-600 mt-2">{note.description}</p>
-                        )}
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
+                <DayPriorities priorities={priorities} />
+                <DayNotes notes={notes} />
                 {priorities.length === 0 && notes.length === 0 && (
                   <div className="text-center text-gray-500 py-8">
                     Nothing for today
