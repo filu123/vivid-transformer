@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { TaskCard } from "@/components/TaskCard";
 import { CircleDot, CheckCircle2, Circle } from "lucide-react";
 import {
@@ -10,10 +9,10 @@ import {
   MouseSensor,
   useSensor,
   useSensors,
-  UniqueIdentifier,
 } from "@dnd-kit/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { KanbanColumn } from "./KanbanColumn";
 
 interface Task {
   id: string;
@@ -88,39 +87,6 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
     setActiveTask(null);
   };
 
-  const renderColumn = (title: string, columnTasks: Task[], status: string, icon: React.ReactNode) => (
-    <div className="flex flex-col gap-4 min-w-[300px] w-full md:w-1/3">
-      <div className="flex items-center gap-2 font-semibold text-lg">
-        {icon}
-        <h3>{title}</h3>
-        <span className="text-sm text-muted-foreground">({columnTasks.length})</span>
-      </div>
-      <Card 
-        className="bg-muted/50 p-4 h-full"
-        id={status}
-      >
-        <CardContent className="p-0 space-y-4">
-          {columnTasks.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No tasks</p>
-          ) : (
-            columnTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                id={task.id}
-                projectId={projectId}
-                title={task.title}
-                note={task.note}
-                status={task.status}
-                isDone={task.is_done}
-                onTaskUpdated={onTaskUpdated}
-              />
-            ))
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-
   return (
     <DndContext
       sensors={sensors}
@@ -129,24 +95,30 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
     >
       <div className="w-full overflow-x-auto">
         <div className="flex flex-col md:flex-row gap-6 min-w-min p-4">
-          {renderColumn(
-            "Will Do",
-            willDoTasks,
-            "will do",
-            <Circle className="w-5 h-5 text-yellow-500" />
-          )}
-          {renderColumn(
-            "In Progress",
-            inProgressTasks,
-            "in progress",
-            <CircleDot className="w-5 h-5 text-blue-500" />
-          )}
-          {renderColumn(
-            "Completed",
-            completedTasks,
-            "completed",
-            <CheckCircle2 className="w-5 h-5 text-green-500" />
-          )}
+          <KanbanColumn
+            title="Will Do"
+            tasks={willDoTasks}
+            status="will do"
+            icon={Circle}
+            projectId={projectId}
+            onTaskUpdated={onTaskUpdated}
+          />
+          <KanbanColumn
+            title="In Progress"
+            tasks={inProgressTasks}
+            status="in progress"
+            icon={CircleDot}
+            projectId={projectId}
+            onTaskUpdated={onTaskUpdated}
+          />
+          <KanbanColumn
+            title="Completed"
+            tasks={completedTasks}
+            status="completed"
+            icon={CheckCircle2}
+            projectId={projectId}
+            onTaskUpdated={onTaskUpdated}
+          />
         </div>
       </div>
       <DragOverlay>
