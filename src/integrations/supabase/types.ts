@@ -123,6 +123,68 @@ export type Database = {
         }
         Relationships: []
       }
+      reminder_lists: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          category: Database["public"]["Enums"]["reminder_category"]
+          created_at: string
+          due_date: string | null
+          id: string
+          is_completed: boolean
+          list_id: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["reminder_category"]
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          list_id?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["reminder_category"]
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean
+          list_id?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reminders_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "reminder_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           created_at: string
@@ -169,7 +231,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      reminder_category: "all" | "today" | "scheduled" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
