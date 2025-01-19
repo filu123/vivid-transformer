@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ReminderFormModalProps {
   isOpen: boolean;
@@ -38,18 +39,44 @@ export const ReminderFormModal = ({
   const [listId, setListId] = useState("");
   const [date, setDate] = useState<Date>();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      // Get the current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create reminders",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase.from("reminders").insert({
         title,
         list_id: listId,
         due_date: date?.toISOString(),
+        user_id: user.id,
       });
 
-      if (error) throw error;
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create reminder",
+          variant: "destructive",
+        });
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Reminder created successfully",
+      });
 
       queryClient.invalidateQueries({ queryKey: ["reminders"] });
       onClose();
