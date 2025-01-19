@@ -25,6 +25,7 @@ const Reminders = () => {
           table: 'reminders'
         },
         () => {
+          // Invalidate and refetch reminders when any change occurs
           queryClient.invalidateQueries({ queryKey: ['reminders'] });
         }
       )
