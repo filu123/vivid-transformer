@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { WeekView } from "@/components/Calendar/WeekView";
 import { TimeboxPlanner } from "@/components/TimeboxPlanner";
 import { useState } from "react";
 
@@ -11,15 +10,9 @@ const Index = () => {
       <div className="container mx-auto">
         <Header onViewChange={setActiveView} activeView={activeView} />
         
-        {activeView === "today" ? (
-          <div className="mt-6">
-            <TimeboxPlanner />
-          </div>
-        ) : (
-          <div className="mt-6">
-            <WeekView />
-          </div>
-        )}
+        <div className="mt-6">
+          <TimeboxPlanner />
+        </div>
       </div>
     </main>
   );
