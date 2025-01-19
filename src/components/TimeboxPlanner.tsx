@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { format, addMonths, subMonths } from "date-fns";
+import { format, addMonths, subMonths, startOfDay, endOfDay } from "date-fns";
 import { DayItems } from "./DayItems";
 import { supabase } from "@/integrations/supabase/client";
 import { CalendarHeader } from "./calendar/CalendarHeader";
@@ -62,11 +62,15 @@ export const TimeboxPlanner = () => {
 
   const fetchReminders = async () => {
     try {
+      // Get start and end of selected date
+      const start = startOfDay(selectedDate);
+      const end = endOfDay(selectedDate);
+      
       const { data, error } = await supabase
         .from("reminders")
         .select("*")
-        .eq("date", format(selectedDate, "yyyy-MM-dd"))
-        .not("due_date", "is", null);
+        .gte("due_date", start.toISOString())
+        .lte("due_date", end.toISOString());
 
       if (error) throw error;
       setReminders(data || []);
