@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -20,27 +20,42 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 
 interface ReminderFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  lists: Array<{ id: string; name: string }>;
 }
 
 export const ReminderFormModal = ({
   isOpen,
   onClose,
-  lists,
 }: ReminderFormModalProps) => {
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState("");
   const [date, setDate] = useState<Date>();
-  const [category, setCategory] = useState<"all" | "today" | "scheduled" | "completed">("all");
   const queryClient = useQueryClient();
   const { toast } = useToast();
+
+  // Fetch reminder lists for the current user
+  const { data: lists = [] } = useQuery({
+    queryKey: ["reminder-lists"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from("reminder_lists")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +71,12 @@ export const ReminderFormModal = ({
           variant: "destructive",
         });
         return;
+      }
+
+      // Determine category based on date
+      let category: "all" | "today" | "scheduled" = "all";
+      if (date) {
+        category = isToday(date) ? "today" : "scheduled";
       }
 
       const { error } = await supabase.from("reminders").insert({
@@ -85,7 +106,6 @@ export const ReminderFormModal = ({
       setTitle("");
       setListId("");
       setDate(undefined);
-      setCategory("all");
     } catch (error) {
       console.error("Error creating reminder:", error);
     }
@@ -119,19 +139,6 @@ export const ReminderFormModal = ({
                     {list.name}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={(value: typeof category) => setCategory(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="today">Today</SelectItem>
-                <SelectItem value="scheduled">Scheduled</SelectItem>
               </SelectContent>
             </Select>
           </div>
