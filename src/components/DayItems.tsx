@@ -1,18 +1,6 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "./ui/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { PriorityFormModal } from "./priority/PriorityFormModal";
-import { TaskCard } from "./TaskCard";
+import { PriorityCard } from "./priority/PriorityCard";
 import { AddPriorityButton } from "./priority/AddPriorityButton";
 
 interface DayItem {
@@ -34,53 +22,7 @@ interface DayItemsProps {
 
 export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editItem, setEditItem] = useState<DayItem | null>(null);
-  const { toast } = useToast();
-
-  const handleDelete = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from("priorities")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Priority deleted",
-        description: "The priority has been deleted successfully.",
-      });
-
-      onItemsChange();
-    } catch (error) {
-      toast({
-        title: "Error deleting priority",
-        description: "There was an error deleting the priority. Please try again.",
-        variant: "destructive",
-      });
-    }
-    setDeleteId(null);
-  };
-
-  const handleToggleDone = async (id: string, currentState: boolean) => {
-    try {
-      const { error } = await supabase
-        .from("priorities")
-        .update({ is_done: !currentState })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      onItemsChange();
-    } catch (error) {
-      toast({
-        title: "Error updating priority",
-        description: "There was an error updating the priority. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const canAddMorePriorities = items.length < 3;
 
@@ -88,7 +30,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
     <div className="space-y-4">
       <div className="space-y-4">
         {items.map((item) => (
-          <TaskCard
+          <PriorityCard
             key={item.id}
             id={item.id}
             title={item.title}
@@ -97,13 +39,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
             duration={item.duration}
             note={item.note}
             isDone={item.isDone}
-            variant="yellow"
-            onEdit={() => {
-              setEditItem(item);
-              setIsModalOpen(true);
-            }}
-            onDelete={() => setDeleteId(item.id)}
-            onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
+            onPriorityUpdated={onItemsChange}
           />
         ))}
       </div>
@@ -128,23 +64,6 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
         onPriorityAdded={onItemsChange}
         editItem={editItem}
       />
-
-      <AlertDialog open={!!deleteId}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the priority.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeleteId(null)}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
