@@ -34,11 +34,19 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded }: HabitFormModal
     e.preventDefault();
     
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.error("You must be logged in to create habits");
+        return;
+      }
+
       const { error } = await supabase.from("habits").insert({
         title,
         frequency,
         custom_days: frequency === "custom" ? customDays : null,
         duration_months: durationMonths,
+        user_id: user.id
       });
 
       if (error) throw error;
@@ -57,6 +65,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded }: HabitFormModal
     setFrequency("daily");
     setCustomDays([]);
     setDurationMonths(3);
+    onClose();
   };
 
   return (
