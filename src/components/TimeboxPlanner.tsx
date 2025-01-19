@@ -8,6 +8,7 @@ import { CalendarGrid } from "./calendar/CalendarGrid";
 import { DayPriorities } from "./calendar/DayPriorities";
 import { DayNotes } from "./calendar/DayNotes";
 import { DayReminders } from "./calendar/DayReminders";
+import { DayHabits } from "./calendar/DayHabits";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -15,6 +16,7 @@ export const TimeboxPlanner = () => {
   const [priorities, setPriorities] = useState([]);
   const [notes, setNotes] = useState([]);
   const [reminders, setReminders] = useState([]);
+  const [habits, setHabits] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPriorities = async () => {
@@ -88,10 +90,36 @@ export const TimeboxPlanner = () => {
     }
   };
 
+  const fetchHabits = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("habits")
+        .select("*, habit_completions(completed_date)")
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      const formattedHabits = data.map(habit => ({
+        ...habit,
+        isCompleted: habit.habit_completions?.some(
+          completion => completion.completed_date === format(selectedDate, 'yyyy-MM-dd')
+        )
+      }));
+
+      setHabits(formattedHabits);
+    } catch (error) {
+      console.error("Error fetching habits:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPriorities();
     fetchNotes();
     fetchReminders();
+    fetchHabits();
   }, [selectedDate]);
 
   const getDaysInMonth = () => {
@@ -132,9 +160,10 @@ export const TimeboxPlanner = () => {
               </h2>
               <div className="space-y-4">
                 <DayPriorities priorities={priorities} />
+                <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
                 <DayNotes notes={notes} />
                 <DayReminders reminders={reminders} />
-                {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && (
+                {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
                   <div className="text-center text-gray-500 py-8">
                     Nothing for today
                   </div>
