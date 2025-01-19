@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { PriorityFormModal } from "./priority/PriorityFormModal";
-import { PriorityList } from "./priority/PriorityList";
+import { TaskCard } from "./TaskCard";
 import { AddPriorityButton } from "./priority/AddPriorityButton";
 
 interface DayItem {
@@ -86,15 +86,27 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
 
   return (
     <div className="space-y-4">
-      <PriorityList
-        items={items}
-        onEdit={(item) => {
-          setEditItem(item);
-          setIsModalOpen(true);
-        }}
-        onDelete={(id) => setDeleteId(id)}
-        onToggleDone={handleToggleDone}
-      />
+      <div className="space-y-4">
+        {items.map((item) => (
+          <TaskCard
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            startTime={item.startTime}
+            endTime={item.endTime}
+            duration={item.duration}
+            note={item.note}
+            isDone={item.isDone}
+            variant="yellow"
+            onEdit={() => {
+              setEditItem(item);
+              setIsModalOpen(true);
+            }}
+            onDelete={() => setDeleteId(item.id)}
+            onToggleDone={() => handleToggleDone(item.id, !!item.isDone)}
+          />
+        ))}
+      </div>
 
       {items.length === 0 && (
         <div className="mt-8 text-center text-gray-500">

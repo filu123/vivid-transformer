@@ -13,6 +13,12 @@ const Reminders = () => {
   const { lists, reminders, handleToggleReminder } = useReminders();
 
   const filteredReminders = reminders?.filter((reminder) => {
+    // First filter by list if one is selected
+    if (selectedList && reminder.list_id !== selectedList) {
+      return false;
+    }
+
+    // Then apply category filters
     if (selectedCategory === "completed") {
       return reminder.is_completed;
     }
@@ -32,26 +38,24 @@ const Reminders = () => {
     {
       id: "all",
       name: "All",
-      count: reminders?.filter((r) => !r.is_completed).length || 0,
+      count: reminders?.filter((r) => !r.is_completed && (!selectedList || r.list_id === selectedList)).length || 0,
     },
     {
       id: "today",
       name: "Today",
-      count:
-        reminders?.filter((r) => !r.is_completed && r.category === "today")
-          .length || 0,
+      count: reminders?.filter((r) => !r.is_completed && r.category === "today" && (!selectedList || r.list_id === selectedList))
+        .length || 0,
     },
     {
       id: "scheduled",
       name: "Scheduled",
-      count:
-        reminders?.filter((r) => !r.is_completed && r.category === "scheduled")
-          .length || 0,
+      count: reminders?.filter((r) => !r.is_completed && r.category === "scheduled" && (!selectedList || r.list_id === selectedList))
+        .length || 0,
     },
     {
       id: "completed",
       name: "Completed",
-      count: reminders?.filter((r) => r.is_completed).length || 0,
+      count: reminders?.filter((r) => r.is_completed && (!selectedList || r.list_id === selectedList)).length || 0,
     },
   ];
 
@@ -79,7 +83,13 @@ const Reminders = () => {
                 className={`p-4 hover:bg-accent cursor-pointer ${
                   selectedList === list.id ? "bg-accent" : ""
                 }`}
-                onClick={() => setSelectedList(list.id)}
+                onClick={() => {
+                  if (selectedList === list.id) {
+                    setSelectedList(null);
+                  } else {
+                    setSelectedList(list.id);
+                  }
+                }}
               >
                 <div className="flex justify-between items-center">
                   <span>{list.name}</span>
