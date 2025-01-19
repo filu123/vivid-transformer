@@ -10,6 +10,7 @@ import {
   MouseSensor,
   useSensor,
   useSensors,
+  UniqueIdentifier,
 } from "@dnd-kit/core";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -50,7 +51,7 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
   }, [tasks]);
 
   const handleDragStart = (event: DragStartEvent) => {
-    const task = tasks.find((t) => t.id === event.active.id);
+    const task = tasks.find((t) => t.id === event.active.id.toString());
     if (task) setActiveTask(task);
   };
 
@@ -59,8 +60,8 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
     
     if (!over) return;
 
-    const taskId = active.id;
-    const newStatus = over.id as string;
+    const taskId = active.id.toString();
+    const newStatus = over.id.toString();
 
     try {
       const { error } = await supabase
