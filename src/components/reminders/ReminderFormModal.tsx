@@ -38,6 +38,7 @@ export const ReminderFormModal = ({
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState("");
   const [date, setDate] = useState<Date>();
+  const [category, setCategory] = useState<"all" | "today" | "scheduled" | "completed">("all");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -62,6 +63,7 @@ export const ReminderFormModal = ({
         list_id: listId,
         due_date: date?.toISOString(),
         user_id: user.id,
+        category,
       });
 
       if (error) {
@@ -83,6 +85,7 @@ export const ReminderFormModal = ({
       setTitle("");
       setListId("");
       setDate(undefined);
+      setCategory("all");
     } catch (error) {
       console.error("Error creating reminder:", error);
     }
@@ -116,6 +119,19 @@ export const ReminderFormModal = ({
                     {list.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={category} onValueChange={(value: typeof category) => setCategory(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="scheduled">Scheduled</SelectItem>
               </SelectContent>
             </Select>
           </div>
