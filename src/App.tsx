@@ -25,9 +25,11 @@ function App() {
               path="/"
               element={
                 <ProtectedRoute>
-                  <div className="flex">
+                  <div className="flex min-h-screen w-full">
                     <AppSidebar />
-                    <Outlet />
+                    <div className="flex-1">
+                      <Outlet />
+                    </div>
                   </div>
                 </ProtectedRoute>
               }

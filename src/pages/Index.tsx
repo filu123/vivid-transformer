@@ -7,8 +7,8 @@ const Index = () => {
   const [activeView, setActiveView] = useState<"today" | "calendar">("today");
 
   return (
-    <main className="flex-1 p-8">
-      <div className="max-w-[1200px] mx-auto">
+    <main className="w-full p-4 md:p-8">
+      <div className="container mx-auto">
         <Header onViewChange={setActiveView} activeView={activeView} />
         
         {activeView === "today" ? (
