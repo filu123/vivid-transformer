@@ -1,5 +1,13 @@
-import { cn } from "@/lib/utils";
-import { TaskActions } from "./TaskActions";
+import { Button } from "@/components/ui/button";
+import { Clock } from "lucide-react";
+import { MoreVertical } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TaskCardContentProps {
   title: string;
@@ -27,27 +35,59 @@ export const TaskCardContent = ({
   onToggleDone,
 }: TaskCardContentProps) => {
   return (
-    <div className="space-y-4">
-      <div className="flex items-start justify-between">
+    <div className="flex items-start justify-between gap-4">
+      <div className="flex items-start gap-4 flex-1">
+        {onToggleDone && (
+          <Checkbox
+            checked={status === "done"}
+            onCheckedChange={onToggleDone}
+            className="mt-1"
+          />
+        )}
         <div className="space-y-1">
-          <h3 className={cn("font-semibold", {
-            "text-yellow-600": variant === "yellow",
-            "text-blue-600": variant === "blue",
-            "text-purple-600": variant === "purple",
-            "text-green-600": variant === "green",
-          })}>{title}</h3>
-          {note && <p className="text-sm text-gray-500">{note}</p>}
-          {status && <p className="text-sm text-gray-500">Status: {status}</p>}
-          {startTime && <p className="text-sm text-gray-500">Starts: {startTime}</p>}
-          {endTime && <p className="text-sm text-gray-500">Ends: {endTime}</p>}
-          {duration && <p className="text-sm text-gray-500">Duration: {duration}</p>}
+          <p className={status === "done" ? "line-through text-muted-foreground" : ""}>
+            {title}
+          </p>
+          {note && (
+            <p className="text-sm text-muted-foreground">{note}</p>
+          )}
+          {(startTime || endTime || duration) && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>
+                {startTime && endTime
+                  ? `${startTime} - ${endTime}`
+                  : duration}
+              </span>
+            </div>
+          )}
         </div>
-        <TaskActions
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onToggleDone={onToggleDone}
-        />
       </div>
+
+      {(onEdit || onDelete) && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {onEdit && (
+              <DropdownMenuItem onClick={onEdit}>
+                Edit
+              </DropdownMenuItem>
+            )}
+            {onDelete && (
+              <DropdownMenuItem
+                onClick={onDelete}
+                className="text-destructive"
+              >
+                Delete
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
     </div>
   );
 };

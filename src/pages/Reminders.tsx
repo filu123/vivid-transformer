@@ -13,12 +13,12 @@ const Reminders = () => {
   const { lists, reminders, handleToggleReminder } = useReminders();
 
   const filteredReminders = reminders?.filter((reminder) => {
-    // First filter by list if one is selected
-    if (selectedList && reminder.list_id !== selectedList) {
-      return false;
+    // If a list is selected, only show reminders from that list
+    if (selectedList) {
+      return reminder.list_id === selectedList;
     }
 
-    // Then apply category filters
+    // If no list is selected, filter by category
     if (selectedCategory === "completed") {
       return reminder.is_completed;
     }
@@ -38,24 +38,22 @@ const Reminders = () => {
     {
       id: "all",
       name: "All",
-      count: reminders?.filter((r) => !r.is_completed && (!selectedList || r.list_id === selectedList)).length || 0,
+      count: reminders?.filter((r) => !r.is_completed).length || 0,
     },
     {
       id: "today",
       name: "Today",
-      count: reminders?.filter((r) => !r.is_completed && r.category === "today" && (!selectedList || r.list_id === selectedList))
-        .length || 0,
+      count: reminders?.filter((r) => !r.is_completed && r.category === "today").length || 0,
     },
     {
       id: "scheduled",
       name: "Scheduled",
-      count: reminders?.filter((r) => !r.is_completed && r.category === "scheduled" && (!selectedList || r.list_id === selectedList))
-        .length || 0,
+      count: reminders?.filter((r) => !r.is_completed && r.category === "scheduled").length || 0,
     },
     {
       id: "completed",
       name: "Completed",
-      count: reminders?.filter((r) => r.is_completed && (!selectedList || r.list_id === selectedList)).length || 0,
+      count: reminders?.filter((r) => r.is_completed).length || 0,
     },
   ];
 
@@ -71,7 +69,10 @@ const Reminders = () => {
           <ReminderCategories
             categories={categories}
             selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
+            onSelectCategory={(category) => {
+              setSelectedCategory(category);
+              setSelectedList(null); // Clear list selection when selecting a category
+            }}
           />
 
           {/* Lists */}
@@ -84,21 +85,14 @@ const Reminders = () => {
                   selectedList === list.id ? "bg-accent" : ""
                 }`}
                 onClick={() => {
-                  if (selectedList === list.id) {
-                    setSelectedList(null);
-                  } else {
-                    setSelectedList(list.id);
-                  }
+                  setSelectedList(selectedList === list.id ? null : list.id);
+                  setSelectedCategory("all"); // Clear category selection when selecting a list
                 }}
               >
                 <div className="flex justify-between items-center">
                   <span>{list.name}</span>
                   <span className="text-muted-foreground">
-                    {
-                      reminders?.filter(
-                        (r) => r.list_id === list.id && !r.is_completed
-                      ).length
-                    }
+                    {reminders?.filter((r) => r.list_id === list.id && !r.is_completed).length}
                   </span>
                 </div>
               </Card>
