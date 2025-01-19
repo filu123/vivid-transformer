@@ -154,7 +154,6 @@ const Reminders = () => {
       <ReminderFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        lists={lists || []}
       />
     </main>
   );
