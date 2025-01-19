@@ -3,8 +3,27 @@ import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, addDays } f
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { DayHabits } from "../calendar/DayHabits";
 
-export const WeekView = () => {
+interface Habit {
+  id: string;
+  user_id: string;
+  title: string;
+  frequency: "daily" | "three_times" | "custom";
+  custom_days: number[] | null;
+  duration_months: number;
+  start_date: string;
+  created_at: string;
+  habit_completions: {
+    completed_date: string;
+  }[];
+}
+
+interface WeekViewProps {
+  habits: Habit[];
+}
+
+export const WeekView = ({ habits }: WeekViewProps) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
@@ -31,6 +50,10 @@ export const WeekView = () => {
   const getCardColor = (dayNum: number) => {
     const colors = ["card.purple", "card.blue", "card.green", "card.yellow"];
     return colors[dayNum % colors.length];
+  };
+
+  const handleHabitUpdated = () => {
+    // Refresh habits data if needed
   };
 
   return (
@@ -91,6 +114,11 @@ export const WeekView = () => {
             >
               <Plus className="h-5 w-5" />
             </Button>
+            <DayHabits 
+              habits={habits}
+              onHabitUpdated={handleHabitUpdated}
+              date={date}
+            />
           </Card>
         ))}
       </div>
