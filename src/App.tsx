@@ -12,6 +12,7 @@ import ProjectDetails from "@/pages/ProjectDetails";
 import Notes from "@/pages/Notes";
 import Reminders from "@/pages/Reminders";
 import Calendar from "@/pages/Calendar";
+import Habits from "@/pages/Habits";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ function App() {
               <Route path="notes" element={<Notes />} />
               <Route path="reminders" element={<Reminders />} />
               <Route path="calendar" element={<Calendar />} />
+              <Route path="habits" element={<Habits />} />
             </Route>
           </Routes>
         </SidebarProvider>

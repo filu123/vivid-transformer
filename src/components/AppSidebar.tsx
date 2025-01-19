@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Calendar, LayoutDashboard, FileText, ListTodo, Settings, LogOut, StickyNote } from "lucide-react";
+import { Calendar, LayoutDashboard, FileText, ListTodo, Settings, LogOut, StickyNote, Activity } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -31,6 +31,11 @@ const items = [
     title: "Projects",
     url: "/projects",
     icon: FileText,
+  },
+  {
+    title: "Habits",
+    url: "/habits",
+    icon: Activity,
   },
   {
     title: "Reminders",

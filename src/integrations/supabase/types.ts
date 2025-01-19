@@ -9,6 +9,68 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      habit_completions: {
+        Row: {
+          completed_date: string
+          created_at: string
+          habit_id: string
+          id: string
+        }
+        Insert: {
+          completed_date: string
+          created_at?: string
+          habit_id: string
+          id?: string
+        }
+        Update: {
+          completed_date?: string
+          created_at?: string
+          habit_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "habit_completions_habit_id_fkey"
+            columns: ["habit_id"]
+            isOneToOne: false
+            referencedRelation: "habits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      habits: {
+        Row: {
+          created_at: string
+          custom_days: number[] | null
+          duration_months: number
+          frequency: Database["public"]["Enums"]["habit_frequency"]
+          id: string
+          start_date: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_days?: number[] | null
+          duration_months: number
+          frequency: Database["public"]["Enums"]["habit_frequency"]
+          id?: string
+          start_date?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_days?: number[] | null
+          duration_months?: number
+          frequency?: Database["public"]["Enums"]["habit_frequency"]
+          id?: string
+          start_date?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notes: {
         Row: {
           created_at: string
@@ -231,6 +293,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      habit_frequency: "daily" | "three_times" | "custom"
       reminder_category: "all" | "today" | "scheduled" | "completed"
     }
     CompositeTypes: {
