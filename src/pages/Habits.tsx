@@ -32,7 +32,7 @@ const Habits = () => {
         </Button>
       </div>
 
-      <HabitList habits={habits || []} />
+      <HabitList habits={habits || []} onHabitUpdated={refetch} />
 
       <HabitFormModal
         isOpen={isModalOpen}
