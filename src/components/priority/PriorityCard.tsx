@@ -160,7 +160,15 @@ export const PriorityCard = ({
         onClose={() => setIsEditModalOpen(false)}
         selectedDate={new Date()}
         onPriorityAdded={onPriorityUpdated}
-        editItem={{ id, title, note }}
+        editItem={{ 
+          id, 
+          title, 
+          note, 
+          type: "task" as const,
+          startTime,
+          endTime,
+          isDone 
+        }}
       />
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
