@@ -2,7 +2,7 @@ import { useState } from "react";
 import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, addDays } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DayCard } from "./DayCard";
+import { DayCard } from "../calendar/DayCard";
 
 interface Habit {
   id: string;
