@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
-import { format, isToday } from "date-fns";
+import { CalendarIcon, Clock } from "lucide-react";
+import { format, isToday, set } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -36,6 +36,7 @@ export const ReminderFormModal = ({
   const [title, setTitle] = useState("");
   const [listId, setListId] = useState("");
   const [date, setDate] = useState<Date>();
+  const [time, setTime] = useState<string>("");
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -61,7 +62,6 @@ export const ReminderFormModal = ({
     e.preventDefault();
 
     try {
-      // Get the current user
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -73,6 +73,16 @@ export const ReminderFormModal = ({
         return;
       }
 
+      // Combine date and time if both are provided
+      let dueDate: Date | null = null;
+      if (date) {
+        dueDate = new Date(date);
+        if (time) {
+          const [hours, minutes] = time.split(':').map(Number);
+          dueDate = set(dueDate, { hours, minutes });
+        }
+      }
+
       // Determine category based on date
       let category: "all" | "today" | "scheduled" = "all";
       if (date) {
@@ -82,7 +92,7 @@ export const ReminderFormModal = ({
       const { error } = await supabase.from("reminders").insert({
         title,
         list_id: listId,
-        due_date: date?.toISOString(),
+        due_date: dueDate?.toISOString(),
         user_id: user.id,
         category,
       });
@@ -106,6 +116,7 @@ export const ReminderFormModal = ({
       setTitle("");
       setListId("");
       setDate(undefined);
+      setTime("");
     } catch (error) {
       console.error("Error creating reminder:", error);
     }
@@ -166,6 +177,19 @@ export const ReminderFormModal = ({
                 />
               </PopoverContent>
             </Popover>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="time">Time (Optional)</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                id="time"
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="flex-1"
+              />
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </div>
           </div>
           <div className="flex justify-end space-x-2">
             <Button type="button" variant="outline" onClick={onClose}>
