@@ -6,17 +6,19 @@ import { Plus } from "lucide-react";
 import { ReminderList } from "@/components/reminders/ReminderList";
 import { ReminderFormModal } from "@/components/reminders/ReminderFormModal";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 
 const Reminders = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   // Subscribe to real-time updates
   useEffect(() => {
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel('reminders-changes')
       .on(
         'postgres_changes',
         {
@@ -24,9 +26,16 @@ const Reminders = () => {
           schema: 'public',
           table: 'reminders'
         },
-        () => {
-          // Invalidate and refetch reminders when any change occurs
-          queryClient.invalidateQueries({ queryKey: ['reminders'] });
+        async (payload) => {
+          // Force a refetch of the reminders data
+          await queryClient.invalidateQueries({ queryKey: ['reminders'] });
+          
+          if (payload.eventType === 'UPDATE' && payload.new.is_completed !== payload.old.is_completed) {
+            toast({
+              title: payload.new.is_completed ? "Reminder completed" : "Reminder uncompleted",
+              description: `"${payload.new.title}" has been ${payload.new.is_completed ? 'marked as complete' : 'unmarked'}`,
+            });
+          }
         }
       )
       .subscribe();
@@ -34,7 +43,7 @@ const Reminders = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, toast]);
 
   const { data: lists, isLoading: listsLoading } = useQuery({
     queryKey: ["reminder-lists"],
@@ -87,6 +96,21 @@ const Reminders = () => {
     return <div>Loading...</div>;
   }
 
+  const handleToggleReminder = async (reminderId: string, currentState: boolean) => {
+    const { error } = await supabase
+      .from("reminders")
+      .update({ is_completed: !currentState })
+      .eq("id", reminderId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update reminder status",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <main className="container mx-auto p-4 md:p-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -101,7 +125,9 @@ const Reminders = () => {
             >
               <div className="flex justify-between items-center">
                 <span>All</span>
-                <span className="text-muted-foreground">{allReminders.length}</span>
+                <span className="text-muted-foreground">
+                  {reminders?.filter(r => !r.is_completed).length || 0}
+                </span>
               </div>
             </Card>
             <Card 
@@ -179,26 +205,37 @@ const Reminders = () => {
                 onSelect={() => {}}
               />
             ) : (
-              filteredReminders.map((reminder) => (
-                <Card key={reminder.id} className="p-4">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={reminder.is_completed}
-                      onChange={async () => {
-                        await supabase
-                          .from("reminders")
-                          .update({ is_completed: !reminder.is_completed })
-                          .eq("id", reminder.id);
-                      }}
-                      className="rounded-full"
-                    />
-                    <span className={reminder.is_completed ? "line-through text-muted-foreground" : ""}>
-                      {reminder.title}
-                    </span>
-                  </div>
-                </Card>
-              ))
+              reminders
+                ?.filter(reminder => {
+                  if (selectedCategory === "completed") {
+                    return reminder.is_completed;
+                  }
+                  if (selectedCategory === "today") {
+                    return !reminder.is_completed && reminder.category === "today";
+                  }
+                  if (selectedCategory === "scheduled") {
+                    return !reminder.is_completed && reminder.category === "scheduled";
+                  }
+                  if (selectedCategory === "all") {
+                    return !reminder.is_completed;
+                  }
+                  return false;
+                })
+                .map((reminder) => (
+                  <Card key={reminder.id} className="p-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={reminder.is_completed}
+                        onChange={() => handleToggleReminder(reminder.id, reminder.is_completed)}
+                        className="rounded-full"
+                      />
+                      <span className={reminder.is_completed ? "line-through text-muted-foreground" : ""}>
+                        {reminder.title}
+                      </span>
+                    </div>
+                  </Card>
+                ))
             )}
           </div>
         </div>
