@@ -7,12 +7,14 @@ import { CalendarHeader } from "./calendar/CalendarHeader";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import { DayPriorities } from "./calendar/DayPriorities";
 import { DayNotes } from "./calendar/DayNotes";
+import { DayReminders } from "./calendar/DayReminders";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [priorities, setPriorities] = useState([]);
   const [notes, setNotes] = useState([]);
+  const [reminders, setReminders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPriorities = async () => {
@@ -58,9 +60,25 @@ export const TimeboxPlanner = () => {
     }
   };
 
+  const fetchReminders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("reminders")
+        .select("*")
+        .eq("date", format(selectedDate, "yyyy-MM-dd"))
+        .not("due_date", "is", null);
+
+      if (error) throw error;
+      setReminders(data || []);
+    } catch (error) {
+      console.error("Error fetching reminders:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPriorities();
     fetchNotes();
+    fetchReminders();
   }, [selectedDate]);
 
   const getDaysInMonth = () => {
@@ -102,7 +120,8 @@ export const TimeboxPlanner = () => {
               <div className="space-y-4">
                 <DayPriorities priorities={priorities} />
                 <DayNotes notes={notes} />
-                {priorities.length === 0 && notes.length === 0 && (
+                <DayReminders reminders={reminders} />
+                {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && (
                   <div className="text-center text-gray-500 py-8">
                     Nothing for today
                   </div>
