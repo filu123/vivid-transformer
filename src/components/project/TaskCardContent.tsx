@@ -1,12 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MoreVertical } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Pencil, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface TaskCardContentProps {
   title: string;
@@ -15,8 +9,10 @@ interface TaskCardContentProps {
   startTime?: string;
   endTime?: string;
   duration?: string;
-  onEdit: () => void;
-  onDelete: () => void;
+  variant?: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onToggleDone?: () => void;
 }
 
 export const TaskCardContent = ({
@@ -26,60 +22,67 @@ export const TaskCardContent = ({
   startTime,
   endTime,
   duration,
+  variant,
   onEdit,
   onDelete,
+  onToggleDone,
 }: TaskCardContentProps) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800";
-      case "in progress":
-        return "bg-blue-100 text-blue-800";
-      case "will do":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
-    <div className="flex justify-between items-start">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <h3 className="font-medium">{title}</h3>
-          {status && (
-            <Badge className={getStatusColor(status)} variant="secondary">
-              {status}
-            </Badge>
+    <div className="space-y-4">
+      <div className="flex items-start justify-between">
+        <div className="space-y-1">
+          <h3 className={cn("font-semibold", {
+            "text-yellow-600": variant === "yellow",
+            "text-blue-600": variant === "blue",
+            "text-purple-600": variant === "purple",
+            "text-green-600": variant === "green",
+          })}>{title}</h3>
+          {note && <p className="text-sm text-gray-500">{note}</p>}
+          {status && <p className="text-sm text-gray-500">Status: {status}</p>}
+          {startTime && <p className="text-sm text-gray-500">Starts: {startTime}</p>}
+          {endTime && <p className="text-sm text-gray-500">Ends: {endTime}</p>}
+          {duration && <p className="text-sm text-gray-500">Duration: {duration}</p>}
+        </div>
+        <div className="flex space-x-2">
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           )}
         </div>
-        {note && <p className="text-sm text-gray-500">{note}</p>}
-        {startTime && endTime && (
-          <div className="flex items-center gap-4 text-sm text-gray-500">
-            <span>{startTime}</span>
-            {duration && <span>{duration}</span>}
-            <span>{endTime}</span>
-          </div>
-        )}
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={onEdit}>
-            Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            className="text-red-600"
-            onClick={onDelete}
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      {onToggleDone && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleDone();
+          }}
+          className="w-full"
+        >
+          Toggle Done
+        </Button>
+      )}
     </div>
   );
 };

@@ -26,7 +26,11 @@ interface TaskCardProps {
   endTime?: string;
   duration?: string;
   isDone?: boolean;
+  variant?: string;
   onTaskUpdated?: () => void;
+  onDelete?: () => void;
+  onEdit?: () => void;
+  onToggleDone?: () => void;
 }
 
 export const TaskCard = ({
@@ -39,7 +43,11 @@ export const TaskCard = ({
   endTime,
   duration,
   isDone,
+  variant,
   onTaskUpdated,
+  onDelete,
+  onEdit,
+  onToggleDone,
 }: TaskCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -67,6 +75,7 @@ export const TaskCard = ({
       });
       
       onTaskUpdated?.();
+      onDelete?.();
       setIsDeleteDialogOpen(false);
     } catch (error) {
       toast({
@@ -89,8 +98,10 @@ export const TaskCard = ({
               startTime={startTime}
               endTime={endTime}
               duration={duration}
-              onEdit={() => setIsEditModalOpen(true)}
+              variant={variant}
+              onEdit={onEdit || (() => setIsEditModalOpen(true))}
               onDelete={() => setIsDeleteDialogOpen(true)}
+              onToggleDone={onToggleDone}
             />
           </CardContent>
         </Card>
