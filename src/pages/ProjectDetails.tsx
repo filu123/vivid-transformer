@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { TaskCard } from "@/components/TaskCard";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { TaskFormModal } from "@/components/project/TaskFormModal";
+import { KanbanBoard } from "@/components/project/KanbanBoard";
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -40,70 +40,43 @@ const ProjectDetails = () => {
     },
   });
 
-  const handleToggleTaskStatus = async (taskId: string, isDone: boolean) => {
-    const { error } = await supabase
-      .from("tasks")
-      .update({ is_done: isDone })
-      .eq("id", taskId);
-
-    if (error) throw error;
-    queryClient.invalidateQueries({ queryKey: ["tasks", id] });
-  };
-
-  const handleDeleteTask = async (taskId: string) => {
-    const { error } = await supabase.from("tasks").delete().eq("id", taskId);
-
-    if (error) throw error;
-    queryClient.invalidateQueries({ queryKey: ["tasks", id] });
-  };
-
   if (projectLoading || tasksLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="w-full p-4 md:p-8">
+        <div className="container mx-auto">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 w-48 bg-muted rounded"></div>
+            <div className="h-[600px] bg-muted rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
-      <main className="flex-1 p-8">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold">{project?.name}</h1>
-            <Button onClick={() => setIsModalOpen(true)} className="rounded-lg">
-              <Plus className="h-5 w-5 mr-2" />
-              Add Task
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            {tasks?.length === 0 ? (
-              <div className="text-center py-10">
-                <p className="text-lg text-muted-foreground">
-                  No tasks added yet. Start by adding one!
-                </p>
-              </div>
-            ) : (
-              tasks?.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  id={task.id}
-                  projectId={id}
-                  title={task.title}
-                  note={task.note}
-                  status={task.status}
-                  isDone={task.is_done}
-                  onTaskUpdated={() => queryClient.invalidateQueries({ queryKey: ["tasks", id] })}
-                />
-              ))
-            )}
-          </div>
-
-          <TaskFormModal
-            projectId={id!}
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
+    <main className="w-full p-4 md:p-8">
+      <div className="container mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <h1 className="text-3xl font-bold">{project?.name}</h1>
+          <Button onClick={() => setIsModalOpen(true)} className="rounded-lg">
+            <Plus className="h-5 w-5 mr-2" />
+            Add Task
+          </Button>
         </div>
-      </main>
-    </div>
+
+        <KanbanBoard
+          tasks={tasks || []}
+          projectId={id!}
+          onTaskUpdated={() => queryClient.invalidateQueries({ queryKey: ["tasks", id] })}
+        />
+
+        <TaskFormModal
+          projectId={id!}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+        />
+      </div>
+    </main>
   );
 };
 
