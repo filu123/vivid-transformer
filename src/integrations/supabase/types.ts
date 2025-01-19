@@ -42,6 +42,7 @@ export type Database = {
         Row: {
           created_at: string
           custom_days: number[] | null
+          duration_minutes: number
           duration_months: number
           frequency: Database["public"]["Enums"]["habit_frequency"]
           id: string
@@ -52,6 +53,7 @@ export type Database = {
         Insert: {
           created_at?: string
           custom_days?: number[] | null
+          duration_minutes?: number
           duration_months: number
           frequency: Database["public"]["Enums"]["habit_frequency"]
           id?: string
@@ -62,6 +64,7 @@ export type Database = {
         Update: {
           created_at?: string
           custom_days?: number[] | null
+          duration_minutes?: number
           duration_months?: number
           frequency?: Database["public"]["Enums"]["habit_frequency"]
           id?: string

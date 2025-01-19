@@ -18,6 +18,7 @@ interface HabitFormModalProps {
     frequency: "daily" | "three_times" | "custom";
     custom_days?: number[];
     duration_months: number;
+    duration_minutes: number;
   };
 }
 
@@ -26,6 +27,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
   const [frequency, setFrequency] = useState<"daily" | "three_times" | "custom">("daily");
   const [customDays, setCustomDays] = useState<number[]>([]);
   const [durationMonths, setDurationMonths] = useState<number>(3);
+  const [durationMinutes, setDurationMinutes] = useState<number>(0);
 
   useEffect(() => {
     if (editHabit) {
@@ -33,6 +35,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
       setFrequency(editHabit.frequency);
       setCustomDays(editHabit.custom_days || []);
       setDurationMonths(editHabit.duration_months);
+      setDurationMinutes(editHabit.duration_minutes || 0);
     } else {
       resetForm();
     }
@@ -67,6 +70,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
             frequency,
             custom_days: frequency === "custom" ? customDays : null,
             duration_months: durationMonths,
+            duration_minutes: durationMinutes,
           })
           .eq('id', editHabit.id);
 
@@ -78,6 +82,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
           frequency,
           custom_days: frequency === "custom" ? customDays : null,
           duration_months: durationMonths,
+          duration_minutes: durationMinutes,
           user_id: user.id
         });
 
@@ -98,6 +103,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
     setFrequency("daily");
     setCustomDays([]);
     setDurationMonths(3);
+    setDurationMinutes(0);
     onClose();
   };
 
@@ -114,6 +120,18 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="duration">Duration (minutes)</Label>
+            <Input
+              id="duration"
+              type="number"
+              min="0"
+              value={durationMinutes}
+              onChange={(e) => setDurationMinutes(Number(e.target.value))}
               required
             />
           </div>

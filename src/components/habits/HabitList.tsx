@@ -29,6 +29,7 @@ interface Habit {
   frequency: "daily" | "three_times" | "custom";
   custom_days: number[] | null;
   duration_months: number;
+  duration_minutes: number;
   start_date: string;
 }
 
@@ -87,7 +88,8 @@ export const HabitList = ({ habits, onHabitUpdated }: HabitListProps) => {
               <h3 className="text-xl font-semibold mb-2">{habit.title}</h3>
               <div className="text-sm text-muted-foreground space-y-1">
                 <p>Frequency: {getFrequencyText(habit)}</p>
-                <p>Duration: Until {format(addMonths(new Date(habit.start_date), habit.duration_months), "PP")}</p>
+                <p>Duration: {habit.duration_minutes} minutes per day</p>
+                <p>Goal: Until {format(addMonths(new Date(habit.start_date), habit.duration_months), "PP")}</p>
               </div>
             </div>
             <DropdownMenu>
