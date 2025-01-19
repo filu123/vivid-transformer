@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useDraggable } from "@dnd-kit/core";
 
 interface TaskCardProps {
   id: string;
@@ -59,6 +60,13 @@ export const TaskCard = ({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: id,
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -105,48 +113,50 @@ export const TaskCard = ({
 
   return (
     <>
-      <Card className="mb-4">
-        <CardContent className="pt-6">
-          <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <h3 className="font-medium">{title}</h3>
-                {status && (
-                  <Badge className={getStatusColor(status)} variant="secondary">
-                    {status}
-                  </Badge>
+      <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <Card className="mb-4 cursor-move">
+          <CardContent className="pt-6">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-medium">{title}</h3>
+                  {status && (
+                    <Badge className={getStatusColor(status)} variant="secondary">
+                      {status}
+                    </Badge>
+                  )}
+                </div>
+                {note && <p className="text-sm text-gray-500">{note}</p>}
+                {startTime && endTime && (
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    <span>{startTime}</span>
+                    {duration && <span>{duration}</span>}
+                    <span>{endTime}</span>
+                  </div>
                 )}
               </div>
-              {note && <p className="text-sm text-gray-500">{note}</p>}
-              {startTime && endTime && (
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span>{startTime}</span>
-                  {duration && <span>{duration}</span>}
-                  <span>{endTime}</span>
-                </div>
-              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onEdit ? onEdit() : setIsEditModalOpen(true)}>
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-red-600"
+                    onClick={() => setIsDeleteDialogOpen(true)}
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onEdit ? onEdit() : setIsEditModalOpen(true)}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-red-600"
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {projectId && (
         <TaskFormModal
