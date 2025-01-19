@@ -4,6 +4,7 @@ import { ReminderCategories } from "@/components/reminders/ReminderCategories";
 import { ReminderContent } from "@/components/reminders/ReminderContent";
 import { ReminderHeader } from "@/components/reminders/ReminderHeader";
 import { useReminders } from "@/hooks/useReminders";
+import { Card } from "@/components/ui/card";
 
 const Reminders = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
