@@ -20,6 +20,9 @@ export const TimeboxPlanner = () => {
   const fetchPriorities = async () => {
     try {
       setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("priorities")
         .select("*")
@@ -48,6 +51,9 @@ export const TimeboxPlanner = () => {
 
   const fetchNotes = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("notes")
         .select("*")
@@ -62,6 +68,9 @@ export const TimeboxPlanner = () => {
 
   const fetchReminders = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       // Get start and end of selected date
       const start = startOfDay(selectedDate);
       const end = endOfDay(selectedDate);
