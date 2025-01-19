@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -12,13 +12,31 @@ interface HabitFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onHabitAdded: () => void;
+  editHabit?: {
+    id: string;
+    title: string;
+    frequency: "daily" | "three_times" | "custom";
+    custom_days?: number[];
+    duration_months: number;
+  };
 }
 
-export const HabitFormModal = ({ isOpen, onClose, onHabitAdded }: HabitFormModalProps) => {
+export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: HabitFormModalProps) => {
   const [title, setTitle] = useState("");
   const [frequency, setFrequency] = useState<"daily" | "three_times" | "custom">("daily");
   const [customDays, setCustomDays] = useState<number[]>([]);
   const [durationMonths, setDurationMonths] = useState<number>(3);
+
+  useEffect(() => {
+    if (editHabit) {
+      setTitle(editHabit.title);
+      setFrequency(editHabit.frequency);
+      setCustomDays(editHabit.custom_days || []);
+      setDurationMonths(editHabit.duration_months);
+    } else {
+      resetForm();
+    }
+  }, [editHabit]);
 
   const weekDays = [
     { label: "Sunday", value: 0 },
@@ -41,22 +59,37 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded }: HabitFormModal
         return;
       }
 
-      const { error } = await supabase.from("habits").insert({
-        title,
-        frequency,
-        custom_days: frequency === "custom" ? customDays : null,
-        duration_months: durationMonths,
-        user_id: user.id
-      });
+      if (editHabit) {
+        const { error } = await supabase
+          .from("habits")
+          .update({
+            title,
+            frequency,
+            custom_days: frequency === "custom" ? customDays : null,
+            duration_months: durationMonths,
+          })
+          .eq('id', editHabit.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success("Habit updated successfully!");
+      } else {
+        const { error } = await supabase.from("habits").insert({
+          title,
+          frequency,
+          custom_days: frequency === "custom" ? customDays : null,
+          duration_months: durationMonths,
+          user_id: user.id
+        });
 
-      toast.success("Habit created successfully!");
+        if (error) throw error;
+        toast.success("Habit created successfully!");
+      }
+
       onHabitAdded();
       resetForm();
     } catch (error) {
-      console.error("Error creating habit:", error);
-      toast.error("Failed to create habit");
+      console.error("Error creating/updating habit:", error);
+      toast.error("Failed to save habit");
     }
   };
 
@@ -72,7 +105,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded }: HabitFormModal
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create New Habit</DialogTitle>
+          <DialogTitle>{editHabit ? "Edit Habit" : "Create New Habit"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -149,7 +182,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded }: HabitFormModal
             <Button variant="outline" type="button" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">Create Habit</Button>
+            <Button type="submit">{editHabit ? "Update" : "Create"} Habit</Button>
           </div>
         </form>
       </DialogContent>
