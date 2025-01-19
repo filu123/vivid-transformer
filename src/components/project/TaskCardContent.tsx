@@ -1,6 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TaskActions } from "./TaskActions";
 
 interface TaskCardContentProps {
   title: string;
@@ -43,46 +42,12 @@ export const TaskCardContent = ({
           {endTime && <p className="text-sm text-gray-500">Ends: {endTime}</p>}
           {duration && <p className="text-sm text-gray-500">Duration: {duration}</p>}
         </div>
-        <div className="flex space-x-2">
-          {onEdit && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
+        <TaskActions
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onToggleDone={onToggleDone}
+        />
       </div>
-      {onToggleDone && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleDone();
-          }}
-          className="w-full"
-        >
-          Toggle Done
-        </Button>
-      )}
     </div>
   );
 };

@@ -53,7 +53,8 @@ export const TaskCard = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: id,
+    id,
+    data: { id, title, note, status, isDone },
   });
 
   const style = transform ? {

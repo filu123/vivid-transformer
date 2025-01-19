@@ -1,18 +1,9 @@
-import { useEffect, useState } from "react";
-import { TaskCard } from "@/components/TaskCard";
+import { DndContext, DragOverlay, MouseSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { CircleDot, CheckCircle2, Circle } from "lucide-react";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  MouseSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useEffect, useState } from "react";
 import { KanbanColumn } from "./KanbanColumn";
+import { DragOverlayCard } from "./DragOverlayCard";
+import { useKanbanDragDrop } from "@/hooks/useKanbanDragDrop";
 
 interface Task {
   id: string;
@@ -32,8 +23,8 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
   const [willDoTasks, setWillDoTasks] = useState<Task[]>([]);
   const [inProgressTasks, setInProgressTasks] = useState<Task[]>([]);
   const [completedTasks, setCompletedTasks] = useState<Task[]>([]);
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const { toast } = useToast();
+
+  const { activeTask, handleDragStart, handleDragEnd } = useKanbanDragDrop(onTaskUpdated);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: {
@@ -48,44 +39,6 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
     setInProgressTasks(tasks.filter((task) => task.status === "in progress"));
     setCompletedTasks(tasks.filter((task) => task.status === "completed"));
   }, [tasks]);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    const task = tasks.find((t) => t.id === event.active.id.toString());
-    if (task) setActiveTask(task);
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    
-    if (!over) return;
-
-    const taskId = active.id.toString();
-    const newStatus = over.id.toString();
-
-    try {
-      const { error } = await supabase
-        .from("tasks")
-        .update({ status: newStatus })
-        .eq("id", taskId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Task updated",
-        description: "Task status has been updated successfully.",
-      });
-
-      onTaskUpdated();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update task status. Please try again.",
-        variant: "destructive",
-      });
-    }
-
-    setActiveTask(null);
-  };
 
   return (
     <DndContext
@@ -122,17 +75,7 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
         </div>
       </div>
       <DragOverlay>
-        {activeTask ? (
-          <div className="w-[300px]">
-            <TaskCard
-              id={activeTask.id}
-              title={activeTask.title}
-              note={activeTask.note}
-              status={activeTask.status}
-              isDone={activeTask.is_done}
-            />
-          </div>
-        ) : null}
+        <DragOverlayCard activeTask={activeTask} />
       </DragOverlay>
     </DndContext>
   );
