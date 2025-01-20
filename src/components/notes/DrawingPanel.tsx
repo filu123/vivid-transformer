@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eraser, Undo2, Redo2, X, Save } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Canvas } from "fabric";
+import { Canvas, Image as FabricImage } from "fabric";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -38,11 +38,11 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
 
     // If there's an existing note, load its image
     if (existingNote?.image_url) {
-      fabric.Image.fromURL(existingNote.image_url, (img) => {
-        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
-          scaleX: canvas.width! / img.width!,
-          scaleY: canvas.height! / img.height!,
-        });
+      FabricImage.fromURL(existingNote.image_url, (img) => {
+        canvas.backgroundImage = img;
+        img.scaleToWidth(canvas.width!);
+        img.scaleToHeight(canvas.height!);
+        canvas.renderAll();
       });
     }
 
