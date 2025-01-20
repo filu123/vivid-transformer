@@ -3,12 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { format } from "date-fns";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -29,7 +23,6 @@ interface NoteCardProps {
   description?: string;
   date?: string;
   onNoteUpdated: () => void;
-  isSelected?: boolean;
 }
 
 export const NoteCard = ({
@@ -38,7 +31,6 @@ export const NoteCard = ({
   description,
   date,
   onNoteUpdated,
-  isSelected,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -68,25 +60,26 @@ export const NoteCard = ({
 
   const getRandomBackground = () => {
     const backgrounds = [
-      "bg-[#FFE4B5]",
-      "bg-[#E0F4FF]",
-      "bg-[#F3E5F5]",
-      "bg-[#E0F2F1]",
+      "bg-card-yellow",
+      "bg-card-blue",
+      "bg-card-purple",
+      "bg-card-green",
     ];
     return backgrounds[Math.floor(Math.random() * backgrounds.length)];
   };
 
   return (
     <>
-      <Card
-        className={`group transition-all duration-200 ${getRandomBackground()} hover:shadow-md ${
-          isSelected ? "ring-2 ring-primary" : ""
-        }`}
-      >
+      <Card className={`${getRandomBackground()}`}>
         <CardContent className="p-6">
           <div className="flex justify-between items-start">
-            <div className="space-y-2">
+            <div className="space-y-2 flex-1">
               <h3 className="font-medium text-lg">{title}</h3>
+              {description && (
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {description}
+                </p>
+              )}
               {date && (
                 <p className="text-sm text-muted-foreground">
                   {format(new Date(date), "MMM d, yyyy")}
@@ -96,7 +89,7 @@ export const NoteCard = ({
             <Button
               variant="ghost"
               size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              className="ml-2"
               onClick={() => setIsEditModalOpen(true)}
             >
               <Pencil className="h-4 w-4" />

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { FileText, Image, PenTool } from "lucide-react";
 import { useState } from "react";
 import { NoteFormModal } from "@/components/notes/NoteFormModal";
-import { Input } from "@/components/ui/input";
 import { DrawingPanel } from "@/components/notes/DrawingPanel";
 
 const Notes = () => {
@@ -35,7 +34,7 @@ const Notes = () => {
       {/* Left section - 70% */}
       <div className="w-[70%] p-8 overflow-y-auto">
         {/* New Note Cards */}
-        <div className="grid grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <Button
             variant="outline"
             className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
@@ -69,20 +68,15 @@ const Notes = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {notes?.map((note) => (
-              <div
-                key={note.id}
-                onClick={() => setSelectedNote(note)}
-                className="cursor-pointer"
-              >
+              <div key={note.id}>
                 <NoteCard
                   id={note.id}
                   title={note.title}
                   description={note.description}
                   date={note.date}
                   onNoteUpdated={refetch}
-                  isSelected={selectedNote?.id === note.id}
                 />
               </div>
             ))}
