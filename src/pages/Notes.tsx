@@ -2,15 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NoteCard } from "@/components/notes/NoteCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { FileText, Image, PenTool } from "lucide-react";
 import { useState } from "react";
 import { NoteFormModal } from "@/components/notes/NoteFormModal";
 import { Input } from "@/components/ui/input";
-import { NoteDetails } from "@/components/notes/NoteDetails";
+import { DrawingPanel } from "@/components/notes/DrawingPanel";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedNote, setSelectedNote] = useState<{
     id: string;
     title: string;
@@ -31,38 +30,47 @@ const Notes = () => {
     },
   });
 
-  const filteredNotes = notes?.filter(note => 
-    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    note.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
-    <div className="flex-1 flex">
-      {/* Left column - Note list */}
-      <div className="w-[400px] min-w-[400px] border-r bg-muted/20">
-        <div className="p-6 space-y-6">
-          <div className="flex flex-col space-y-4">
-            <div className="flex justify-between items-center">
-              <h1 className="text-2xl font-semibold">Notes</h1>
-              <Button onClick={() => setIsAddModalOpen(true)} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                New
-              </Button>
-            </div>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                type="text"
-                placeholder="Search notes"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+    <div className="flex h-full">
+      {/* Left section - 70% */}
+      <div className="w-[70%] p-8 overflow-y-auto">
+        {/* New Note Cards */}
+        <div className="grid grid-cols-3 gap-6 mb-12">
+          <Button
+            variant="outline"
+            className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <FileText className="h-8 w-8" />
+            <span>Take a Note</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+          >
+            <PenTool className="h-8 w-8" />
+            <span>With Drawing</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+          >
+            <Image className="h-8 w-8" />
+            <span>With Image</span>
+          </Button>
+        </div>
+
+        {/* All Notes Section */}
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">All Notes</h2>
+            <span className="text-sm text-muted-foreground">
+              {notes?.length || 0} Notes
+            </span>
           </div>
 
-          <div className="space-y-2">
-            {filteredNotes?.map((note) => (
+          <div className="grid grid-cols-2 gap-4">
+            {notes?.map((note) => (
               <div
                 key={note.id}
                 onClick={() => setSelectedNote(note)}
@@ -82,21 +90,9 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Right column - Note details */}
-      <div className="flex-1 bg-white">
-        {selectedNote ? (
-          <NoteDetails
-            id={selectedNote.id}
-            title={selectedNote.title}
-            description={selectedNote.description}
-            date={selectedNote.date}
-            onNoteUpdated={refetch}
-          />
-        ) : (
-          <div className="h-full flex items-center justify-center text-muted-foreground">
-            Select a note to view details
-          </div>
-        )}
+      {/* Right section - 30% */}
+      <div className="w-[30%] border-l bg-white">
+        <DrawingPanel />
       </div>
 
       <NoteFormModal

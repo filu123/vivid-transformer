@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Calendar } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -46,10 +46,7 @@ export const NoteCard = ({
 
   const handleDelete = async () => {
     try {
-      const { error } = await supabase
-        .from("notes")
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("notes").delete().eq("id", id);
 
       if (error) throw error;
 
@@ -57,7 +54,7 @@ export const NoteCard = ({
         title: "Note deleted",
         description: "The note has been successfully deleted.",
       });
-      
+
       onNoteUpdated();
       setIsDeleteDialogOpen(false);
     } catch (error) {
@@ -69,42 +66,41 @@ export const NoteCard = ({
     }
   };
 
+  const getRandomBackground = () => {
+    const backgrounds = [
+      "bg-[#FFE4B5]",
+      "bg-[#E0F4FF]",
+      "bg-[#F3E5F5]",
+      "bg-[#E0F2F1]",
+    ];
+    return backgrounds[Math.floor(Math.random() * backgrounds.length)];
+  };
+
   return (
     <>
-      <Card className={`transition-colors duration-200 ${
-        isSelected 
-          ? "bg-accent border-primary" 
-          : "bg-white/50 hover:bg-white/80"
-      }`}>
-        <CardContent className="p-4">
-          <div className="flex justify-between items-start gap-4">
-            <div className="min-w-0 flex-1">
-              <h3 className="font-medium truncate">{title}</h3>
+      <Card
+        className={`group transition-all duration-200 ${getRandomBackground()} hover:shadow-md ${
+          isSelected ? "ring-2 ring-primary" : ""
+        }`}
+      >
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start">
+            <div className="space-y-2">
+              <h3 className="font-medium text-lg">{title}</h3>
               {date && (
-                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  <span>{format(new Date(date), "MMM d, yyyy")}</span>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  {format(new Date(date), "MMM d, yyyy")}
+                </p>
               )}
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsEditModalOpen(true)}>
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  className="text-red-600"
-                  onClick={() => setIsDeleteDialogOpen(true)}
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={() => setIsEditModalOpen(true)}
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -116,7 +112,10 @@ export const NoteCard = ({
         onNoteAdded={onNoteUpdated}
       />
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -126,7 +125,10 @@ export const NoteCard = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
