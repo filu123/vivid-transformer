@@ -50,13 +50,6 @@ export const NoteDetails = ({ id, title, description, date, onNoteUpdated }: Not
           className="h-full"
         />
       </div>
-      <div className="p-8 flex justify-center">
-        <img
-          src="/lovable-uploads/1a8e758d-1e9d-46ff-b73d-4c1711306b91.png"
-          alt="Note taking illustration"
-          className="max-w-[400px] w-full opacity-50"
-        />
-      </div>
     </div>
   );
 };
