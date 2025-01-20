@@ -14,6 +14,7 @@ const Notes = () => {
     id: string;
     title: string;
     image_url: string;
+    description?: string;
   } | null>(null);
 
   const { data: notes, refetch } = useQuery({
@@ -29,7 +30,12 @@ const Notes = () => {
     },
   });
 
-  const handleDrawingClick = (note: { id: string; title: string; image_url: string }) => {
+  const handleDrawingClick = (note: { 
+    id: string; 
+    title: string; 
+    image_url: string;
+    description?: string;
+  }) => {
     // Only open drawing panel for drawings (not regular image notes)
     if (note.image_url && !note.description) {
       setSelectedDrawing(note);
