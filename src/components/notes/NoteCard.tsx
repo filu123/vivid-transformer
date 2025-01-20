@@ -14,7 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState, useMemo } from "react";
-import { NoteFormModal } from "./NoteFormModal";
+import { NoteFormDrawer } from "./NoteFormDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { NoteDetailsDrawer } from "./NoteDetailsDrawer";
@@ -164,7 +164,7 @@ export const NoteCard = ({
         </CardContent>
       </Card>
 
-      <NoteFormModal
+      <NoteFormDrawer
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
         editNote={{ id, title, description, date, image_url }}
