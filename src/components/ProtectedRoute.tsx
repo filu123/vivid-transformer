@@ -14,7 +14,13 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     const checkAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
+        if (!session) {
+          setIsAuthenticated(false);
+          return;
+        }
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsAuthenticated(!!user);
       } catch (error) {
         console.error("Error checking auth status:", error);
         setIsAuthenticated(false);

@@ -3,12 +3,11 @@ import { Card } from "@/components/ui/card";
 import { format, addMonths, subMonths, startOfDay, endOfDay } from "date-fns";
 import { DayItems } from "./DayItems";
 import { supabase } from "@/integrations/supabase/client";
-import { DayNotes } from "./Calendar/DayNotes";
-import { DayReminders } from "./Calendar/DayReminders";
-import { CalendarGrid } from "./Calendar/CalendarGrid";
-import { CalendarHeader } from "./Calendar/CalendarHeader";
-import { DayHabits } from "./Calendar/DayHabits";
-
+import { DayNotes } from "./calendar/DayNotes";
+import { DayReminders } from "./calendar/DayReminders";
+import { CalendarGrid } from "./calendar/CalendarGrid";
+import { CalendarHeader } from "./calendar/CalendarHeader";
+import { DayHabits } from "./calendar/DayHabits";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -116,6 +115,15 @@ export const TimeboxPlanner = () => {
   };
 
   useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        window.location.href = '/auth';
+        return;
+      }
+    };
+    
+    checkSession();
     fetchPriorities();
     fetchNotes();
     fetchReminders();
