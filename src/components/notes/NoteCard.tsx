@@ -25,7 +25,7 @@ interface NoteCardProps {
   date?: string;
   image_url?: string;
   onNoteUpdated: () => void;
-  onDrawingClick?: (note: { id: string; title: string; image_url: string }) => void;
+  onDrawingClick?: (note: { id: string; title: string; image_url: string; description?: string }) => void;
 }
 
 export const NoteCard = ({
@@ -73,15 +73,17 @@ export const NoteCard = ({
 
   const handleImageClick = () => {
     if (onDrawingClick && image_url) {
-      onDrawingClick({ id, title, image_url });
+      onDrawingClick({ id, title, image_url, description });
     }
   };
 
+  const cardHeight = image_url ? 'h-[32rem]' : 'h-64';
+
   return (
     <>
-      <Card className={`${getRandomBackground()}`}>
-        <CardContent className="p-6">
-          <div className="space-y-4">
+      <Card className={`${getRandomBackground()} ${cardHeight}`}>
+        <CardContent className="p-6 h-full flex flex-col">
+          <div className="space-y-4 flex-1">
             <div className="flex justify-between items-start">
               <h3 className="font-medium text-lg">{title}</h3>
               <div className="flex gap-2">
@@ -120,7 +122,7 @@ export const NoteCard = ({
             </div>
             {image_url && (
               <div 
-                className="relative w-full pt-[56.25%] cursor-pointer"
+                className="relative w-full h-48 cursor-pointer"
                 onClick={handleImageClick}
               >
                 <img
@@ -136,7 +138,7 @@ export const NoteCard = ({
               </p>
             )}
             {date && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mt-auto">
                 {format(new Date(date), "MMM d, yyyy")}
               </p>
             )}

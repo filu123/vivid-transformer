@@ -36,11 +36,8 @@ const Notes = () => {
     image_url: string;
     description?: string;
   }) => {
-    // Only open drawing panel for drawings (not regular image notes)
-    if (note.image_url && !note.description) {
-      setSelectedDrawing(note);
-      setIsDrawingMode(true);
-    }
+    setSelectedDrawing(note);
+    setIsDrawingMode(true);
   };
 
   return (
