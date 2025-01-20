@@ -188,7 +188,7 @@ export const TimeboxPlanner = () => {
         </div>
 
         <div className="lg:col-span-4">
-          <Card className="p-4 md:p-6 bg-card-blue animate-fade-in">
+          <Card className="p-4 md:p-6 bg-white animate-fade-in">
             <CalendarHeader
               currentMonth={currentMonth}
               onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
