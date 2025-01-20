@@ -145,36 +145,34 @@ export const TimeboxPlanner = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-7">
-          <div className="space-y-6">
-            <DayItems
-              date={selectedDate}
-              items={priorities}
-              onItemsChange={fetchPriorities}
-            />
-            <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-6">
-                {format(selectedDate, "MMMM d, yyyy")}
-              </h2>
-              <div className="space-y-4">
-                <DayPriorities priorities={priorities} />
-                <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
-                <DayNotes notes={notes} />
-                <DayReminders reminders={reminders} />
-                {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
-                  <div className="text-center text-gray-500 py-8">
-                    Nothing for today
-                  </div>
-                )}
-              </div>
+    <div className="space-y-6 p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-7 space-y-6">
+          <DayItems
+            date={selectedDate}
+            items={priorities}
+            onItemsChange={fetchPriorities}
+          />
+          <div className="mt-8">
+            <h2 className="text-xl md:text-2xl font-semibold mb-6">
+              {format(selectedDate, "MMMM d, yyyy")}
+            </h2>
+            <div className="space-y-4">
+              <DayPriorities priorities={priorities} />
+              <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
+              <DayNotes notes={notes} />
+              <DayReminders reminders={reminders} />
+              {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
+                <div className="text-center text-gray-500 py-8">
+                  Nothing for today
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="col-span-5">
-          <Card className="p-6 bg-card-blue">
+        <div className="lg:col-span-5">
+          <Card className="p-4 md:p-6 bg-card-blue">
             <CalendarHeader
               currentMonth={currentMonth}
               onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}

@@ -6,7 +6,7 @@ const Index = () => {
   const [activeView, setActiveView] = useState<"today" | "calendar">("today");
 
   return (
-    <main className="w-full p-4 md:p-8">
+    <main className="w-full min-h-screen">
       <div className="container mx-auto">
         <Header />
         <div className="mt-6">

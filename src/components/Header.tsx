@@ -1,11 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Calendar, MoreHorizontal, RefreshCw } from "lucide-react";
+import { Calendar, MoreHorizontal, RefreshCw, Menu } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Dispatch, SetStateAction } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HeaderProps {
   onViewChange?: Dispatch<SetStateAction<"today" | "calendar">>;
@@ -14,6 +15,7 @@ interface HeaderProps {
 
 export const Header = ({ onViewChange, activeView }: HeaderProps) => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -33,19 +35,19 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
 
   return (
     <header className="border-b">
-      <div className="flex items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between p-3 md:px-6 md:py-3">
+        <div className="flex items-center gap-2 md:gap-4">
           <Avatar>
             <AvatarImage src={profile?.avatar_url || ""} />
             <AvatarFallback>U</AvatarFallback>
           </Avatar>
-          <div className="text-left">
+          <div className="hidden md:block text-left">
             <p className="font-medium">{profile?.username || "User"}</p>
             <p className="text-sm text-gray-500">user@example.com</p>
           </div>
         </div>
 
-        <div className="flex-1 max-w-xl mx-8">
+        <div className="flex-1 max-w-xl mx-4 hidden md:block">
           <Input 
             type="search" 
             placeholder="Search anything..." 
@@ -54,7 +56,7 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="hidden md:inline-flex">
             <RefreshCw className="h-5 w-5" />
           </Button>
           <Button 
