@@ -73,20 +73,6 @@ export const NoteCard = ({
     setIsDetailsOpen(true);
   };
 
-  // Deterministic background based on the note's ID
-  const background = useMemo(() => {
-    const backgrounds = [
-      "bg-[#ff9b74]",
-      "bg-[#ffc972]",
-    ];
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = id.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const index = Math.abs(hash) % backgrounds.length;
-    return backgrounds[index];
-  }, [id]);
-
   const handleImageClick = () => {
     if (onDrawingClick && image_url) {
       onDrawingClick({ id, title, image_url, description });
