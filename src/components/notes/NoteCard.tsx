@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Calendar } from "lucide-react";
+import { MoreVertical, Calendar, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -69,20 +69,22 @@ export const NoteCard = ({
 
   return (
     <>
-      <Card className="mb-4">
-        <CardContent className="pt-6">
+      <Card className="bg-white/50 hover:bg-white/80 transition-colors duration-200">
+        <CardContent className="p-6">
           <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <h3 className="font-medium">{title}</h3>
+            <div className="space-y-3 flex-1">
+              <h3 className="text-xl font-medium">{title}</h3>
               {description && (
-                <p className="text-sm text-gray-500">{description}</p>
+                <p className="text-gray-600">{description}</p>
               )}
-              {date && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>{format(new Date(date), "PPP")}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                {date && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span>{format(new Date(date), "MMM d, yyyy")}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
