@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import {
   AlertDialog,
@@ -11,6 +11,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { NoteFormModal } from "./NoteFormModal";
@@ -22,6 +23,7 @@ interface NoteCardProps {
   title: string;
   description?: string;
   date?: string;
+  image_url?: string;
   onNoteUpdated: () => void;
 }
 
@@ -30,10 +32,10 @@ export const NoteCard = ({
   title,
   description,
   date,
+  image_url,
   onNoteUpdated,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleDelete = async () => {
@@ -48,7 +50,6 @@ export const NoteCard = ({
       });
 
       onNoteUpdated();
-      setIsDeleteDialogOpen(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -72,28 +73,62 @@ export const NoteCard = ({
     <>
       <Card className={`${getRandomBackground()}`}>
         <CardContent className="p-6">
-          <div className="flex justify-between items-start">
-            <div className="space-y-2 flex-1">
+          <div className="space-y-4">
+            <div className="flex justify-between items-start">
               <h3 className="font-medium text-lg">{title}</h3>
-              {description && (
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {description}
-                </p>
-              )}
-              {date && (
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(date), "MMM d, yyyy")}
-                </p>
-              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsEditModalOpen(true)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete this note.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDelete}
+                        className="bg-red-600 hover:bg-red-700"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="ml-2"
-              onClick={() => setIsEditModalOpen(true)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
+            {image_url && (
+              <div className="relative w-full pt-[56.25%]">
+                <img
+                  src={image_url}
+                  alt={title}
+                  className="absolute inset-0 w-full h-full object-cover rounded-md"
+                />
+              </div>
+            )}
+            {description && (
+              <p className="text-sm text-muted-foreground line-clamp-3">
+                {description}
+              </p>
+            )}
+            {date && (
+              <p className="text-sm text-muted-foreground">
+                {format(new Date(date), "MMM d, yyyy")}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -101,32 +136,9 @@ export const NoteCard = ({
       <NoteFormModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        editNote={{ id, title, description, date }}
+        editNote={{ id, title, description, date, image_url }}
         onNoteAdded={onNoteUpdated}
       />
-
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete this note.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 };

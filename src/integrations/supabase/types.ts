@@ -80,6 +80,7 @@ export type Database = {
           date: string | null
           description: string | null
           id: string
+          image_url: string | null
           title: string
           user_id: string
         }
@@ -88,6 +89,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           id?: string
+          image_url?: string | null
           title: string
           user_id: string
         }
@@ -96,6 +98,7 @@ export type Database = {
           date?: string | null
           description?: string | null
           id?: string
+          image_url?: string | null
           title?: string
           user_id?: string
         }

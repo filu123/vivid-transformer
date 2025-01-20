@@ -9,12 +9,7 @@ import { DrawingPanel } from "@/components/notes/DrawingPanel";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [selectedNote, setSelectedNote] = useState<{
-    id: string;
-    title: string;
-    description?: string;
-    date?: string;
-  } | null>(null);
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
 
   const { data: notes, refetch } = useQuery({
     queryKey: ["notes"],
@@ -32,7 +27,7 @@ const Notes = () => {
   return (
     <div className="flex h-full">
       {/* Left section - 70% */}
-      <div className="w-[70%] p-8 overflow-y-auto">
+      <div className={`${isDrawingMode ? 'w-[50%]' : 'w-[70%]'} p-8 overflow-y-auto transition-all duration-300`}>
         {/* New Note Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <Button
@@ -46,6 +41,7 @@ const Notes = () => {
           <Button
             variant="outline"
             className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+            onClick={() => setIsDrawingMode(true)}
           >
             <PenTool className="h-8 w-8" />
             <span>With Drawing</span>
@@ -53,6 +49,9 @@ const Notes = () => {
           <Button
             variant="outline"
             className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+            onClick={() => {
+              setIsAddModalOpen(true);
+            }}
           >
             <Image className="h-8 w-8" />
             <span>With Image</span>
@@ -76,6 +75,7 @@ const Notes = () => {
                   title={note.title}
                   description={note.description}
                   date={note.date}
+                  image_url={note.image_url}
                   onNoteUpdated={refetch}
                 />
               </div>
@@ -84,9 +84,9 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Right section - 30% */}
-      <div className="w-[30%] border-l bg-white">
-        <DrawingPanel />
+      {/* Right section - Drawing Panel */}
+      <div className={`${isDrawingMode ? 'w-[50%]' : 'w-[30%]'} border-l bg-white transition-all duration-300`}>
+        <DrawingPanel isVisible={isDrawingMode} onClose={() => setIsDrawingMode(false)} />
       </div>
 
       <NoteFormModal
