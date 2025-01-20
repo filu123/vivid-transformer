@@ -4,7 +4,7 @@ import { NoteCard } from "@/components/notes/NoteCard";
 import { Button } from "@/components/ui/button";
 import { FileText, Image, PenTool } from "lucide-react";
 import { useState } from "react";
-import { NoteFormModal } from "@/components/notes/NoteFormModal";
+import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
 
 const Notes = () => {
@@ -41,7 +41,7 @@ const Notes = () => {
   };
 
   return (
-    <div className="relative min-h-screen container mx-auto ">
+    <div className="relative min-h-screen container mx-auto">
       <div className="">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           <Button
@@ -136,7 +136,7 @@ const Notes = () => {
         </div>
       )}
 
-      <NoteFormModal
+      <NoteFormDrawer
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onNoteAdded={refetch}
