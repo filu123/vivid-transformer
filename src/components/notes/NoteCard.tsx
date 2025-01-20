@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { NoteFormModal } from "./NoteFormModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
@@ -61,15 +61,21 @@ export const NoteCard = ({
     }
   };
 
-  const getRandomBackground = () => {
+  // Deterministic background based on the note's ID
+  const background = useMemo(() => {
     const backgrounds = [
-      "bg-card-yellow",
-      "bg-card-blue",
-      "bg-card-purple",
-      "bg-card-green",
+      "bg-[#ff9b74]",
+      "bg-[#ffc972]",
+     
     ];
-    return backgrounds[Math.floor(Math.random() * backgrounds.length)];
-  };
+    // Simple hash function to assign a consistent background
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = id.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % backgrounds.length;
+    return backgrounds[index];
+  }, [id]);
 
   const handleImageClick = () => {
     if (onDrawingClick && image_url) {
@@ -77,22 +83,23 @@ export const NoteCard = ({
     }
   };
 
-  const cardHeight = image_url ? 'h-[32rem]' : 'h-64';
+  const cardHeight = image_url ? 'h-34' : 'h-34'; // Adjusted heights for better fit
 
   return (
     <>
-      <Card className={`${getRandomBackground()} ${cardHeight}`}>
+      <Card className={`${background} ${cardHeight} min-h-[260px] max-h-[260px] transition-none`}>
         <CardContent className="p-6 h-full flex flex-col">
           <div className="space-y-4 flex-1">
             <div className="flex justify-between items-start">
-              <h3 className="font-medium text-lg">{title}</h3>
+              <h3 className="font-semibold text-xl">{title}</h3>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="bg-white p-4 rounded-full"
                   onClick={() => setIsEditModalOpen(true)}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="h-4  w-4" />
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -122,13 +129,13 @@ export const NoteCard = ({
             </div>
             {image_url && (
               <div 
-                className="relative w-full h-48 cursor-pointer"
+                className="relative w-full h-24 cursor-pointer" // Adjusted height
                 onClick={handleImageClick}
               >
                 <img
                   src={image_url}
                   alt={title}
-                  className="absolute inset-0 w-full h-full object-cover rounded-md"
+                  className="absolute inset-0 w-24 h-24 object-cover rounded-md"
                 />
               </div>
             )}

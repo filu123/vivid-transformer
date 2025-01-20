@@ -76,10 +76,10 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-border/10 w-[4rem]">
+    <Sidebar className="border-r border-border/10 mt-10 w-24"> {/* Increased width for better icon visibility */}
       <SidebarContent>
         <div className="flex items-center justify-center p-4">
-          <Calendar className="h-6 w-6" />
+          <Calendar className="h-8 w-8" /> {/* Increased icon size */}
         </div>
         
         <SidebarGroup>
@@ -90,11 +90,13 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     tooltip={item.title}
-                    className={location.pathname === item.url ? "bg-accent" : ""}
+                    className={`flex items-center justify-center p-7 ${
+                      location.pathname === item.url ? "bg-accent rounded-full" : ""
+                    }`}
                   >
                     <a
                       href={item.url}
-                      className="flex items-center justify-center p-2"
+                      className="flex items-center  justify-center"
                       onClick={(e) => {
                         if (item.url !== "#") {
                           e.preventDefault();
@@ -102,7 +104,7 @@ export function AppSidebar() {
                         }
                       }}
                     >
-                      <item.icon className="h-5 w-5" />
+                      <item.icon className="h-8 w-8" /> {/* Increased icon size */}
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -117,9 +119,9 @@ export function AppSidebar() {
           variant="ghost"
           size="icon"
           onClick={handleSignOut}
-          className="w-full"
+          className="w-full flex items-center justify-center"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-5 w-5" /> {/* Increased icon size */}
         </Button>
       </SidebarFooter>
     </Sidebar>

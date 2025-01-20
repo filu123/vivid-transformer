@@ -41,37 +41,58 @@ const Notes = () => {
   };
 
   return (
-    <div className="relative min-h-screen">
-      <div className="p-4 md:p-8">
+    <div className="relative min-h-screen container mx-auto ">
+      <div className="">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
           <Button
-            variant="outline"
-            className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+            variant="ghost"
+            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
             onClick={() => setIsAddModalOpen(true)}
           >
-            <FileText className="h-6 w-6 md:h-8 md:w-8" />
-            <span>Take a Note</span>
+            <div className="flex items-center space-x-4">
+              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
+                <FileText className="h-6 w-6 text-black" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">New Note</p>
+                <h3 className="text-lg font-semibold">Take a Note</h3>
+              </div>
+            </div>
           </Button>
+          
           <Button
-            variant="outline"
-            className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
+            variant="ghost"
+            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
             onClick={() => {
               setSelectedDrawing(null);
               setIsDrawingMode(true);
             }}
           >
-            <PenTool className="h-6 w-6 md:h-8 md:w-8" />
-            <span>With Drawing</span>
+            <div className="flex items-center space-x-4">
+              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
+                <PenTool className="h-6 w-6 text-black" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">New Note</p>
+                <h3 className="text-lg font-semibold">With Drawing</h3>
+              </div>
+            </div>
           </Button>
+          
           <Button
-            variant="outline"
-            className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
-            onClick={() => {
-              setIsAddModalOpen(true);
-            }}
+            variant="ghost"
+            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
+            onClick={() => setIsAddModalOpen(true)}
           >
-            <Image className="h-6 w-6 md:h-8 md:w-8" />
-            <span>With Image</span>
+            <div className="flex items-center space-x-4">
+              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
+                <Image className="h-6 w-6 text-black" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">New Note</p>
+                <h3 className="text-lg font-semibold">With Image</h3>
+              </div>
+            </div>
           </Button>
         </div>
 

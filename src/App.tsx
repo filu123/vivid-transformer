@@ -31,7 +31,7 @@ function App() {
                 <ProtectedRoute>
                   <div className="flex min-h-screen w-full overflow-hidden">
                     <AppSidebar />
-                    <div className="flex-1 flex flex-col min-w-0">
+                    <div className="flex-1 flex flex-col min-w-0 bg-[#fff7ea]">
                       <Header />
                       <main className="flex-1 overflow-auto">
                         <Outlet />
