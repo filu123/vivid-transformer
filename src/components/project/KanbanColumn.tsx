@@ -34,14 +34,14 @@ export const KanbanColumn = ({
   }[status] || "text-gray-500";
 
   return (
-    <div className="flex flex-col gap-4 min-w-[300px] w-full md:w-1/3">
-      <div className="flex items-center gap-2 font-semibold text-lg">
+    <div className="flex-1 min-w-[300px] max-w-md mx-auto md:mx-0">
+      <div className="flex items-center gap-2 font-semibold text-lg mb-4">
         <Icon className={`w-5 h-5 ${iconColor}`} />
         <h3>{title}</h3>
         <span className="text-sm text-muted-foreground">({tasks.length})</span>
       </div>
       <Card 
-        className="bg-muted/50 p-4 h-full"
+        className="bg-muted/50 p-4 min-h-[500px]"
         id={status}
       >
         <CardContent className="p-0 space-y-4">

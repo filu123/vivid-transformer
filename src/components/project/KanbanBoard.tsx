@@ -46,7 +46,7 @@ export const KanbanBoard = ({ tasks, projectId, onTaskUpdated }: KanbanBoardProp
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="w-full overflow-x-auto">
+      <div className="w-full overflow-x-auto min-h-[calc(100vh-12rem)]">
         <div className="flex flex-col md:flex-row gap-6 min-w-min p-4">
           <KanbanColumn
             title="Will Do"
