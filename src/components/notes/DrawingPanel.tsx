@@ -52,10 +52,11 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
         throw new Error("No user found");
       }
 
-      // Convert canvas to image
+      // Convert canvas to image with required multiplier property
       const imageData = fabricCanvas.toDataURL({
         format: 'png',
         quality: 1,
+        multiplier: 1
       });
 
       // Convert base64 to blob
@@ -132,14 +133,24 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => fabricCanvas?.undo()}
+              onClick={() => {
+                // Since undo/redo are not available in Fabric.js v6, we'll disable these buttons
+                // You might want to implement custom undo/redo functionality if needed
+                toast({
+                  description: "Undo/Redo functionality is not available",
+                });
+              }}
             >
               <Undo2 className="h-4 w-4" />
             </Button>
             <Button
               variant="outline"
               size="icon"
-              onClick={() => fabricCanvas?.redo()}
+              onClick={() => {
+                toast({
+                  description: "Undo/Redo functionality is not available",
+                });
+              }}
             >
               <Redo2 className="h-4 w-4" />
             </Button>
