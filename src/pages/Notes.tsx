@@ -6,10 +6,17 @@ import { Plus, Search } from "lucide-react";
 import { useState } from "react";
 import { NoteFormModal } from "@/components/notes/NoteFormModal";
 import { Input } from "@/components/ui/input";
+import { NoteDetails } from "@/components/notes/NoteDetails";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedNote, setSelectedNote] = useState<{
+    id: string;
+    title: string;
+    description?: string;
+    date?: string;
+  } | null>(null);
 
   const { data: notes, refetch } = useQuery({
     queryKey: ["notes"],
@@ -30,11 +37,18 @@ const Notes = () => {
   );
 
   return (
-    <div className="flex-1 max-w-6xl mx-auto px-4 py-8">
-      <div className="flex flex-col space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-semibold">Notes</h1>
-          <div className="flex items-center space-x-4">
+    <div className="flex-1 flex">
+      {/* Left column - Note list */}
+      <div className="w-[400px] min-w-[400px] border-r bg-muted/20">
+        <div className="p-6 space-y-6">
+          <div className="flex flex-col space-y-4">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-semibold">Notes</h1>
+              <Button onClick={() => setIsAddModalOpen(true)} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                New
+              </Button>
+            </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
@@ -42,28 +56,45 @@ const Notes = () => {
                 placeholder="Search notes"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-[300px] bg-white/50"
+                className="pl-10"
               />
             </div>
-            <Button onClick={() => setIsAddModalOpen(true)} className="bg-orange-400 hover:bg-orange-500">
-              <Plus className="h-4 w-4 mr-2" />
-              New Note
-            </Button>
+          </div>
+
+          <div className="space-y-2">
+            {filteredNotes?.map((note) => (
+              <div
+                key={note.id}
+                onClick={() => setSelectedNote(note)}
+                className="cursor-pointer"
+              >
+                <NoteCard
+                  id={note.id}
+                  title={note.title}
+                  description={note.description}
+                  date={note.date}
+                  onNoteUpdated={refetch}
+                  isSelected={selectedNote?.id === note.id}
+                />
+              </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        <div className="grid gap-6">
-          {filteredNotes?.map((note) => (
-            <NoteCard
-              key={note.id}
-              id={note.id}
-              title={note.title}
-              description={note.description}
-              date={note.date}
-              onNoteUpdated={refetch}
-            />
-          ))}
-        </div>
+      {/* Right column - Note details */}
+      <div className="flex-1 bg-white">
+        {selectedNote ? (
+          <NoteDetails
+            title={selectedNote.title}
+            description={selectedNote.description}
+            date={selectedNote.date}
+          />
+        ) : (
+          <div className="h-full flex items-center justify-center text-muted-foreground">
+            Select a note to view details
+          </div>
+        )}
       </div>
 
       <NoteFormModal

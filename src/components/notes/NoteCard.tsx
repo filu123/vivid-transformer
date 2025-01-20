@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Calendar, MapPin } from "lucide-react";
+import { MoreVertical, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import {
   DropdownMenu,
@@ -29,6 +29,7 @@ interface NoteCardProps {
   description?: string;
   date?: string;
   onNoteUpdated: () => void;
+  isSelected?: boolean;
 }
 
 export const NoteCard = ({
@@ -37,6 +38,7 @@ export const NoteCard = ({
   description,
   date,
   onNoteUpdated,
+  isSelected,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -69,22 +71,21 @@ export const NoteCard = ({
 
   return (
     <>
-      <Card className="bg-white/50 hover:bg-white/80 transition-colors duration-200">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-start">
-            <div className="space-y-3 flex-1">
-              <h3 className="text-xl font-medium">{title}</h3>
-              {description && (
-                <p className="text-gray-600">{description}</p>
+      <Card className={`transition-colors duration-200 ${
+        isSelected 
+          ? "bg-accent border-primary" 
+          : "bg-white/50 hover:bg-white/80"
+      }`}>
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start gap-4">
+            <div className="min-w-0 flex-1">
+              <h3 className="font-medium truncate">{title}</h3>
+              {date && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>{format(new Date(date), "MMM d, yyyy")}</span>
+                </div>
               )}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                {date && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    <span>{format(new Date(date), "MMM d, yyyy")}</span>
-                  </div>
-                )}
-              </div>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
