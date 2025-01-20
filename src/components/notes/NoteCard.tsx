@@ -17,6 +17,7 @@ import { useState, useMemo } from "react";
 import { NoteFormModal } from "./NoteFormModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { NoteDetailsDrawer } from "./NoteDetailsDrawer";
 
 interface NoteCardProps {
   id: string;
@@ -38,6 +39,7 @@ export const NoteCard = ({
   onDrawingClick,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const handleDelete = async () => {
@@ -61,14 +63,20 @@ export const NoteCard = ({
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent opening the drawer when clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    setIsDetailsOpen(true);
+  };
+
   // Deterministic background based on the note's ID
   const background = useMemo(() => {
     const backgrounds = [
       "bg-[#ff9b74]",
       "bg-[#ffc972]",
-     
     ];
-    // Simple hash function to assign a consistent background
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
       hash = id.charCodeAt(i) + ((hash << 5) - hash);
@@ -83,11 +91,14 @@ export const NoteCard = ({
     }
   };
 
-  const cardHeight = image_url ? 'h-34' : 'h-34'; // Adjusted heights for better fit
+  const cardHeight = image_url ? 'h-34' : 'h-34';
 
   return (
     <>
-      <Card className={`${background} ${cardHeight} min-h-[260px] max-h-[260px] transition-none`}>
+      <Card 
+        className={`${background} ${cardHeight} min-h-[260px] max-h-[260px] transition-all duration-200 hover:scale-[1.02] cursor-pointer`}
+        onClick={handleCardClick}
+      >
         <CardContent className="p-6 h-full flex flex-col">
           <div className="space-y-4 flex-1">
             <div className="flex justify-between items-start">
@@ -99,7 +110,7 @@ export const NoteCard = ({
                   className="bg-white p-4 rounded-full"
                   onClick={() => setIsEditModalOpen(true)}
                 >
-                  <Pencil className="h-4  w-4" />
+                  <Pencil className="h-4 w-4" />
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
@@ -129,7 +140,7 @@ export const NoteCard = ({
             </div>
             {image_url && (
               <div 
-                className="relative w-full h-24 cursor-pointer" // Adjusted height
+                className="relative w-full h-24 cursor-pointer"
                 onClick={handleImageClick}
               >
                 <img
@@ -158,6 +169,12 @@ export const NoteCard = ({
         onClose={() => setIsEditModalOpen(false)}
         editNote={{ id, title, description, date, image_url }}
         onNoteAdded={onNoteUpdated}
+      />
+
+      <NoteDetailsDrawer
+        open={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        note={{ id, title, description, date, image_url }}
       />
     </>
   );
