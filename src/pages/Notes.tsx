@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Image, PenTool } from "lucide-react";
 import { useState } from "react";
 import { NoteFormModal } from "@/components/notes/NoteFormModal";
-import { DrawingPanel } from "@/components/notes/DrawingPanel";
+import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -30,14 +30,17 @@ const Notes = () => {
   });
 
   const handleDrawingClick = (note: { id: string; title: string; image_url: string }) => {
-    setSelectedDrawing(note);
-    setIsDrawingMode(true);
+    // Only open drawing panel for drawings (not regular image notes)
+    if (note.image_url && !note.description) {
+      setSelectedDrawing(note);
+      setIsDrawingMode(true);
+    }
   };
 
   return (
-    <div className="flex h-full">
-      {/* Left section - 70% */}
-      <div className={`${isDrawingMode ? 'w-[50%]' : 'w-[70%]'} p-8 overflow-y-auto transition-all duration-300`}>
+    <div className="relative min-h-screen">
+      {/* Main content */}
+      <div className="p-8">
         {/* New Note Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           <Button
@@ -98,17 +101,20 @@ const Notes = () => {
         </div>
       </div>
 
-      {/* Right section - Drawing Panel */}
-      <div className={`${isDrawingMode ? 'w-[50%]' : 'w-[30%]'} border-l bg-white transition-all duration-300`}>
-        <DrawingPanel 
-          isVisible={isDrawingMode} 
-          onClose={() => {
-            setIsDrawingMode(false);
-            setSelectedDrawing(null);
-          }}
-          existingNote={selectedDrawing}
-        />
-      </div>
+      {/* Drawing Panel - Slide in from right when active */}
+      {isDrawingMode && (
+        <div className="fixed inset-y-0 right-0 w-[600px] bg-background border-l shadow-xl">
+          <DrawingPanel 
+            isVisible={isDrawingMode} 
+            onClose={() => {
+              setIsDrawingMode(false);
+              setSelectedDrawing(null);
+              refetch();
+            }}
+            existingNote={selectedDrawing}
+          />
+        </div>
+      )}
 
       <NoteFormModal
         isOpen={isAddModalOpen}
