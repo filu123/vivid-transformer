@@ -8,8 +8,7 @@ const Index = () => {
   return (
     <main className="w-full p-4 md:p-8">
       <div className="container mx-auto">
-        <Header onViewChange={setActiveView} activeView={activeView} />
-        
+        <Header />
         <div className="mt-6">
           <TimeboxPlanner />
         </div>
