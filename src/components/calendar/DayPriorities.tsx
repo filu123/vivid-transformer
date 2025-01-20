@@ -16,7 +16,7 @@ interface DayPrioritiesProps {
 
 export const DayPriorities = ({ priorities }: DayPrioritiesProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 grid grid-cols-2">
       {priorities.map((priority) => (
         <Card key={priority.id} className="p-6">
           <h3 className="text-xl font-semibold mb-4">{priority.title}</h3>

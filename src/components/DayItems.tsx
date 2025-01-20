@@ -28,7 +28,7 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4">
+      <div className="space-y-4 ">
         {items.map((item) => (
           <PriorityCard
             key={item.id}

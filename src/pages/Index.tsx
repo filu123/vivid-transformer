@@ -8,7 +8,6 @@ const Index = () => {
   return (
     <main className="w-full min-h-screen">
       <div className="container mx-auto">
-        <Header />
         <div className="mt-6">
           <TimeboxPlanner />
         </div>

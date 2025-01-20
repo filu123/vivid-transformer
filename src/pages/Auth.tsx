@@ -64,7 +64,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
+    <div className="min-h-screen flex w-full items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-50 p-4">
       <div className="w-full max-w-md space-y-8 animate-fade-in">
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">

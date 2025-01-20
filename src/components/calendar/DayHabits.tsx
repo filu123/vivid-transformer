@@ -11,9 +11,9 @@ export const DayHabits = ({ habits, onHabitUpdated, date }: DayHabitsProps) => {
   if (!habits.length) return null;
 
   return (
-    <Card className="p-6">
+    <Card className="p-6 border-0 shadow-none">
       <h3 className="text-lg font-semibold mb-4">Habits</h3>
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {habits.map((habit) => (
           <HabitCard
             key={habit.id}

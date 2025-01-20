@@ -34,8 +34,9 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
   });
 
   return (
-    <header className="border-b">
+    <header className="pt-10">
       <div className="flex items-center justify-between p-3 md:px-6 md:py-3">
+        <div className="flex gap-6">
         <div className="flex items-center gap-2 md:gap-4">
           <Avatar>
             <AvatarImage src={profile?.avatar_url || ""} />
@@ -51,8 +52,9 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
           <Input 
             type="search" 
             placeholder="Search anything..." 
-            className="w-full"
+            className="w-full rounded-full"
           />
+        </div>
         </div>
 
         <div className="flex items-center gap-2">

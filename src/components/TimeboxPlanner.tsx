@@ -3,12 +3,12 @@ import { Card } from "@/components/ui/card";
 import { format, addMonths, subMonths, startOfDay, endOfDay } from "date-fns";
 import { DayItems } from "./DayItems";
 import { supabase } from "@/integrations/supabase/client";
-import { CalendarHeader } from "./calendar/CalendarHeader";
-import { CalendarGrid } from "./calendar/CalendarGrid";
-import { DayPriorities } from "./calendar/DayPriorities";
-import { DayNotes } from "./calendar/DayNotes";
-import { DayReminders } from "./calendar/DayReminders";
-import { DayHabits } from "./calendar/DayHabits";
+import { DayNotes } from "./Calendar/DayNotes";
+import { DayReminders } from "./Calendar/DayReminders";
+import { CalendarGrid } from "./Calendar/CalendarGrid";
+import { CalendarHeader } from "./Calendar/CalendarHeader";
+import { DayHabits } from "./Calendar/DayHabits";
+
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -76,7 +76,7 @@ export const TimeboxPlanner = () => {
       // Get start and end of selected date
       const start = startOfDay(selectedDate);
       const end = endOfDay(selectedDate);
-      
+
       const { data, error } = await supabase
         .from("reminders")
         .select("*")
@@ -128,15 +128,15 @@ export const TimeboxPlanner = () => {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const days = [];
-    
+
     for (let i = 0; i < firstDay.getDay(); i++) {
       days.push(null);
     }
-    
+
     for (let i = 1; i <= lastDay.getDate(); i++) {
       days.push(new Date(year, month, i));
     }
-    
+
     return days;
   };
 
@@ -153,25 +153,10 @@ export const TimeboxPlanner = () => {
             items={priorities}
             onItemsChange={fetchPriorities}
           />
-          <div className="mt-8">
-            <h2 className="text-xl md:text-2xl font-semibold mb-6">
-              {format(selectedDate, "MMMM d, yyyy")}
-            </h2>
-            <div className="space-y-4">
-              <DayPriorities priorities={priorities} />
-              <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
-              <DayNotes notes={notes} />
-              <DayReminders reminders={reminders} />
-              {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  Nothing for today
-                </div>
-              )}
-            </div>
-          </div>
+
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-4">
           <Card className="p-4 md:p-6 bg-card-blue">
             <CalendarHeader
               currentMonth={currentMonth}
@@ -184,6 +169,24 @@ export const TimeboxPlanner = () => {
               onDateClick={setSelectedDate}
             />
           </Card>
+        </div>
+
+      </div>
+      <div>
+        <div className="mt-8">
+          <h2 className="text-xl md:text-2xl font-semibold mb-6">
+            {format(selectedDate, "MMMM d, yyyy")}
+          </h2>
+          <div className="space-y-4">
+            <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
+            <DayNotes notes={notes} />
+            <DayReminders reminders={reminders} />
+            {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
+              <div className="text-center text-gray-500 py-8">
+                Nothing for today
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
