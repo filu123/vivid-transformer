@@ -38,12 +38,25 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
 
     // If there's an existing note, load its image
     if (existingNote?.image_url) {
-      FabricImage.fromURL(existingNote.image_url, (img) => {
-        canvas.backgroundImage = img;
-        img.scaleToWidth(canvas.width!);
-        img.scaleToHeight(canvas.height!);
-        canvas.renderAll();
-      });
+      const loadImage = async () => {
+        try {
+          const img = await FabricImage.fromURL(existingNote.image_url);
+          if (img) {
+            canvas.backgroundImage = img;
+            img.scaleToWidth(canvas.width!);
+            img.scaleToHeight(canvas.height!);
+            canvas.renderAll();
+          }
+        } catch (error) {
+          console.error('Error loading image:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load the existing drawing",
+            variant: "destructive",
+          });
+        }
+      };
+      loadImage();
     }
 
     return () => {
