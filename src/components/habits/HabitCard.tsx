@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { format } from "date-fns";
+import { format, getDay } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -12,6 +12,26 @@ interface HabitCardProps {
 }
 
 export const HabitCard = ({ habit, onHabitUpdated, selectedDate }: HabitCardProps) => {
+  const shouldDisplayHabit = () => {
+    switch (habit.frequency) {
+      case "daily":
+        return true;
+      case "three_times":
+        // For three times a week, show on Monday, Wednesday, and Friday
+        const dayOfWeek = getDay(selectedDate);
+        return [1, 3, 5].includes(dayOfWeek); // Monday = 1, Wednesday = 3, Friday = 5
+      case "custom":
+        // For custom days, check if the current day is in the custom_days array
+        return habit.custom_days?.includes(getDay(selectedDate));
+      default:
+        return false;
+    }
+  };
+
+  if (!shouldDisplayHabit()) {
+    return null;
+  }
+
   const handleToggleCompletion = async () => {
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
