@@ -86,9 +86,11 @@ const Notes = () => {
       <div className="flex-1 bg-white">
         {selectedNote ? (
           <NoteDetails
+            id={selectedNote.id}
             title={selectedNote.title}
             description={selectedNote.description}
             date={selectedNote.date}
+            onNoteUpdated={refetch}
           />
         ) : (
           <div className="h-full flex items-center justify-center text-muted-foreground">

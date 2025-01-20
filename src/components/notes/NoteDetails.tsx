@@ -1,15 +1,41 @@
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
+import { RichTextEditor } from "@/components/RichTextEditor";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface NoteDetailsProps {
+  id: string;
   title: string;
   description?: string;
   date?: string;
+  onNoteUpdated: () => void;
 }
 
-export const NoteDetails = ({ title, description, date }: NoteDetailsProps) => {
+export const NoteDetails = ({ id, title, description, date, onNoteUpdated }: NoteDetailsProps) => {
+  const { toast } = useToast();
+
+  const handleDescriptionChange = async (newDescription: string) => {
+    try {
+      const { error } = await supabase
+        .from("notes")
+        .update({ description: newDescription })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      onNoteUpdated();
+    } catch (error) {
+      toast({
+        title: "Error updating note",
+        description: "Failed to save your changes. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-[calc(100vh-10rem)] flex flex-col">
       <div className="flex-1 p-8">
         <h2 className="text-2xl font-semibold mb-4">{title}</h2>
         {date && (
@@ -18,9 +44,11 @@ export const NoteDetails = ({ title, description, date }: NoteDetailsProps) => {
             <span>{format(new Date(date), "MMM d, yyyy")}</span>
           </div>
         )}
-        {description && (
-          <p className="text-gray-600 whitespace-pre-wrap">{description}</p>
-        )}
+        <RichTextEditor
+          value={description || ""}
+          onChange={handleDescriptionChange}
+          className="h-full"
+        />
       </div>
       <div className="p-8 flex justify-center">
         <img
