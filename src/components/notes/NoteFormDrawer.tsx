@@ -1,10 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2, ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -161,41 +160,35 @@ export const NoteFormDrawer = ({
           <div className="p-4 bg-background rounded-t-[10px] flex-1 h-full overflow-auto">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
-                  <Input
-                    id="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    maxLength={70}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    className="resize-none"
-                    rows={4}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Date (Optional)</Label>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <Input
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={70}
+                  required
+                  placeholder="Title"
+                  className="text-2xl font-semibold border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/50"
+                />
+                
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Write something..."
+                  className="min-h-[150px] resize-none border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/50"
+                />
+
+                <div className="flex items-center gap-4">
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
-                        type="button"
-                        variant="outline"
+                        variant="ghost"
                         className={cn(
-                          "w-full justify-start text-left font-normal",
+                          "pl-0 text-left font-normal",
                           !date && "text-muted-foreground"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date ? format(date, "PPP") : "Pick a date"}
+                        {date ? format(date, "PPP") : "Add date"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -207,27 +200,38 @@ export const NoteFormDrawer = ({
                       />
                     </PopoverContent>
                   </Popover>
+
+                  <div className="relative">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <Button
+                      variant="ghost"
+                      className="pl-0"
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                      type="button"
+                    >
+                      <ImageIcon className="mr-2 h-4 w-4" />
+                      {imageUrl ? "Change image" : "Add image"}
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="image">Image (Optional, max 4MB)</Label>
-                  <Input
-                    id="image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="cursor-pointer"
-                  />
-                  {imageUrl && (
-                    <div className="mt-2">
-                      <img
-                        src={imageUrl}
-                        alt="Preview"
-                        className="max-h-32 rounded-md"
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-end space-x-2">
+
+                {imageUrl && (
+                  <div className="mt-2">
+                    <img
+                      src={imageUrl}
+                      alt="Preview"
+                      className="max-h-48 rounded-md object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-end space-x-2 pt-4 border-t">
                   <Button variant="outline" type="button" onClick={onClose}>
                     Cancel
                   </Button>
