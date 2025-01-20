@@ -10,6 +10,11 @@ import { DrawingPanel } from "@/components/notes/DrawingPanel";
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [selectedDrawing, setSelectedDrawing] = useState<{
+    id: string;
+    title: string;
+    image_url: string;
+  } | null>(null);
 
   const { data: notes, refetch } = useQuery({
     queryKey: ["notes"],
@@ -23,6 +28,11 @@ const Notes = () => {
       return data;
     },
   });
+
+  const handleDrawingClick = (note: { id: string; title: string; image_url: string }) => {
+    setSelectedDrawing(note);
+    setIsDrawingMode(true);
+  };
 
   return (
     <div className="flex h-full">
@@ -41,7 +51,10 @@ const Notes = () => {
           <Button
             variant="outline"
             className="h-32 flex flex-col items-center justify-center gap-3 border-2 border-dashed hover:border-primary hover:bg-accent/50"
-            onClick={() => setIsDrawingMode(true)}
+            onClick={() => {
+              setSelectedDrawing(null);
+              setIsDrawingMode(true);
+            }}
           >
             <PenTool className="h-8 w-8" />
             <span>With Drawing</span>
@@ -77,6 +90,7 @@ const Notes = () => {
                   date={note.date}
                   image_url={note.image_url}
                   onNoteUpdated={refetch}
+                  onDrawingClick={handleDrawingClick}
                 />
               </div>
             ))}
@@ -86,7 +100,14 @@ const Notes = () => {
 
       {/* Right section - Drawing Panel */}
       <div className={`${isDrawingMode ? 'w-[50%]' : 'w-[30%]'} border-l bg-white transition-all duration-300`}>
-        <DrawingPanel isVisible={isDrawingMode} onClose={() => setIsDrawingMode(false)} />
+        <DrawingPanel 
+          isVisible={isDrawingMode} 
+          onClose={() => {
+            setIsDrawingMode(false);
+            setSelectedDrawing(null);
+          }}
+          existingNote={selectedDrawing}
+        />
       </div>
 
       <NoteFormModal

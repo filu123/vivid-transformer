@@ -10,13 +10,19 @@ import { supabase } from "@/integrations/supabase/client";
 interface DrawingPanelProps {
   isVisible: boolean;
   onClose: () => void;
+  existingNote?: {
+    id: string;
+    title: string;
+    image_url: string;
+  };
 }
 
-export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
+export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null);
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(existingNote?.title || "");
   const { toast } = useToast();
+  const [isDrawingMode, setIsDrawingMode] = useState(true);
 
   useEffect(() => {
     if (!canvasRef.current || !isVisible) return;
@@ -30,10 +36,20 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
 
     setFabricCanvas(canvas);
 
+    // If there's an existing note, load its image
+    if (existingNote?.image_url) {
+      fabric.Image.fromURL(existingNote.image_url, (img) => {
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas), {
+          scaleX: canvas.width! / img.width!,
+          scaleY: canvas.height! / img.height!,
+        });
+      });
+    }
+
     return () => {
       canvas.dispose();
     };
-  }, [isVisible]);
+  }, [isVisible, existingNote]);
 
   const handleSave = async () => {
     if (!fabricCanvas || !title.trim()) {
@@ -75,18 +91,31 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
         .from('note_images')
         .getPublicUrl(fileName);
 
-      // Create note with drawing
-      const { error } = await supabase.from("notes").insert({
-        title,
-        image_url: publicUrl,
-        user_id: user.id,
-      });
+      if (existingNote) {
+        // Update existing note
+        const { error } = await supabase
+          .from("notes")
+          .update({
+            title,
+            image_url: publicUrl,
+          })
+          .eq('id', existingNote.id);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Create new note
+        const { error } = await supabase.from("notes").insert({
+          title,
+          image_url: publicUrl,
+          user_id: user.id,
+        });
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Success",
-        description: "Your drawing has been saved",
+        description: existingNote ? "Drawing updated successfully" : "Drawing saved successfully",
       });
 
       setTitle("");
@@ -134,8 +163,6 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
               variant="outline"
               size="icon"
               onClick={() => {
-                // Since undo/redo are not available in Fabric.js v6, we'll disable these buttons
-                // You might want to implement custom undo/redo functionality if needed
                 toast({
                   description: "Undo/Redo functionality is not available",
                 });
@@ -159,7 +186,8 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
               size="icon"
               onClick={() => {
                 if (fabricCanvas) {
-                  fabricCanvas.isDrawingMode = !fabricCanvas.isDrawingMode;
+                  setIsDrawingMode(!isDrawingMode);
+                  fabricCanvas.isDrawingMode = !isDrawingMode;
                 }
               }}
             >
@@ -168,7 +196,7 @@ export const DrawingPanel = ({ isVisible, onClose }: DrawingPanelProps) => {
           </div>
           <Button onClick={handleSave}>
             <Save className="h-4 w-4 mr-2" />
-            Save
+            {existingNote ? "Update" : "Save"}
           </Button>
         </div>
       </div>

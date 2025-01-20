@@ -25,6 +25,7 @@ interface NoteCardProps {
   date?: string;
   image_url?: string;
   onNoteUpdated: () => void;
+  onDrawingClick?: (note: { id: string; title: string; image_url: string }) => void;
 }
 
 export const NoteCard = ({
@@ -34,6 +35,7 @@ export const NoteCard = ({
   date,
   image_url,
   onNoteUpdated,
+  onDrawingClick,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
@@ -67,6 +69,12 @@ export const NoteCard = ({
       "bg-card-green",
     ];
     return backgrounds[Math.floor(Math.random() * backgrounds.length)];
+  };
+
+  const handleImageClick = () => {
+    if (onDrawingClick && image_url) {
+      onDrawingClick({ id, title, image_url });
+    }
   };
 
   return (
@@ -111,7 +119,10 @@ export const NoteCard = ({
               </div>
             </div>
             {image_url && (
-              <div className="relative w-full pt-[56.25%]">
+              <div 
+                className="relative w-full pt-[56.25%] cursor-pointer"
+                onClick={handleImageClick}
+              >
                 <img
                   src={image_url}
                   alt={title}
