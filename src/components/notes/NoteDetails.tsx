@@ -3,6 +3,7 @@ import { Calendar } from "lucide-react";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { useState, useEffect } from "react";
 
 interface NoteDetailsProps {
   id: string;
@@ -14,24 +15,43 @@ interface NoteDetailsProps {
 
 export const NoteDetails = ({ id, title, description, date, onNoteUpdated }: NoteDetailsProps) => {
   const { toast } = useToast();
+  const [content, setContent] = useState(description || "");
+  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Update content when note changes
+  useEffect(() => {
+    setContent(description || "");
+  }, [id, description]);
 
   const handleDescriptionChange = async (newDescription: string) => {
-    try {
-      const { error } = await supabase
-        .from("notes")
-        .update({ description: newDescription })
-        .eq('id', id);
+    setContent(newDescription);
 
-      if (error) throw error;
-
-      onNoteUpdated();
-    } catch (error) {
-      toast({
-        title: "Error updating note",
-        description: "Failed to save your changes. Please try again.",
-        variant: "destructive",
-      });
+    // Clear existing timeout
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
     }
+
+    // Set new timeout for auto-save
+    const timeout = setTimeout(async () => {
+      try {
+        const { error } = await supabase
+          .from("notes")
+          .update({ description: newDescription })
+          .eq('id', id);
+
+        if (error) throw error;
+
+        onNoteUpdated();
+      } catch (error) {
+        toast({
+          title: "Error updating note",
+          description: "Failed to save your changes. Please try again.",
+          variant: "destructive",
+        });
+      }
+    }, 1000); // Save after 1 second of no typing
+
+    setSaveTimeout(timeout);
   };
 
   return (
@@ -45,7 +65,7 @@ export const NoteDetails = ({ id, title, description, date, onNoteUpdated }: Not
           </div>
         )}
         <RichTextEditor
-          value={description || ""}
+          value={content}
           onChange={handleDescriptionChange}
           className="h-full"
         />
