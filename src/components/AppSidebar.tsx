@@ -2,13 +2,12 @@ import { useEffect, useState } from "react";
 import { Calendar, LayoutDashboard, FileText, ListTodo, Settings, LogOut, StickyNote, Activity } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -77,28 +76,25 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-border/10">
+    <Sidebar className="border-r border-border/10 w-[4rem]">
       <SidebarContent>
-        <div className="flex items-center gap-2 px-6 py-4">
+        <div className="flex items-center justify-center p-4">
           <Calendar className="h-6 w-6" />
-          <span className="font-semibold text-lg">Calendar</span>
         </div>
         
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs font-medium text-muted-foreground">
-            Menu
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
+                    tooltip={item.title}
                     className={location.pathname === item.url ? "bg-accent" : ""}
                   >
                     <a
                       href={item.url}
-                      className="flex items-center gap-3 px-4"
+                      className="flex items-center justify-center p-2"
                       onClick={(e) => {
                         if (item.url !== "#") {
                           e.preventDefault();
@@ -106,8 +102,7 @@ export function AppSidebar() {
                         }
                       }}
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span className="font-medium">{item.title}</span>
+                      <item.icon className="h-5 w-5" />
                     </a>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -117,33 +112,16 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {user && (
-        <SidebarFooter className="border-t border-border/10 p-4">
-          <div className="flex items-center gap-3">
-            <Avatar>
-              <AvatarImage src={user.user_metadata?.avatar_url} />
-              <AvatarFallback>
-                {user.email?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">
-                {user.user_metadata?.full_name || user.email}
-              </p>
-              <p className="text-xs text-muted-foreground truncate">
-                {user.email}
-              </p>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="p-2 hover:bg-muted rounded-md"
-              title="Sign out"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
-          </div>
-        </SidebarFooter>
-      )}
+      <SidebarFooter className="border-t border-border/10 p-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleSignOut}
+          className="w-full"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }
