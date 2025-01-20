@@ -8,6 +8,7 @@ import { DayReminders } from "./calendar/DayReminders";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import { CalendarHeader } from "./calendar/CalendarHeader";
 import { DayHabits } from "./calendar/DayHabits";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -17,6 +18,7 @@ export const TimeboxPlanner = () => {
   const [reminders, setReminders] = useState([]);
   const [habits, setHabits] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isChangingDate, setIsChangingDate] = useState(false);
 
   const fetchPriorities = async () => {
     try {
@@ -123,11 +125,19 @@ export const TimeboxPlanner = () => {
       }
     };
     
+    const loadData = async () => {
+      setIsChangingDate(true);
+      await Promise.all([
+        fetchPriorities(),
+        fetchNotes(),
+        fetchReminders(),
+        fetchHabits()
+      ]);
+      setIsChangingDate(false);
+    };
+
     checkSession();
-    fetchPriorities();
-    fetchNotes();
-    fetchReminders();
-    fetchHabits();
+    loadData();
   }, [selectedDate]);
 
   const getDaysInMonth = () => {
@@ -149,23 +159,36 @@ export const TimeboxPlanner = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="space-y-6 p-4 animate-fade-in">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-7 space-y-6">
+            <Skeleton className="h-[200px] w-full" />
+            <Skeleton className="h-[200px] w-full" />
+          </div>
+          <div className="lg:col-span-4">
+            <Skeleton className="h-[400px] w-full" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6 p-4">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 transition-opacity duration-300 ease-in-out ${isChangingDate ? 'opacity-50' : 'opacity-100'}`}>
         <div className="lg:col-span-7 space-y-6">
-          <DayItems
-            date={selectedDate}
-            items={priorities}
-            onItemsChange={fetchPriorities}
-          />
-
+          <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
+            <DayItems
+              date={selectedDate}
+              items={priorities}
+              onItemsChange={fetchPriorities}
+            />
+          </div>
         </div>
 
         <div className="lg:col-span-4">
-          <Card className="p-4 md:p-6 bg-card-blue">
+          <Card className="p-4 md:p-6 bg-card-blue animate-fade-in">
             <CalendarHeader
               currentMonth={currentMonth}
               onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
@@ -178,11 +201,11 @@ export const TimeboxPlanner = () => {
             />
           </Card>
         </div>
-
       </div>
-      <div>
+
+      <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
         <div className="mt-8">
-          <h2 className="text-xl md:text-2xl font-semibold mb-6">
+          <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-fade-in">
             {format(selectedDate, "MMMM d, yyyy")}
           </h2>
           <div className="space-y-4">
@@ -190,7 +213,7 @@ export const TimeboxPlanner = () => {
             <DayNotes notes={notes} />
             <DayReminders reminders={reminders} />
             {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-gray-500 py-8 animate-fade-in">
                 Nothing for today
               </div>
             )}
