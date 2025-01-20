@@ -21,8 +21,11 @@ interface NoteFormDrawerProps {
     description?: string;
     date?: string;
     image_url?: string;
+    background_color?: string;
   };
 }
+
+const COLORS = ['#ff9b74', '#fdc971', '#ebc49a', '#322a2f'];
 
 export const NoteFormDrawer = ({
   isOpen,
@@ -36,6 +39,7 @@ export const NoteFormDrawer = ({
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('#ff9b74');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -44,11 +48,13 @@ export const NoteFormDrawer = ({
       setDescription(editNote.description || "");
       setDate(editNote.date ? new Date(editNote.date) : undefined);
       setImageUrl(editNote.image_url || null);
+      setSelectedColor(editNote.background_color || '#ff9b74');
     } else {
       setTitle("");
       setDescription("");
       setDate(undefined);
       setImageUrl(null);
+      setSelectedColor('#ff9b74');
     }
   }, [editNote]);
 
@@ -108,6 +114,7 @@ export const NoteFormDrawer = ({
             description: description || null,
             date: date?.toISOString().split('T')[0] || null,
             image_url: finalImageUrl,
+            background_color: selectedColor,
           })
           .eq('id', editNote.id);
 
@@ -123,6 +130,7 @@ export const NoteFormDrawer = ({
           description: description || null,
           date: date?.toISOString().split('T')[0] || null,
           image_url: finalImageUrl,
+          background_color: selectedColor,
           user_id: user.id,
         });
 
@@ -141,6 +149,7 @@ export const NoteFormDrawer = ({
       setDate(undefined);
       setImage(null);
       setImageUrl(null);
+      setSelectedColor('#ff9b74');
     } catch (error) {
       toast({
         title: editNote ? "Error updating note" : "Error adding note",
@@ -153,9 +162,9 @@ export const NoteFormDrawer = ({
   };
 
   return (
-    <Drawer.Root  open={isOpen} onOpenChange={onClose}>
+    <Drawer.Root open={isOpen} onOpenChange={onClose}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0  bg-black/40" />
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
         <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-0 right-0 h-[85vh]">
           <div className="p-4 bg-background rounded-t-[10px] flex-1 h-full overflow-auto">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
@@ -219,6 +228,21 @@ export const NoteFormDrawer = ({
                       {imageUrl ? "Change image" : "Add image"}
                     </Button>
                   </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => setSelectedColor(color)}
+                      className={cn(
+                        "w-6 h-6 rounded-full transition-transform",
+                        selectedColor === color ? "scale-110 ring-2 ring-offset-2 ring-black" : ""
+                      )}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
                 </div>
 
                 {imageUrl && (

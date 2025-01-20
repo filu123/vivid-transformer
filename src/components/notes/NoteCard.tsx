@@ -25,6 +25,7 @@ interface NoteCardProps {
   description?: string;
   date?: string;
   image_url?: string;
+  background_color?: string;
   onNoteUpdated: () => void;
   onDrawingClick?: (note: { id: string; title: string; image_url: string; description?: string }) => void;
 }
@@ -35,6 +36,7 @@ export const NoteCard = ({
   description,
   date,
   image_url,
+  background_color = '#ff9b74',
   onNoteUpdated,
   onDrawingClick,
 }: NoteCardProps) => {
@@ -96,8 +98,9 @@ export const NoteCard = ({
   return (
     <>
       <Card 
-        className={`${background} ${cardHeight} min-h-[260px] max-h-[260px] transition-all duration-200 hover:scale-[1.02] cursor-pointer`}
+        className={`${cardHeight} min-h-[260px] max-h-[260px] transition-all duration-200 hover:scale-[1.02] cursor-pointer`}
         onClick={handleCardClick}
+        style={{ backgroundColor: background_color }}
       >
         <CardContent className="p-6 h-full flex flex-col">
           <div className="space-y-4 flex-1">
@@ -167,14 +170,14 @@ export const NoteCard = ({
       <NoteFormDrawer
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        editNote={{ id, title, description, date, image_url }}
+        editNote={{ id, title, description, date, image_url, background_color }}
         onNoteAdded={onNoteUpdated}
       />
 
       <NoteDetailsDrawer
         open={isDetailsOpen}
         onClose={() => setIsDetailsOpen(false)}
-        note={{ id, title, description, date, image_url }}
+        note={{ id, title, description, date, image_url, background_color }}
       />
     </>
   );
