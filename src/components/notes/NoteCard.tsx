@@ -91,7 +91,7 @@ export const NoteCard = ({
         <CardContent className="p-6 h-full flex flex-col">
           <div className="space-y-4 flex-1">
             <div className="flex justify-between items-start">
-              <h3 className="font-semibold text-xl">{title}</h3>
+              <h3 className="font-semibold text-xl line-clamp-2">{title}</h3>
               <div className="flex gap-2">
                 {/* Delete Button */}
                 <AlertDialog>
@@ -128,16 +128,16 @@ export const NoteCard = ({
             </div>
             {image_url && (
               <div 
-                className="relative w-full h-full cursor-pointer"
+                className="relative w-full cursor-pointer"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevent card click
+                  e.stopPropagation();
                   handleImageClick();
                 }}
               >
                 <img
                   src={image_url}
                   alt={title}
-                  className="absolute inset-0 w-full h-40 object-cover rounded-md"
+                  className="w-full h-32 object-cover rounded-md"
                 />
               </div>
             )}

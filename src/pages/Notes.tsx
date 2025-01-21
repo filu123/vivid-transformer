@@ -65,6 +65,7 @@ const Notes = () => {
             className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
             onClick={() => {
               setSelectedDrawing(null);
+              setIsAddModalOpen(true);
               setIsDrawingMode(true);
             }}
           >
@@ -123,23 +124,31 @@ const Notes = () => {
         </div>
       </div>
 
-      {isDrawingMode && (
-        <div className="fixed inset-y-0 right-0 w-full md:w-[600px] bg-background border-l shadow-xl z-50">
-          <DrawingPanel 
-            isVisible={isDrawingMode} 
-            onClose={() => {
-              setIsDrawingMode(false);
-              setSelectedDrawing(null);
-              refetch();
-            }}
-            existingNote={selectedDrawing}
-          />
-        </div>
-      )}
+      {isDrawingMode ? (
+        <Dialog open={isDrawingMode} onOpenChange={() => setIsDrawingMode(false)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Create Drawing Note</DialogTitle>
+            </DialogHeader>
+            <DrawingPanel 
+              isVisible={isDrawingMode} 
+              onClose={() => {
+                setIsDrawingMode(false);
+                setSelectedDrawing(null);
+                refetch();
+              }}
+              existingNote={selectedDrawing}
+            />
+          </DialogContent>
+        </Dialog>
+      ) : null}
 
       <NoteFormDrawer
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setIsDrawingMode(false);
+        }}
         onNoteAdded={refetch}
       />
     </div>
