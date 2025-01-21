@@ -46,3 +46,100 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+/* Placeholder for Title */
+.editable-title:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(75, 85, 99, 0.5); /* Tailwind's muted-foreground color */
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.editable-description:empty::before {
+  content: attr(data-placeholder);
+  color: #a0aec0; /* Tailwind's gray-400 */
+}
+
+/* Optional: Customize the editor's appearance */
+.ProseMirror {
+  outline: none;
+  min-height: 100px;
+}
+
+/* tailwind.css or a global CSS file */
+
+
+.editable-description ul {
+  @apply list-disc ml-5;
+}
+
+.editable-description ol {
+  @apply list-decimal ml-5;
+}
+
+.editable-description li {
+  @apply my-1;
+}
+
+/* Style task lists with checkboxes */
+.ProseMirror li.task-list-item {
+  @apply flex items-start;
+}
+
+.ProseMirror li.task-list-item input[type="checkbox"] {
+  @apply mr-2 mt-1;
+}
+
+.ProseMirror li.task-list-item label {
+  @apply flex-1;
+}
+
+/* Remove bullets from task lists */
+.ProseMirror ul.task-list,
+.ProseMirror ol.task-list {
+  @apply list-none;
+}
+
+/* Optional: Style checkboxes for better appearance */
+.ProseMirror li.task-list-item input[type="checkbox"] {
+  @apply h-4 w-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500;
+}
+
+/* Optional: Style labels when task is completed */
+.ProseMirror li.task-list-item input[type="checkbox"]:checked + label {
+  @apply line-through text-gray-500;
+}
+
+/* Add to your global CSS or component-specific CSS */
+.prose ul {
+  @apply list-disc;
+}
+
+.prose ol {
+  @apply list-decimal;
+}
+
+.tiptap-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #a0a0a0;
+  pointer-events: none;
+  user-select: none;
+  padding: 0.5em;
+  font-size: 1rem; /* Adjust to match your editor's font size */
+}
+
+.editable-title {
+  position: relative;
+}
+
+.editable-description {
+  position: relative;
+}
+
+.ProseMirror p {
+  color: black;
+}

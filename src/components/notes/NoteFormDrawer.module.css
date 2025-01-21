@@ -1,0 +1,20 @@
+   /* src/components/notes/NoteFormDrawer.module.css */
+
+   .tiptap-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #a0a0a0;
+    pointer-events: none;
+    user-select: none;
+    padding: 0.5em;
+    font-size: 1rem; /* Adjust as needed */
+  }
+
+  .editable-title {
+    position: relative;
+  }
+
+  .editable-description {
+    position: relative;
+  }

@@ -104,15 +104,16 @@ const Notes = () => {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
             {notes?.map((note) => (
               <div key={note.id}>
-                <NoteCard
+             <NoteCard
                   id={note.id}
                   title={note.title}
                   description={note.description}
                   date={note.date}
                   image_url={note.image_url}
+                  background_color={note.background_color} // Add this line
                   onNoteUpdated={refetch}
                   onDrawingClick={handleDrawingClick}
                 />

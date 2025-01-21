@@ -1,15 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, ImageIcon } from "lucide-react";
+import { CalendarIcon, Loader2, ImageIcon, CheckSquare } from "lucide-react";
 import { format } from "date-fns";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { Drawer } from "vaul";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import BulletList from '@tiptap/extension-bullet-list';
+import OrderedList from '@tiptap/extension-ordered-list';
+import ListItem from '@tiptap/extension-list-item';
+import Placeholder from '@tiptap/extension-placeholder';
+
 
 interface NoteFormDrawerProps {
   isOpen: boolean;
@@ -25,7 +31,7 @@ interface NoteFormDrawerProps {
   };
 }
 
-const COLORS = ['#ff9b74', '#fdc971', '#ebc49a', '#322a2f'];
+const COLORS = ['#ff9b74', '#fdc971', '#ebc49a', '#322a2f', '#c15626', '#ebe3d6', '#a2a8a5'];
 
 export const NoteFormDrawer = ({
   isOpen,
@@ -42,6 +48,54 @@ export const NoteFormDrawer = ({
   const [selectedColor, setSelectedColor] = useState('#ff9b74');
   const { toast } = useToast();
 
+  const titleRef = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+
+  const titleEditor = useEditor({
+    extensions: [
+      StarterKit.configure({ heading: false, bold: false, italic: false }),
+      Placeholder.configure({
+        placeholder: 'Title',
+      }),
+    ],
+    content: editNote?.title || '',
+    onUpdate: ({ editor }) => {
+      setTitle(editor.getText());
+    },
+  });
+
+
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        // Disable default list extensions to use custom ones
+        bulletList: false,
+        orderedList: false,
+        listItem: false,
+      }),
+      Underline,
+      BulletList,
+      OrderedList,
+      ListItem,
+  
+      // Add other extensions like Blockquote, Link, etc., if needed
+    ],
+    content: editNote?.description || '',
+    onUpdate: ({ editor }) => {
+      setDescription(editor.getHTML());
+    },
+  });
+
+
+  useEffect(() => {
+    if (editNote && editor) {
+      editor.commands.setContent(editNote.description || '');
+    } else if (editor) {
+      editor.commands.setContent('');
+    }
+  }, [editNote, editor]);
+
+  // Initialize fields when editNote changes
   useEffect(() => {
     if (editNote) {
       setTitle(editNote.title);
@@ -49,12 +103,26 @@ export const NoteFormDrawer = ({
       setDate(editNote.date ? new Date(editNote.date) : undefined);
       setImageUrl(editNote.image_url || null);
       setSelectedColor(editNote.background_color || '#ff9b74');
+
+      if (titleRef.current) {
+        titleRef.current.textContent = editNote.title;
+      }
+      if (descriptionRef.current) {
+        descriptionRef.current.textContent = editNote.description || "";
+      }
     } else {
       setTitle("");
       setDescription("");
       setDate(undefined);
       setImageUrl(null);
       setSelectedColor('#ff9b74');
+
+      if (titleRef.current) {
+        titleRef.current.textContent = "";
+      }
+      if (descriptionRef.current) {
+        descriptionRef.current.textContent = "";
+      }
     }
   }, [editNote]);
 
@@ -93,10 +161,10 @@ export const NoteFormDrawer = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUploading(true);
-    
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       if (!user) {
         throw new Error("No user found");
       }
@@ -165,26 +233,74 @@ export const NoteFormDrawer = ({
     <Drawer.Root open={isOpen} onOpenChange={onClose}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-0 right-0 h-[85vh]">
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] md:w-[70vw] mx-auto mt-24 fixed bottom-0 left-0 right-0 h-[85vh]">
           <div className="p-4 bg-background rounded-t-[10px] flex-1 h-full overflow-auto">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSubmit} className="space-y-6">
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  maxLength={70}
-                  required
-                  placeholder="Title"
-                  className="text-2xl font-semibold border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/50"
-                />
-                
-                <Textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Write something..."
-                  className="min-h-[150px] resize-none border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/50"
-                />
+                {/* Inline Editable Title */}
+                <div
+                  className="text-2xl font-semibold focus:outline-none px-0 relative h-10 editable-title"
+                >
+                  <EditorContent editor={titleEditor} />
+                </div>
+
+                {/* Inline Editable Description */}
+                {/* <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  className="min-h-[100px] resize-none  focus:outline-none px-0 relative editable-description"
+                  onInput={(e) => setDescription(e.currentTarget.textContent?.trim() || "")}
+                  ref={descriptionRef}
+                  data-placeholder="Write something..."
+                  aria-label="Note Description"
+                ></div> */}
+                {/* Rich Text Editor for Description */}
+                <div className="min-h-[100px] resize-none  px-0 relative border-none editable-description  rounded p-2">
+                  <EditorContent className="border-none" editor={editor} />
+                </div>
+
+                {/* Toolbar for Text Styling */}
+                <div className="flex space-x-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleBold().run()}
+                    className={`px-2 py-1 rounded ${editor?.isActive('bold') ? 'bg-gray-200' : ''}`}
+                  >
+                    <strong>B</strong>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleItalic().run()}
+                    className={`px-2 py-1 rounded ${editor?.isActive('italic') ? 'bg-gray-200' : ''}`}
+                  >
+                    <em>I</em>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleUnderline().run()}
+                    className={`px-2 py-1 rounded ${editor?.isActive('underline') ? 'bg-gray-200' : ''}`}
+                  >
+                    <u>U</u>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleBulletList().run()}
+                    className={`px-2 py-1 rounded ${editor?.isActive('bulletList') ? 'bg-gray-200' : ''}`}
+                  >
+                    • List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editor?.chain().focus().toggleOrderedList().run()}
+                    className={`px-2 py-1 rounded ${editor?.isActive('orderedList') ? 'bg-gray-200' : ''}`}
+                  >
+                    1. List
+                  </button>
+              
+                  {/* Add more styling buttons as needed */}
+                </div>
 
                 <div className="flex items-center gap-4">
                   <Popover>
@@ -211,7 +327,7 @@ export const NoteFormDrawer = ({
                   </Popover>
 
                   <div className="relative">
-                    <Input
+                    <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageChange}
@@ -255,7 +371,7 @@ export const NoteFormDrawer = ({
                   </div>
                 )}
 
-                <div className="flex justify-end space-x-2 pt-4 border-t">
+                <div className="flex justify-end space-x-2 pt-4">
                   <Button variant="outline" type="button" onClick={onClose}>
                     Cancel
                   </Button>

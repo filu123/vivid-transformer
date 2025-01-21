@@ -1,3 +1,4 @@
+// src/components/notes/NoteCard.tsx
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
@@ -13,11 +14,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { NoteFormDrawer } from "./NoteFormDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { NoteDetailsDrawer } from "./NoteDetailsDrawer";
+import { sanitizeHtml } from "@/lib/sanitizeHtml"; // Import the sanitize function
 
 interface NoteCardProps {
   id: string;
@@ -41,7 +42,6 @@ export const NoteCard = ({
   onDrawingClick,
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const handleDelete = async () => {
@@ -66,11 +66,11 @@ export const NoteCard = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Prevent opening the drawer when clicking on buttons
+    // Prevent opening the edit drawer when clicking on buttons
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
-    setIsDetailsOpen(true);
+    setIsEditModalOpen(true);
   };
 
   const handleImageClick = () => {
@@ -79,12 +79,12 @@ export const NoteCard = ({
     }
   };
 
-  const cardHeight = image_url ? 'h-34' : 'h-34';
+  const cardHeight = 'h-auto'; // Adjusted for responsive content
 
   return (
     <>
       <Card 
-        className={`${cardHeight} min-h-[260px] max-h-[260px] transition-all duration-200 hover:scale-[1.02] cursor-pointer`}
+        className={`${cardHeight} min-h-[270px] max-h-auto transition-all duration-200 hover:scale-[1.02] cursor-pointer`}
         onClick={handleCardClick}
         style={{ backgroundColor: background_color }}
       >
@@ -93,17 +93,16 @@ export const NoteCard = ({
             <div className="flex justify-between items-start">
               <h3 className="font-semibold text-xl">{title}</h3>
               <div className="flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-white p-4 rounded-full"
-                  onClick={() => setIsEditModalOpen(true)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+                {/* Delete Button */}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="bg-white p-4 rounded-full"
+                      onClick={(e) => e.stopPropagation()} // Prevent card click
+                      aria-label="Delete Note"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
@@ -129,20 +128,24 @@ export const NoteCard = ({
             </div>
             {image_url && (
               <div 
-                className="relative w-full h-24 cursor-pointer"
-                onClick={handleImageClick}
+                className="relative w-full h-full cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
+                  handleImageClick();
+                }}
               >
                 <img
                   src={image_url}
                   alt={title}
-                  className="absolute inset-0 w-24 h-24 object-cover rounded-md"
+                  className="absolute inset-0 w-full h-40 object-cover rounded-md"
                 />
               </div>
             )}
-            {description && (
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {description}
-              </p>
+            {description && !image_url && (
+              <div
+                className="prose text-sm text-muted-foreground max-w-full"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
+              />
             )}
             {date && (
               <p className="text-sm text-muted-foreground mt-auto">
@@ -158,12 +161,6 @@ export const NoteCard = ({
         onClose={() => setIsEditModalOpen(false)}
         editNote={{ id, title, description, date, image_url, background_color }}
         onNoteAdded={onNoteUpdated}
-      />
-
-      <NoteDetailsDrawer
-        open={isDetailsOpen}
-        onClose={() => setIsDetailsOpen(false)}
-        note={{ id, title, description, date, image_url, background_color }}
       />
     </>
   );
