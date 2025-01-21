@@ -6,6 +6,12 @@ import { FileText, Image, PenTool } from "lucide-react";
 import { useState } from "react";
 import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -156,3 +162,4 @@ const Notes = () => {
 };
 
 export default Notes;
+

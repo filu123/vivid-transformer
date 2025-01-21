@@ -13,6 +13,8 @@ import ListItem from '@tiptap/extension-list-item';
 import Placeholder from '@tiptap/extension-placeholder';
 import { ColorPicker } from "./ColorPicker";
 import { EditorToolbar } from "./EditorToolbar";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface NoteFormProps {
   onSubmit: (formData: {
@@ -33,6 +35,7 @@ interface NoteFormProps {
 }
 
 export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
+  const { toast } = useToast();
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [date, setDate] = useState<Date | undefined>(
