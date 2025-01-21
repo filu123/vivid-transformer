@@ -40,35 +40,43 @@ export const ReminderContent = ({
   }
 
   return (
-    <div className="space-y-4">
-      {reminders.map((reminder) => (
-        <Card key={reminder.id} className="p-4">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              checked={reminder.is_completed}
-              onCheckedChange={() =>
-                onToggleReminder(reminder.id, reminder.is_completed)
-              }
-            />
-            <div className="flex-1">
-              <span
-                className={
-                  reminder.is_completed
-                    ? "line-through text-muted-foreground"
-                    : ""
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">All Reminders</h2>
+        <span className="text-sm text-muted-foreground">
+          {reminders.length} reminders
+        </span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {reminders.map((reminder) => (
+          <Card key={reminder.id} className="p-4 hover:shadow-md transition-shadow">
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={reminder.is_completed}
+                onCheckedChange={() =>
+                  onToggleReminder(reminder.id, reminder.is_completed)
                 }
-              >
-                {reminder.title}
-              </span>
-              {reminder.due_date && (
-                <p className="text-xs text-muted-foreground">
-                  Due: {format(new Date(reminder.due_date), "PPP")}
+              />
+              <div className="flex-1 min-w-0">
+                <p
+                  className={`text-base ${
+                    reminder.is_completed
+                      ? "line-through text-muted-foreground"
+                      : ""
+                  }`}
+                >
+                  {reminder.title}
                 </p>
-              )}
+                {reminder.due_date && (
+                  <p className="text-sm text-muted-foreground truncate">
+                    Due: {format(new Date(reminder.due_date), "PPP")}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
