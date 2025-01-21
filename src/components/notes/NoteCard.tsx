@@ -14,11 +14,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NoteFormDrawer } from "./NoteFormDrawer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { sanitizeHtml } from "@/lib/sanitizeHtml"; // Import the sanitize function
+import { sanitizeHtml } from "@/lib/sanitizeHtml";
 
 interface NoteCardProps {
   id: string;
@@ -43,6 +43,15 @@ export const NoteCard = ({
 }: NoteCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const [isTitleTwoLines, setIsTitleTwoLines] = useState(false);
+
+  useEffect(() => {
+    if (titleRef.current) {
+      const titleHeight = titleRef.current.offsetHeight;
+      setIsTitleTwoLines(titleHeight > 28); // Assuming single line height is around 28px
+    }
+  }, [title]);
 
   const handleDelete = async () => {
     try {
@@ -66,7 +75,6 @@ export const NoteCard = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Prevent opening the edit drawer when clicking on buttons
     if ((e.target as HTMLElement).closest('button')) {
       return;
     }
@@ -79,28 +87,25 @@ export const NoteCard = ({
     }
   };
 
-  const cardHeight = 'h-auto'; // Adjusted for responsive content
-
   return (
     <>
       <Card 
-        className={`${cardHeight} min-h-[270px] max-h-auto transition-all duration-200 hover:scale-[1.02] cursor-pointer`}
+        className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden"
         onClick={handleCardClick}
         style={{ backgroundColor: background_color }}
       >
         <CardContent className="p-6 h-full flex flex-col">
           <div className="space-y-4 flex-1">
             <div className="flex justify-between items-start">
-              <h3 className="font-semibold text-xl line-clamp-2">{title}</h3>
+              <h3 ref={titleRef} className="font-semibold text-xl line-clamp-2">{title}</h3>
               <div className="flex gap-2">
-                {/* Delete Button */}
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button 
                       variant="ghost" 
                       size="icon"
                       className="bg-white p-4 rounded-full"
-                      onClick={(e) => e.stopPropagation()} // Prevent card click
+                      onClick={(e) => e.stopPropagation()}
                       aria-label="Delete Note"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -137,13 +142,13 @@ export const NoteCard = ({
                 <img
                   src={image_url}
                   alt={title}
-                  className="w-full h-32 object-cover rounded-md"
+                  className={`w-full object-cover rounded-md ${isTitleTwoLines ? 'h-32' : 'h-40'}`}
                 />
               </div>
             )}
             {description && !image_url && (
               <div
-                className="prose text-sm text-muted-foreground max-w-full"
+                className="prose text-sm text-muted-foreground max-w-full line-clamp-4"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
               />
             )}
