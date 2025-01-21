@@ -106,7 +106,8 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
         />
       </div>
 
-      <div className="flex-1 overflow-hidden bg-white">
+      {/* Drawing Area with touch-action: none to prevent drawer interference */}
+      <div className="flex-1 overflow-hidden bg-white touch-none" style={{ touchAction: 'none' }}>
         <CanvasDraw
           ref={canvasRef}
           className="w-full h-full"
@@ -117,20 +118,24 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
           hideGrid
           canvasWidth={window.innerWidth}
           canvasHeight={window.innerHeight - 200}
+          style={{ touchAction: 'none' }}
         />
       </div>
 
-      <DrawingToolbar
-        isDrawingMode={isDrawingMode}
-        onDrawingModeChange={(mode) => {
-          setIsDrawingMode(mode);
-          if (!mode && canvasRef.current) {
-            canvasRef.current.clear();
-          }
-        }}
-        onSave={handleSave}
-        onClose={onClose}
-      />
+      {/* Fixed toolbar at the bottom */}
+      <div className="sticky bottom-0 left-0 right-0 bg-background border-t z-10">
+        <DrawingToolbar
+          isDrawingMode={isDrawingMode}
+          onDrawingModeChange={(mode) => {
+            setIsDrawingMode(mode);
+            if (!mode && canvasRef.current) {
+              canvasRef.current.clear();
+            }
+          }}
+          onSave={handleSave}
+          onClose={onClose}
+        />
+      </div>
     </div>
   );
 };
