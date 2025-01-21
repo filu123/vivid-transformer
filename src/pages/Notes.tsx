@@ -6,22 +6,11 @@ import { FileText, Image, PenTool } from "lucide-react";
 import { useState } from "react";
 import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Drawer } from "vaul";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const [selectedDrawing, setSelectedDrawing] = useState<{
-    id: string;
-    title: string;
-    image_url: string;
-    description?: string;
-  } | null>(null);
 
   const { data: notes, refetch } = useQuery({
     queryKey: ["notes"],
@@ -35,16 +24,6 @@ const Notes = () => {
       return data;
     },
   });
-
-  const handleDrawingClick = (note: { 
-    id: string; 
-    title: string; 
-    image_url: string;
-    description?: string;
-  }) => {
-    setSelectedDrawing(note);
-    setIsDrawingMode(true);
-  };
 
   return (
     <div className="relative min-h-screen container mx-auto">
@@ -69,11 +48,7 @@ const Notes = () => {
           <Button
             variant="ghost"
             className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => {
-              setSelectedDrawing(null);
-              setIsAddModalOpen(true);
-              setIsDrawingMode(true);
-            }}
+            onClick={() => setIsDrawingMode(true)}
           >
             <div className="flex items-center space-x-4">
               <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
@@ -114,15 +89,14 @@ const Notes = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
             {notes?.map((note) => (
               <div key={note.id}>
-             <NoteCard
+                <NoteCard
                   id={note.id}
                   title={note.title}
                   description={note.description}
                   date={note.date}
                   image_url={note.image_url}
-                  background_color={note.background_color} // Add this line
+                  background_color={note.background_color}
                   onNoteUpdated={refetch}
-                  onDrawingClick={handleDrawingClick}
                 />
               </div>
             ))}
@@ -130,30 +104,25 @@ const Notes = () => {
         </div>
       </div>
 
-      {isDrawingMode ? (
-        <Dialog open={isDrawingMode} onOpenChange={() => setIsDrawingMode(false)}>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Create Drawing Note</DialogTitle>
-            </DialogHeader>
-            <DrawingPanel 
-              isVisible={isDrawingMode} 
+      <Drawer.Root open={isDrawingMode} onOpenChange={setIsDrawingMode}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+          <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-0 right-0 h-[85vh]">
+            <DrawingPanel
+              isVisible={isDrawingMode}
               onClose={() => {
                 setIsDrawingMode(false);
-                setSelectedDrawing(null);
                 refetch();
               }}
-              existingNote={selectedDrawing}
             />
-          </DialogContent>
-        </Dialog>
-      ) : null}
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
 
       <NoteFormDrawer
         isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
-          setIsDrawingMode(false);
         }}
         onNoteAdded={refetch}
       />
@@ -162,4 +131,3 @@ const Notes = () => {
 };
 
 export default Notes;
-

@@ -1,10 +1,9 @@
-import { useState } from "react";
-import { Canvas } from "fabric";
+import { useState, useRef } from "react";
+import CanvasDraw from "react-canvas-draw";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { DrawingCanvas } from "./DrawingCanvas";
 import { DrawingToolbar } from "./DrawingToolbar";
 
 interface DrawingPanelProps {
@@ -18,13 +17,13 @@ interface DrawingPanelProps {
 }
 
 export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelProps) => {
-  const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null);
   const [title, setTitle] = useState(existingNote?.title || "");
   const [isDrawingMode, setIsDrawingMode] = useState(true);
   const { toast } = useToast();
+  const canvasRef = useRef<CanvasDraw>(null);
 
   const handleSave = async () => {
-    if (!fabricCanvas || !title.trim()) {
+    if (!canvasRef.current || !title.trim()) {
       toast({
         title: "Error",
         description: "Please provide a title for your note",
@@ -40,12 +39,7 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
         throw new Error("No user found");
       }
 
-      const imageData = fabricCanvas.toDataURL({
-        format: 'png',
-        quality: 1,
-        multiplier: 1
-      });
-
+      const imageData = canvasRef.current.getDataURL();
       const response = await fetch(imageData);
       const blob = await response.blob();
 
@@ -112,10 +106,17 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
         />
       </div>
 
-      <div className="flex-1 overflow-hidden">
-        <DrawingCanvas
-          existingImage={existingNote?.image_url}
-          onCanvasReady={setFabricCanvas}
+      <div className="flex-1 overflow-hidden bg-white">
+        <CanvasDraw
+          ref={canvasRef}
+          className="w-full h-full"
+          brushRadius={2}
+          lazyRadius={0}
+          brushColor="#000"
+          backgroundColor="#fff"
+          hideGrid
+          canvasWidth={window.innerWidth}
+          canvasHeight={window.innerHeight - 200}
         />
       </div>
 
@@ -123,8 +124,8 @@ export const DrawingPanel = ({ isVisible, onClose, existingNote }: DrawingPanelP
         isDrawingMode={isDrawingMode}
         onDrawingModeChange={(mode) => {
           setIsDrawingMode(mode);
-          if (fabricCanvas) {
-            fabricCanvas.isDrawingMode = mode;
+          if (!mode && canvasRef.current) {
+            canvasRef.current.clear();
           }
         }}
         onSave={handleSave}
