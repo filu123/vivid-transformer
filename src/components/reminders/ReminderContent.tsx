@@ -26,15 +26,17 @@ export const ReminderContent = ({
   onToggleReminder,
 }: ReminderContentProps) => {
   if (selectedList) {
+    const selectedListData = lists?.find((l) => l.id === selectedList);
+    const listReminders = reminders.filter(r => r.list_id === selectedList);
+    
     return (
       <ReminderList
-        key={selectedList}
+        reminders={listReminders}
+        onToggleReminder={onToggleReminder}
         list={{
           id: selectedList,
-          name: lists?.find((l) => l.id === selectedList)?.name || "",
+          name: selectedListData?.name || "",
         }}
-        isSelected={true}
-        onSelect={() => {}}
       />
     );
   }

@@ -14,9 +14,13 @@ interface Reminder {
 interface ReminderListProps {
   reminders: Reminder[];
   onToggleReminder: (id: string, isCompleted: boolean) => void;
+  list?: {
+    id: string;
+    name: string;
+  };
 }
 
-export const ReminderList = ({ reminders, onToggleReminder }: ReminderListProps) => {
+export const ReminderList = ({ reminders, onToggleReminder, list }: ReminderListProps) => {
   const { toast } = useToast();
 
   const handleToggle = async (id: string, isCompleted: boolean) => {
@@ -51,7 +55,7 @@ export const ReminderList = ({ reminders, onToggleReminder }: ReminderListProps)
           <div className="flex items-center">
             <Checkbox
               checked={reminder.is_completed}
-              onCheckedChange={(checked) => handleToggle(reminder.id, checked)}
+              onCheckedChange={(checked) => handleToggle(reminder.id, checked as boolean)}
               className="mr-4"
             />
             <div>
