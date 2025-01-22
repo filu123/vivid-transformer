@@ -1,14 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { NoteCard } from "@/components/notes/NoteCard";
-import { Button } from "@/components/ui/button";
-import { FileText, ListTodo, Bell, PenTool } from "lucide-react";
-import { useState } from "react";
 import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
 import { Drawer } from "vaul";
 import { ReminderFormModal } from "@/components/reminders/ReminderFormModal";
-import { useRef } from "react";
+import { NoteActionButtons } from "@/components/notes/actions/NoteActionButtons";
+import { NoteColorFilters } from "@/components/notes/filters/NoteColorFilters";
+import { NotesGrid } from "@/components/notes/grid/NotesGrid";
 
 const COLORS = [
   '#ff9b74',
@@ -47,130 +46,32 @@ const Notes = () => {
 
   return (
     <div className="relative min-h-screen container mx-auto">
-      <div className="">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
-          <Button
-            variant="ghost"
-            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => {
-              setIsTaskMode(false);
-              setIsAddModalOpen(true);
-            }}
-          >
-            <div className="flex items-center space-x-4">
-              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
-                <FileText className="h-6 w-6 text-black" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-500">New Note</p>
-                <h3 className="text-lg font-semibold">Take a Note</h3>
-              </div>
-            </div>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => {
-              setIsTaskMode(true);
-              setIsAddModalOpen(true);
-            }}
-          >
-            <div className="flex items-center space-x-4">
-              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
-                <ListTodo className="h-6 w-6 text-black" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-500">New Task</p>
-                <h3 className="text-lg font-semibold">Add Task</h3>
-              </div>
-            </div>
-          </Button>
+      <div className="space-y-6">
+        <NoteActionButtons
+          onNoteClick={() => {
+            setIsTaskMode(false);
+            setIsAddModalOpen(true);
+          }}
+          onTaskClick={() => {
+            setIsTaskMode(true);
+            setIsAddModalOpen(true);
+          }}
+          onReminderClick={() => setIsReminderModalOpen(true)}
+          onDrawingClick={() => setIsDrawingMode(true)}
+          addButtonRef={addButtonRef}
+        />
 
-          <Button
-            variant="ghost"
-            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => setIsReminderModalOpen(true)}
-            ref={addButtonRef}
-          >
-            <div className="flex items-center space-x-4">
-              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
-                <Bell className="h-6 w-6 text-black" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-500">New Reminder</p>
-                <h3 className="text-lg font-semibold">Add Reminder</h3>
-              </div>
-            </div>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => setIsDrawingMode(true)}
-          >
-            <div className="flex items-center space-x-4">
-              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
-                <PenTool className="h-6 w-6 text-black" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-500">New Note</p>
-                <h3 className="text-lg font-semibold">With Drawing</h3>
-              </div>
-            </div>
-          </Button>
-        </div>
+        <NoteColorFilters
+          colors={COLORS}
+          selectedColor={selectedColor}
+          onColorSelect={setSelectedColor}
+          notesCount={filteredNotes?.length || 0}
+        />
 
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setSelectedColor(null)}
-                className="text-lg md:text-xl font-semibold hover:opacity-80 transition-opacity"
-              >
-                All Notes
-              </button>
-              <div className="flex items-center gap-2">
-                {COLORS.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(selectedColor === color ? null : color)}
-                    className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${
-                      selectedColor === color ? 'ring-2 ring-offset-2 ring-black scale-110' : ''
-                    }`}
-                    style={{ backgroundColor: color }}
-                  />
-                ))}
-              </div>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {filteredNotes?.length || 0} Notes
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-            {filteredNotes?.map((note, index) => (
-              <div 
-                key={note.id}
-                className="animate-fade-in"
-                style={{
-                  animationDelay: `${index * 0.05}s`,
-                  animationFillMode: 'backwards'
-                }}
-              >
-                <NoteCard
-                  id={note.id}
-                  title={note.title}
-                  description={note.description}
-                  date={note.date}
-                  image_url={note.image_url}
-                  background_color={note.background_color}
-                  onNoteUpdated={refetch}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+        <NotesGrid
+          notes={filteredNotes || []}
+          onNoteUpdated={refetch}
+        />
       </div>
 
       <Drawer.Root open={isDrawingMode} onOpenChange={setIsDrawingMode}>
