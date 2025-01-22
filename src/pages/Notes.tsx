@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
@@ -9,25 +9,8 @@ import { NoteActionButtons } from "@/components/notes/actions/NoteActionButtons"
 import { NoteColorFilters } from "@/components/notes/filters/NoteColorFilters";
 import { NotesGrid } from "@/components/notes/grid/NotesGrid";
 import { ContentTypeFilter } from "@/components/notes/filters/ContentTypeFilter";
-import { TaskCard } from "@/components/notes/cards/TaskCard";
 import { ReminderCard } from "@/components/notes/cards/ReminderCard";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const COLORS = [
-  '#ff9b74',
-  '#fdc971',
-  '#ebc49a',
-  '#322a2f',
-  '#c15626',
-  '#ebe3d6',
-  '#a2a8a5'
-];
+import { TasksSection } from "@/components/notes/sections/TasksSection";
 
 type ContentType = "notes" | "tasks" | "reminders";
 
@@ -35,7 +18,6 @@ const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isTaskMode, setIsTaskMode] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentType>("notes");
@@ -47,19 +29,6 @@ const Notes = () => {
       const { data, error } = await supabase
         .from("notes")
         .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: tasks, refetch: refetchTasks } = useQuery({
-    queryKey: ["tasks_notes"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("tasks_notes")
-        .select("*, task_labels(name)")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -80,28 +49,9 @@ const Notes = () => {
     },
   });
 
-  const { data: labels } = useQuery({
-    queryKey: ["task_labels"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("task_labels")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const filteredNotes = selectedColor 
     ? notes?.filter(note => note.background_color === selectedColor)
     : notes;
-
-  const filteredTasks = tasks?.filter(task => {
-    if (selectedColor && task.background_color !== selectedColor) return false;
-    if (selectedLabelId && task.label_id !== selectedLabelId) return false;
-    return true;
-  });
 
   const filteredReminders = selectedColor
     ? reminders?.filter(reminder => reminder.background_color === selectedColor)
@@ -111,41 +61,10 @@ const Notes = () => {
     switch (selectedType) {
       case "tasks":
         return (
-          <>
-            <div className="flex justify-between items-center mb-6">
-              <NoteColorFilters
-                colors={COLORS}
-                selectedColor={selectedColor}
-                onColorSelect={setSelectedColor}
-                notesCount={filteredTasks?.length || 0}
-              />
-              <Select
-                value={selectedLabelId || "all"}
-                onValueChange={(value) => setSelectedLabelId(value === "all" ? null : value)}
-              >
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Filter by label" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All labels</SelectItem>
-                  {labels?.map((label) => (
-                    <SelectItem key={label.id} value={label.id}>
-                      {label.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-              {filteredTasks?.map((task) => (
-                <TaskCard 
-                  key={task.id} 
-                  task={task} 
-                  onUpdate={refetchTasks}
-                />
-              ))}
-            </div>
-          </>
+          <TasksSection
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
         );
       case "reminders":
         return (
@@ -163,7 +82,7 @@ const Notes = () => {
         return (
           <>
             <NoteColorFilters
-              colors={COLORS}
+              colors={['#ff9b74', '#fdc971', '#ebc49a', '#322a2f', '#c15626', '#ebe3d6', '#a2a8a5']}
               selectedColor={selectedColor}
               onColorSelect={setSelectedColor}
               notesCount={filteredNotes?.length || 0}
