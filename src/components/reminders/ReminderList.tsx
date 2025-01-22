@@ -6,9 +6,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface Reminder {
   id: string;
   title: string;
-  due_date: string;
-  background_color?: string;
+  due_date?: string;
   is_completed: boolean;
+  category: string;
+  background_color?: string;
 }
 
 interface ReminderListProps {

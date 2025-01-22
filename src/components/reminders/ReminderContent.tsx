@@ -6,9 +6,10 @@ import { ReminderList } from "./ReminderList";
 interface Reminder {
   id: string;
   title: string;
-  is_completed: boolean;
   due_date?: string;
+  is_completed: boolean;
   category: string;
+  background_color?: string;
   list_id?: string;
 }
 
