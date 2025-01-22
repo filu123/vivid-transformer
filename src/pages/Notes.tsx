@@ -8,6 +8,9 @@ import { ReminderFormModal } from "@/components/reminders/ReminderFormModal";
 import { NoteActionButtons } from "@/components/notes/actions/NoteActionButtons";
 import { NoteColorFilters } from "@/components/notes/filters/NoteColorFilters";
 import { NotesGrid } from "@/components/notes/grid/NotesGrid";
+import { ContentTypeFilter } from "@/components/notes/filters/ContentTypeFilter";
+import { TaskCard } from "@/components/notes/cards/TaskCard";
+import { ReminderCard } from "@/components/notes/cards/ReminderCard";
 
 const COLORS = [
   '#ff9b74',
@@ -19,15 +22,18 @@ const COLORS = [
   '#a2a8a5'
 ];
 
+type ContentType = "notes" | "tasks" | "reminders";
+
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isTaskMode, setIsTaskMode] = useState(false);
+  const [selectedType, setSelectedType] = useState<ContentType>("notes");
   const addButtonRef = useRef<HTMLButtonElement>(null);
 
-  const { data: notes, refetch } = useQuery({
+  const { data: notes, refetch: refetchNotes } = useQuery({
     queryKey: ["notes"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,13 +46,80 @@ const Notes = () => {
     },
   });
 
+  const { data: tasks, refetch: refetchTasks } = useQuery({
+    queryKey: ["tasks_notes"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tasks_notes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: reminders, refetch: refetchReminders } = useQuery({
+    queryKey: ["reminders"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reminders")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const filteredNotes = selectedColor 
     ? notes?.filter(note => note.background_color === selectedColor)
     : notes;
 
+  const renderContent = () => {
+    switch (selectedType) {
+      case "tasks":
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+            {tasks?.map((task) => (
+              <TaskCard key={task.id} task={task} />
+            ))}
+          </div>
+        );
+      case "reminders":
+        return (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+            {reminders?.map((reminder) => (
+              <ReminderCard key={reminder.id} reminder={reminder} />
+            ))}
+          </div>
+        );
+      default:
+        return (
+          <>
+            <NoteColorFilters
+              colors={COLORS}
+              selectedColor={selectedColor}
+              onColorSelect={setSelectedColor}
+              notesCount={filteredNotes?.length || 0}
+            />
+            <NotesGrid
+              notes={filteredNotes || []}
+              onNoteUpdated={refetchNotes}
+            />
+          </>
+        );
+    }
+  };
+
   return (
     <div className="relative min-h-screen container mx-auto">
       <div className="space-y-6">
+        <ContentTypeFilter
+          selectedType={selectedType}
+          onTypeSelect={setSelectedType}
+        />
+
         <NoteActionButtons
           onNoteClick={() => {
             setIsTaskMode(false);
@@ -61,17 +134,7 @@ const Notes = () => {
           addButtonRef={addButtonRef}
         />
 
-        <NoteColorFilters
-          colors={COLORS}
-          selectedColor={selectedColor}
-          onColorSelect={setSelectedColor}
-          notesCount={filteredNotes?.length || 0}
-        />
-
-        <NotesGrid
-          notes={filteredNotes || []}
-          onNoteUpdated={refetch}
-        />
+        {renderContent()}
       </div>
 
       <Drawer.Root open={isDrawingMode} onOpenChange={setIsDrawingMode}>
@@ -82,7 +145,7 @@ const Notes = () => {
               isVisible={isDrawingMode}
               onClose={() => {
                 setIsDrawingMode(false);
-                refetch();
+                refetchNotes();
               }}
             />
           </Drawer.Content>
@@ -95,7 +158,7 @@ const Notes = () => {
           setIsAddModalOpen(false);
           setIsTaskMode(false);
         }}
-        onNoteAdded={refetch}
+        onNoteAdded={refetchNotes}
         initialData={{
           title: isTaskMode ? "New Task" : "New Note",
           description: isTaskMode ? "Task details..." : "Start writing your thoughts here...",
