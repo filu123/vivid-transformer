@@ -54,7 +54,7 @@ export type Database = {
           created_at?: string
           custom_days?: number[] | null
           duration_minutes?: number
-          duration_months?: number
+          duration_months: number
           frequency: Database["public"]["Enums"]["habit_frequency"]
           id?: string
           start_date?: string
@@ -143,6 +143,27 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           created_at: string
@@ -226,7 +247,7 @@ export type Database = {
           is_completed?: boolean
           list_id?: string | null
           title?: string
-          user_id: string
+          user_id?: string
         }
         Relationships: [
           {
@@ -254,7 +275,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          name: string
+          name?: string
           user_id?: string
         }
         Relationships: []
@@ -306,9 +327,9 @@ export type Database = {
           id: string
           is_done: boolean | null
           label_id: string | null
-          status: Database["public"]["Enums"]["task_status"] | null;
-          title: string;
-          user_id: string;
+          status: Database["public"]["Enums"]["task_status"] | null
+          title: string
+          user_id: string
         }
         Insert: {
           background_color?: string | null
@@ -318,9 +339,9 @@ export type Database = {
           id?: string
           is_done?: boolean | null
           label_id?: string | null
-          status?: Database["public"]["Enums"]["task_status"] | null;
-          title: string;
-          user_id: string;
+          status?: Database["public"]["Enums"]["task_status"] | null
+          title: string
+          user_id: string
         }
         Update: {
           background_color?: string | null
@@ -330,20 +351,20 @@ export type Database = {
           id?: string
           is_done?: boolean | null
           label_id?: string | null
-          status?: Database["public"]["Enums"]["task_status"] | null;
-          title?: string;
-          user_id?: string;
+          status?: Database["public"]["Enums"]["task_status"] | null
+          title?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "tasks_notes_label_id_fkey";
-            columns: ["label_id"];
-            isOneToOne: false;
-            referencedRelation: "task_labels";
-            referencedColumns: ["id"];
+            foreignKeyName: "tasks_notes_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "task_labels"
+            referencedColumns: ["id"]
           },
-        ];
-      };
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -371,7 +392,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never,
+    : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -383,10 +404,10 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R
-    }
-    ? R
-    : never
+        Row: infer R
+      }
+      ? R
+      : never
     : never
 
 export type TablesInsert<

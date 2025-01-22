@@ -23,21 +23,23 @@ interface ReminderDetailsDrawerProps {
 
 export const ReminderDetailsDrawer = ({ open, onClose, reminder, onUpdate }: ReminderDetailsDrawerProps) => {
   const [title, setTitle] = useState(reminder.title);
-  const [dueDate, setDueDate] = useState(
-    reminder.due_date ? format(new Date(reminder.due_date), "yyyy-MM-dd'T'HH:mm") : ""
-  );
-  const [backgroundColor, setBackgroundColor] = useState(reminder.background_color || "#F2FCE2");
+  const [dueDate, setDueDate] = useState<string>(reminder.due_date || '');
+  const [backgroundColor, setBackgroundColor] = useState(reminder.background_color || '#F2FCE2');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
       const { error } = await supabase
         .from("reminders")
         .update({
           title,
-          due_date: dueDate || null,
+          due_date: dueDate,
           background_color: backgroundColor,
+          user_id: user.id
         })
         .eq("id", reminder.id);
 

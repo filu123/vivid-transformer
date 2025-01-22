@@ -1,90 +1,66 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { format } from "date-fns";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-interface ReminderListProps {
-  list: {
-    id: string;
-    name: string;
-  };
-  isSelected: boolean;
-  onSelect: () => void;
+interface Reminder {
+  id: string;
+  title: string;
+  due_date: string;
+  background_color?: string;
+  is_completed: boolean;
 }
 
-export const ReminderList = ({ list, isSelected, onSelect }: ReminderListProps) => {
-  const { data: reminders } = useQuery({
-    queryKey: ["reminders", list.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("reminders")
-        .select("*")
-        .eq("list_id", list.id)
-        .order("created_at", { ascending: false });
+interface ReminderListProps {
+  reminders: Reminder[];
+  onToggleReminder: (id: string, isCompleted: boolean) => void;
+}
+
+export const ReminderList = ({ reminders, onToggleReminder }: ReminderListProps) => {
+  const { toast } = useToast();
+
+  const handleToggle = async (id: string, isCompleted: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('No user found');
+
+      const { error } = await supabase
+        .from('reminders')
+        .update({ 
+          is_completed: isCompleted,
+          user_id: user.id 
+        })
+        .eq('id', id);
 
       if (error) throw error;
-      return data;
-    },
-  });
-
-  const handleToggleReminder = async (reminderId: string, currentState: boolean) => {
-    const { error } = await supabase
-      .from("reminders")
-      .update({ is_completed: !currentState })
-      .eq("id", reminderId);
-
-    if (error) {
-      console.error("Error updating reminder:", error);
+      onToggleReminder(id, isCompleted);
+    } catch (error) {
+      console.error('Error toggling reminder:', error);
+      toast({
+        title: "Error",
+        description: "Failed to toggle reminder status",
+        variant: "destructive",
+      });
     }
   };
 
   return (
-    <Card
-      className={`cursor-pointer transition-colors ${
-        isSelected ? "border-primary" : ""
-      }`}
-      onClick={onSelect}
-    >
-      <CardHeader>
-        <CardTitle className="text-lg">{list.name}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {reminders?.map((reminder) => (
-            <div
-              key={reminder.id}
-              className="flex items-start gap-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Checkbox
-                checked={reminder.is_completed}
-                onCheckedChange={() =>
-                  handleToggleReminder(reminder.id, reminder.is_completed)
-                }
-              />
-              <div className="flex-1">
-                <p
-                  className={`text-sm ${
-                    reminder.is_completed ? "line-through text-muted-foreground" : ""
-                  }`}
-                >
-                  {reminder.title}
-                </p>
-                {reminder.due_date && (
-                  <p className="text-xs text-muted-foreground">
-                    Due: {format(new Date(reminder.due_date), "PPP")}
-                  </p>
-                )}
-              </div>
+    <div className="grid grid-cols-1 gap-4">
+      {reminders.map((reminder) => (
+        <Card key={reminder.id} className="flex items-center justify-between p-4">
+          <div className="flex items-center">
+            <Checkbox
+              checked={reminder.is_completed}
+              onCheckedChange={(checked) => handleToggle(reminder.id, checked)}
+              className="mr-4"
+            />
+            <div>
+              <h3 className="font-semibold">{reminder.title}</h3>
+              <p className="text-sm text-muted-foreground">{reminder.due_date}</p>
             </div>
-          ))}
-          {(!reminders || reminders.length === 0) && (
-            <p className="text-sm text-muted-foreground">No reminders yet</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        </Card>
+      ))}
+    </div>
   );
 };
