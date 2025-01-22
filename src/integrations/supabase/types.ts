@@ -217,6 +217,7 @@ export type Database = {
       }
       reminders: {
         Row: {
+          background_color: string | null
           category: Database["public"]["Enums"]["reminder_category"]
           created_at: string
           due_date: string | null
@@ -227,6 +228,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          background_color?: string | null
           category?: Database["public"]["Enums"]["reminder_category"]
           created_at?: string
           due_date?: string | null
@@ -237,6 +239,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          background_color?: string | null
           category?: Database["public"]["Enums"]["reminder_category"]
           created_at?: string
           due_date?: string | null

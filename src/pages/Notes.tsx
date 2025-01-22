@@ -76,21 +76,37 @@ const Notes = () => {
     ? notes?.filter(note => note.background_color === selectedColor)
     : notes;
 
+  const filteredTasks = selectedColor
+    ? tasks?.filter(task => task.background_color === selectedColor)
+    : tasks;
+
+  const filteredReminders = selectedColor
+    ? reminders?.filter(reminder => reminder.background_color === selectedColor)
+    : reminders;
+
   const renderContent = () => {
     switch (selectedType) {
       case "tasks":
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-            {tasks?.map((task) => (
-              <TaskCard key={task.id} task={task} />
+            {filteredTasks?.map((task) => (
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onUpdate={refetchTasks}
+              />
             ))}
           </div>
         );
       case "reminders":
         return (
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-            {reminders?.map((reminder) => (
-              <ReminderCard key={reminder.id} reminder={reminder} />
+            {filteredReminders?.map((reminder) => (
+              <ReminderCard 
+                key={reminder.id} 
+                reminder={reminder} 
+                onUpdate={refetchReminders}
+              />
             ))}
           </div>
         );
