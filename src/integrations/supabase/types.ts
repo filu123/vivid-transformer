@@ -320,6 +320,7 @@ export type Database = {
           background_color: string | null
           created_at: string
           date: string | null
+          description: string | null
           id: string
           label_id: string | null
           status: Database["public"]["Enums"]["task_status"] | null
@@ -330,6 +331,7 @@ export type Database = {
           background_color?: string | null
           created_at?: string
           date?: string | null
+          description?: string | null
           id?: string
           label_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
@@ -340,6 +342,7 @@ export type Database = {
           background_color?: string | null
           created_at?: string
           date?: string | null
+          description?: string | null
           id?: string
           label_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
