@@ -21,20 +21,19 @@ export const ReminderDateTime = ({
   onTimeChange,
 }: ReminderDateTimeProps) => {
   return (
-    <>
+    <div className="space-y-4">
       <div className="space-y-2">
-        <Label>Due Date (Optional)</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               className={cn(
-                "w-full justify-start text-left font-normal",
+                "w-full justify-start text-left font-normal border-none bg-background hover:bg-muted/50",
                 !date && "text-muted-foreground"
               )}
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : "Pick a date"}
+              {date ? format(date, "PPP") : "Add date"}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
@@ -47,19 +46,18 @@ export const ReminderDateTime = ({
           </PopoverContent>
         </Popover>
       </div>
+      
       <div className="space-y-2">
-        <Label htmlFor="time">Time (Optional)</Label>
         <div className="flex items-center space-x-2">
           <Input
-            id="time"
             type="time"
             value={time}
             onChange={(e) => onTimeChange(e.target.value)}
-            className="flex-1"
+            className="flex-1 border-none bg-background focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           <Clock className="h-4 w-4 text-muted-foreground" />
         </div>
       </div>
-    </>
+    </div>
   );
 };

@@ -34,32 +34,51 @@ export const ReminderFormModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add New Reminder</DialogTitle>
+      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden animate-in fade-in-0 zoom-in-95">
+        <DialogHeader className="px-4 pt-5 pb-4">
+          <DialogTitle className="text-2xl font-semibold">Add Reminder</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6 px-4 pb-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="text-lg border-none bg-muted/50 focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
+              placeholder="Reminder title"
               required
             />
           </div>
-          <ReminderListSelect value={listId} onChange={setListId} />
-          <ReminderDateTime
-            date={date}
-            time={time}
-            onDateChange={setDate}
-            onTimeChange={setTime}
-          />
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+          
+          <div className="space-y-4 rounded-lg bg-muted/50 p-4">
+            <ReminderListSelect 
+              value={listId} 
+              onChange={setListId}
+              className="border-none bg-background focus-visible:ring-0"
+            />
+            <ReminderDateTime
+              date={date}
+              time={time}
+              onDateChange={setDate}
+              onTimeChange={setTime}
+            />
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={onClose}
+              className="hover:bg-muted/50"
+            >
               Cancel
             </Button>
-            <Button type="submit">Add Reminder</Button>
+            <Button 
+              type="submit"
+              className="bg-primary hover:bg-primary/90"
+            >
+              Add Reminder
+            </Button>
           </div>
         </form>
       </DialogContent>
