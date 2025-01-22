@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { TaskCard } from "../cards/TaskCard";
 import { NoteColorFilters } from "../filters/NoteColorFilters";
 import { TaskLabelFilter } from "../filters/TaskLabelFilter";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TasksSectionProps {
   selectedColor: string | null;
@@ -12,6 +19,7 @@ interface TasksSectionProps {
 
 export const TasksSection = ({ selectedColor, onColorSelect }: TasksSectionProps) => {
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
+  const [completionFilter, setCompletionFilter] = useState<"all" | "completed" | "pending">("all");
 
   const { data: tasks, refetch: refetchTasks } = useQuery({
     queryKey: ["tasks_notes"],
@@ -29,18 +37,33 @@ export const TasksSection = ({ selectedColor, onColorSelect }: TasksSectionProps
   const filteredTasks = tasks?.filter(task => {
     if (selectedColor && task.background_color !== selectedColor) return false;
     if (selectedLabelId && task.label_id !== selectedLabelId) return false;
+    if (completionFilter === "completed" && !task.is_done) return false;
+    if (completionFilter === "pending" && task.is_done) return false;
     return true;
   });
 
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <NoteColorFilters
-          colors={['#ff9b74', '#fdc971', '#ebc49a', '#322a2f', '#c15626', '#ebe3d6', '#a2a8a5']}
-          selectedColor={selectedColor}
-          onColorSelect={onColorSelect}
-          notesCount={filteredTasks?.length || 0}
-        />
+        <div className="flex items-center gap-4 flex-1">
+          <NoteColorFilters
+            colors={['#ff9b74', '#fdc971', '#ebc49a', '#322a2f', '#c15626', '#ebe3d6', '#a2a8a5']}
+            selectedColor={selectedColor}
+            onColorSelect={onColorSelect}
+            notesCount={filteredTasks?.length || 0}
+            title="All tasks"
+          />
+          <Select value={completionFilter} onValueChange={(value: "all" | "completed" | "pending") => setCompletionFilter(value)}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <TaskLabelFilter
           selectedLabelId={selectedLabelId}
           onLabelSelect={setSelectedLabelId}
