@@ -1,20 +1,9 @@
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Loader2, ImageIcon } from "lucide-react";
-import { format } from "date-fns";
-import { useState, useEffect } from "react";
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import BulletList from '@tiptap/extension-bullet-list';
-import OrderedList from '@tiptap/extension-ordered-list';
-import ListItem from '@tiptap/extension-list-item';
-import Placeholder from '@tiptap/extension-placeholder';
+import { useState } from "react";
 import { ColorPicker } from "./ColorPicker";
-import { EditorToolbar } from "./EditorToolbar";
 import { TaskLabelSelect } from "./TaskLabelSelect";
-import { cn } from "@/lib/utils";
+import { NoteFormTitle } from "./NoteFormTitle";
+import { NoteFormDescription } from "./NoteFormDescription";
+import { NoteFormActions } from "./NoteFormActions";
 import { useToast } from "@/hooks/use-toast";
 
 interface NoteFormProps {
@@ -35,9 +24,10 @@ interface NoteFormProps {
     label_id?: string;
   };
   onClose: () => void;
+  isTaskMode?: boolean;
 }
 
-export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
+export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }: NoteFormProps) => {
   const { toast } = useToast();
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -49,45 +39,6 @@ export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedColor, setSelectedColor] = useState(initialData?.background_color || '#ff9b74');
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(initialData?.label_id || null);
-
-  const titleEditor = useEditor({
-    extensions: [
-      StarterKit.configure({ heading: false, bold: false, italic: false }),
-      Placeholder.configure({
-        placeholder: 'Title (max 50 characters)',
-      }),
-    ],
-    content: initialData?.title || '',
-    onUpdate: ({ editor }) => {
-      const text = editor.getText();
-      if (text.length <= 50) {
-        setTitle(text);
-      } else {
-        editor.commands.setContent(text.substring(0, 50));
-      }
-    },
-  });
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit.configure({
-        bulletList: false,
-        orderedList: false,
-        listItem: false,
-      }),
-      Underline,
-      BulletList,
-      OrderedList,
-      ListItem,
-      Placeholder.configure({
-        placeholder: 'Write something...',
-      }),
-    ],
-    content: initialData?.description || '',
-    onUpdate: ({ editor }) => {
-      setDescription(editor.getHTML());
-    },
-  });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -116,7 +67,7 @@ export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
         date,
         image: image || undefined,
         selectedColor,
-        labelId: selectedLabelId,
+        labelId: isTaskMode ? selectedLabelId : undefined,
       });
     } finally {
       setIsUploading(false);
@@ -125,87 +76,28 @@ export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="text-2xl font-semibold focus:outline-none px-0 relative h-10 editable-title">
-        <EditorContent editor={titleEditor} />
-      </div>
-
-      <div className="min-h-[100px] resize-none px-0 relative border-none editable-description rounded p-2">
-        <EditorContent className="border-none" editor={editor} />
-      </div>
-
-      <EditorToolbar editor={editor} />
+      <NoteFormTitle initialTitle={title} onTitleChange={setTitle} />
+      <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
 
       <div className="space-y-4">
-        <TaskLabelSelect
-          selectedLabelId={selectedLabelId}
-          onSelectLabel={setSelectedLabelId}
-        />
-
-        <div className="flex items-center gap-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                className={cn(
-                  "pl-0 text-left font-normal",
-                  !date && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : "Add date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
-          <div className="relative">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="hidden"
-              id="image-upload"
-            />
-            <Button
-              variant="ghost"
-              className="pl-0"
-              onClick={() => document.getElementById('image-upload')?.click()}
-              type="button"
-            >
-              <ImageIcon className="mr-2 h-4 w-4" />
-              {imageUrl ? "Change image" : "Add image"}
-            </Button>
-          </div>
-        </div>
+        {isTaskMode && (
+          <TaskLabelSelect
+            selectedLabelId={selectedLabelId}
+            onSelectLabel={setSelectedLabelId}
+          />
+        )}
 
         <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
 
-        {imageUrl && (
-          <div className="mt-2">
-            <img
-              src={imageUrl}
-              alt="Preview"
-              className="max-h-48 rounded-md object-cover"
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-end space-x-2 pt-4">
-        <Button variant="outline" type="button" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isUploading}>
-          {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {initialData ? "Update" : "Add"} Note
-        </Button>
+        <NoteFormActions
+          date={date}
+          onDateChange={setDate}
+          imageUrl={imageUrl}
+          onImageChange={handleImageChange}
+          isUploading={isUploading}
+          onClose={onClose}
+          isEditing={!!initialData?.title}
+        />
       </div>
     </form>
   );

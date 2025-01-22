@@ -2,11 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { NoteCard } from "@/components/notes/NoteCard";
 import { Button } from "@/components/ui/button";
-import { FileText, Image, PenTool } from "lucide-react";
+import { FileText, ListTodo, Bell, PenTool } from "lucide-react";
 import { useState } from "react";
 import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
 import { Drawer } from "vaul";
+import { ReminderFormModal } from "@/components/reminders/ReminderFormModal";
+import { useRef } from "react";
 
 const COLORS = [
   '#ff9b74',
@@ -22,6 +24,9 @@ const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [isTaskMode, setIsTaskMode] = useState(false);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data: notes, refetch } = useQuery({
     queryKey: ["notes"],
@@ -43,11 +48,14 @@ const Notes = () => {
   return (
     <div className="relative min-h-screen container mx-auto">
       <div className="">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8 md:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
           <Button
             variant="ghost"
             className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => setIsAddModalOpen(true)}
+            onClick={() => {
+              setIsTaskMode(false);
+              setIsAddModalOpen(true);
+            }}
           >
             <div className="flex items-center space-x-4">
               <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
@@ -56,6 +64,42 @@ const Notes = () => {
               <div className="text-left">
                 <p className="text-sm text-gray-500">New Note</p>
                 <h3 className="text-lg font-semibold">Take a Note</h3>
+              </div>
+            </div>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
+            onClick={() => {
+              setIsTaskMode(true);
+              setIsAddModalOpen(true);
+            }}
+          >
+            <div className="flex items-center space-x-4">
+              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
+                <ListTodo className="h-6 w-6 text-black" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">New Task</p>
+                <h3 className="text-lg font-semibold">Add Task</h3>
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
+            onClick={() => setIsReminderModalOpen(true)}
+            ref={addButtonRef}
+          >
+            <div className="flex items-center space-x-4">
+              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
+                <Bell className="h-6 w-6 text-black" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm text-gray-500">New Reminder</p>
+                <h3 className="text-lg font-semibold">Add Reminder</h3>
               </div>
             </div>
           </Button>
@@ -72,22 +116,6 @@ const Notes = () => {
               <div className="text-left">
                 <p className="text-sm text-gray-500">New Note</p>
                 <h3 className="text-lg font-semibold">With Drawing</h3>
-              </div>
-            </div>
-          </Button>
-          
-          <Button
-            variant="ghost"
-            className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-            onClick={() => setIsAddModalOpen(true)}
-          >
-            <div className="flex items-center space-x-4">
-              <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
-                <Image className="h-6 w-6 text-black" />
-              </div>
-              <div className="text-left">
-                <p className="text-sm text-gray-500">New Note</p>
-                <h3 className="text-lg font-semibold">With Image</h3>
               </div>
             </div>
           </Button>
@@ -164,13 +192,21 @@ const Notes = () => {
         isOpen={isAddModalOpen}
         onClose={() => {
           setIsAddModalOpen(false);
+          setIsTaskMode(false);
         }}
         onNoteAdded={refetch}
         initialData={{
-          title: "New Note",
-          description: "Start writing your thoughts here...",
+          title: isTaskMode ? "New Task" : "New Note",
+          description: isTaskMode ? "Task details..." : "Start writing your thoughts here...",
           background_color: '#ff9b74'
         }}
+        isTaskMode={isTaskMode}
+      />
+
+      <ReminderFormModal
+        isOpen={isReminderModalOpen}
+        onClose={() => setIsReminderModalOpen(false)}
+        triggerRef={addButtonRef}
       />
     </div>
   );
