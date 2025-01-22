@@ -22,6 +22,7 @@ interface NoteFormDrawerProps {
     description?: string;
     background_color?: string;
   };
+  isTaskMode?: boolean;
 }
 
 export const NoteFormDrawer = ({
@@ -30,6 +31,7 @@ export const NoteFormDrawer = ({
   onNoteAdded,
   editNote,
   initialData,
+  isTaskMode = false,
 }: NoteFormDrawerProps) => {
   const { toast } = useToast();
 
@@ -67,39 +69,41 @@ export const NoteFormDrawer = ({
 
       if (editNote) {
         const { error } = await supabase
-          .from("tasks_notes")
+          .from(isTaskMode ? "tasks_notes" : "notes")
           .update({
             title: formData.title,
             description: formData.description || null,
             date: formData.date?.toISOString().split('T')[0] || null,
             image_url: finalImageUrl,
             background_color: formData.selectedColor,
-            label_id: formData.labelId,
+            label_id: isTaskMode ? formData.labelId : undefined,
           })
           .eq('id', editNote.id);
 
         if (error) throw error;
 
         toast({
-          title: "Note updated successfully",
-          description: "Your note has been updated.",
+          title: `${isTaskMode ? "Task" : "Note"} updated successfully`,
+          description: `Your ${isTaskMode ? "task" : "note"} has been updated.`,
         });
       } else {
-        const { error } = await supabase.from("tasks_notes").insert({
-          title: formData.title,
-          description: formData.description || null,
-          date: formData.date?.toISOString().split('T')[0] || null,
-          image_url: finalImageUrl,
-          background_color: formData.selectedColor,
-          label_id: formData.labelId,
-          user_id: user.id,
-        });
+        const { error } = await supabase
+          .from(isTaskMode ? "tasks_notes" : "notes")
+          .insert({
+            title: formData.title,
+            description: formData.description || null,
+            date: formData.date?.toISOString().split('T')[0] || null,
+            image_url: finalImageUrl,
+            background_color: formData.selectedColor,
+            label_id: isTaskMode ? formData.labelId : undefined,
+            user_id: user.id,
+          });
 
         if (error) throw error;
 
         toast({
-          title: "Note added successfully",
-          description: "Your new note has been created.",
+          title: `${isTaskMode ? "Task" : "Note"} added successfully`,
+          description: `Your new ${isTaskMode ? "task" : "note"} has been created.`,
         });
       }
 
@@ -126,6 +130,7 @@ export const NoteFormDrawer = ({
                 onSubmit={handleSubmit}
                 initialData={editNote || initialData}
                 onClose={onClose}
+                isTaskMode={isTaskMode}
               />
             </div>
           </div>
