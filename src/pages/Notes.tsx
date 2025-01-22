@@ -120,14 +120,14 @@ const Notes = () => {
                 notesCount={filteredTasks?.length || 0}
               />
               <Select
-                value={selectedLabelId || ""}
-                onValueChange={(value) => setSelectedLabelId(value || null)}
+                value={selectedLabelId || "all"}
+                onValueChange={(value) => setSelectedLabelId(value === "all" ? null : value)}
               >
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder="Filter by label" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All labels</SelectItem>
+                  <SelectItem value="all">All labels</SelectItem>
                   {labels?.map((label) => (
                     <SelectItem key={label.id} value={label.id}>
                       {label.name}
