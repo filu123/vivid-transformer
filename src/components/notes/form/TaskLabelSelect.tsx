@@ -51,9 +51,18 @@ export const TaskLabelSelect = ({
     }
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No user found");
+      }
+
       const { error } = await supabase
         .from("task_labels")
-        .insert({ name: newLabelName.trim() });
+        .insert({ 
+          name: newLabelName.trim(),
+          user_id: user.id
+        });
 
       if (error) throw error;
 
