@@ -11,7 +11,6 @@ interface TaskCardProps {
     description?: string;
     date?: string | null;
     background_color?: string;
-    status?: string;
     label_id?: string;
   };
   onUpdate: () => void;
@@ -30,11 +29,6 @@ export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
         <div className="space-y-4 flex-1">
           <div className="flex justify-between items-start">
             <h3 className="font-semibold text-xl line-clamp-2">{task.title}</h3>
-            {task.status && (
-              <Badge variant="secondary" className="capitalize">
-                {task.status}
-              </Badge>
-            )}
           </div>
           {task.description && (
             <p className="text-sm text-muted-foreground line-clamp-4">

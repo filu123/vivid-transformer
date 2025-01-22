@@ -11,6 +11,13 @@ import { NotesGrid } from "@/components/notes/grid/NotesGrid";
 import { ContentTypeFilter } from "@/components/notes/filters/ContentTypeFilter";
 import { TaskCard } from "@/components/notes/cards/TaskCard";
 import { ReminderCard } from "@/components/notes/cards/ReminderCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const COLORS = [
   '#ff9b74',
@@ -28,6 +35,7 @@ const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isTaskMode, setIsTaskMode] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentType>("notes");
@@ -51,7 +59,7 @@ const Notes = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("tasks_notes")
-        .select("*")
+        .select("*, task_labels(name)")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -72,13 +80,28 @@ const Notes = () => {
     },
   });
 
+  const { data: labels } = useQuery({
+    queryKey: ["task_labels"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("task_labels")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const filteredNotes = selectedColor 
     ? notes?.filter(note => note.background_color === selectedColor)
     : notes;
 
-  const filteredTasks = selectedColor
-    ? tasks?.filter(task => task.background_color === selectedColor)
-    : tasks;
+  const filteredTasks = tasks?.filter(task => {
+    if (selectedColor && task.background_color !== selectedColor) return false;
+    if (selectedLabelId && task.label_id !== selectedLabelId) return false;
+    return true;
+  });
 
   const filteredReminders = selectedColor
     ? reminders?.filter(reminder => reminder.background_color === selectedColor)
@@ -88,15 +111,41 @@ const Notes = () => {
     switch (selectedType) {
       case "tasks":
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-            {filteredTasks?.map((task) => (
-              <TaskCard 
-                key={task.id} 
-                task={task} 
-                onUpdate={refetchTasks}
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <NoteColorFilters
+                colors={COLORS}
+                selectedColor={selectedColor}
+                onColorSelect={setSelectedColor}
+                notesCount={filteredTasks?.length || 0}
               />
-            ))}
-          </div>
+              <Select
+                value={selectedLabelId || ""}
+                onValueChange={(value) => setSelectedLabelId(value || null)}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Filter by label" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All labels</SelectItem>
+                  {labels?.map((label) => (
+                    <SelectItem key={label.id} value={label.id}>
+                      {label.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+              {filteredTasks?.map((task) => (
+                <TaskCard 
+                  key={task.id} 
+                  task={task} 
+                  onUpdate={refetchTasks}
+                />
+              ))}
+            </div>
+          </>
         );
       case "reminders":
         return (
@@ -156,7 +205,7 @@ const Notes = () => {
       <Drawer.Root open={isDrawingMode} onOpenChange={setIsDrawingMode}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-          <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-0 right-0 h-[85vh]">
+          <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 h-[85vh]">
             <DrawingPanel
               isVisible={isDrawingMode}
               onClose={() => {
