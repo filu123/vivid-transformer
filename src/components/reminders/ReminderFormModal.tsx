@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useReminderForm } from "@/hooks/useReminderForm";
 import { ReminderDateTime } from "./ReminderDateTime";
 import { ReminderListSelect } from "./ReminderListSelect";
@@ -14,11 +13,13 @@ import { ReminderListSelect } from "./ReminderListSelect";
 interface ReminderFormModalProps {
   isOpen: boolean;
   onClose: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement>;
 }
 
 export const ReminderFormModal = ({
   isOpen,
   onClose,
+  triggerRef,
 }: ReminderFormModalProps) => {
   const {
     title,
@@ -33,8 +34,17 @@ export const ReminderFormModal = ({
   } = useReminderForm(onClose);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden animate-in fade-in-0 zoom-in-95">
+    <Dialog open={isOpen} onOpenChange={onClose} modal={false}>
+      <DialogContent 
+        className="fixed p-0 overflow-hidden animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 border-none shadow-lg"
+        style={{
+          top: triggerRef.current ? `${triggerRef.current.getBoundingClientRect().bottom + 5}px` : '50%',
+          left: triggerRef.current ? `${triggerRef.current.getBoundingClientRect().left}px` : '50%',
+          transform: triggerRef.current ? 'none' : 'translate(-50%, -50%)',
+          maxWidth: '425px',
+          width: '95vw',
+        }}
+      >
         <DialogHeader className="px-4 pt-5 pb-4">
           <DialogTitle className="text-2xl font-semibold">Add Reminder</DialogTitle>
         </DialogHeader>

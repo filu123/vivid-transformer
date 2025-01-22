@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ReminderFormModal } from "@/components/reminders/ReminderFormModal";
 import { ReminderCategories } from "@/components/reminders/ReminderCategories";
 import { ReminderContent } from "@/components/reminders/ReminderContent";
@@ -12,6 +12,7 @@ const Reminders = () => {
   const [selectedList, setSelectedList] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const { lists, reminders, handleToggleReminder } = useReminders();
+  const addButtonRef = useRef<HTMLButtonElement>(null);
 
   const filteredReminders = reminders?.filter((reminder) => {
     if (selectedList) {
@@ -68,15 +69,16 @@ const Reminders = () => {
     : `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Reminders`;
 
   return (
-    <div className="container mx-auto p-4 md:p-8">
+    <div className="container mx-auto p-4 md:p-8 animate-fade-in">
       <ReminderHeader
         title={pageTitle}
         onAddReminder={() => setIsModalOpen(true)}
+        buttonRef={addButtonRef}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Categories Section */}
-        <div>
+        <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
           <h2 className="text-lg font-semibold mb-4">Categories</h2>
           <div className="grid grid-cols-2 gap-4">
             <ReminderCategories
@@ -91,7 +93,7 @@ const Reminders = () => {
         </div>
 
         {/* Lists Section */}
-        <div>
+        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
           <h2 className="text-lg font-semibold mb-4">My Lists</h2>
           <div className="grid grid-cols-2 gap-4">
             {lists?.map((list) => (
@@ -124,16 +126,19 @@ const Reminders = () => {
       </div>
 
       {/* Reminders Content */}
-      <ReminderContent
-        selectedList={selectedList}
-        lists={lists || []}
-        reminders={filteredReminders}
-        onToggleReminder={handleToggleReminder}
-      />
+      <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+        <ReminderContent
+          selectedList={selectedList}
+          lists={lists || []}
+          reminders={filteredReminders}
+          onToggleReminder={handleToggleReminder}
+        />
+      </div>
 
       <ReminderFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        triggerRef={addButtonRef}
       />
     </div>
   );
