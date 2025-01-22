@@ -15,6 +15,7 @@ interface NoteFormDrawerProps {
     date?: string;
     image_url?: string;
     background_color?: string;
+    label_id?: string;
   };
   initialData?: {
     title: string;
@@ -38,6 +39,7 @@ export const NoteFormDrawer = ({
     date?: Date;
     image?: File;
     selectedColor: string;
+    labelId?: string | null;
   }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -65,13 +67,14 @@ export const NoteFormDrawer = ({
 
       if (editNote) {
         const { error } = await supabase
-          .from("notes")
+          .from("tasks_notes")
           .update({
             title: formData.title,
             description: formData.description || null,
             date: formData.date?.toISOString().split('T')[0] || null,
             image_url: finalImageUrl,
             background_color: formData.selectedColor,
+            label_id: formData.labelId,
           })
           .eq('id', editNote.id);
 
@@ -82,12 +85,13 @@ export const NoteFormDrawer = ({
           description: "Your note has been updated.",
         });
       } else {
-        const { error } = await supabase.from("notes").insert({
+        const { error } = await supabase.from("tasks_notes").insert({
           title: formData.title,
           description: formData.description || null,
           date: formData.date?.toISOString().split('T')[0] || null,
           image_url: finalImageUrl,
           background_color: formData.selectedColor,
+          label_id: formData.labelId,
           user_id: user.id,
         });
 

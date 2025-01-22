@@ -13,6 +13,7 @@ import ListItem from '@tiptap/extension-list-item';
 import Placeholder from '@tiptap/extension-placeholder';
 import { ColorPicker } from "./ColorPicker";
 import { EditorToolbar } from "./EditorToolbar";
+import { TaskLabelSelect } from "./TaskLabelSelect";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,6 +24,7 @@ interface NoteFormProps {
     date?: Date;
     image?: File;
     selectedColor: string;
+    labelId?: string | null;
   }) => Promise<void>;
   initialData?: {
     title: string;
@@ -30,6 +32,7 @@ interface NoteFormProps {
     date?: string;
     image_url?: string;
     background_color?: string;
+    label_id?: string;
   };
   onClose: () => void;
 }
@@ -45,6 +48,7 @@ export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
   const [imageUrl, setImageUrl] = useState<string | null>(initialData?.image_url || null);
   const [isUploading, setIsUploading] = useState(false);
   const [selectedColor, setSelectedColor] = useState(initialData?.background_color || '#ff9b74');
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(initialData?.label_id || null);
 
   const titleEditor = useEditor({
     extensions: [
@@ -112,6 +116,7 @@ export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
         date,
         image: image || undefined,
         selectedColor,
+        labelId: selectedLabelId,
       });
     } finally {
       setIsUploading(false);
@@ -130,61 +135,68 @@ export const NoteForm = ({ onSubmit, initialData, onClose }: NoteFormProps) => {
 
       <EditorToolbar editor={editor} />
 
-      <div className="flex items-center gap-4">
-        <Popover>
-          <PopoverTrigger asChild>
+      <div className="space-y-4">
+        <TaskLabelSelect
+          selectedLabelId={selectedLabelId}
+          onSelectLabel={setSelectedLabelId}
+        />
+
+        <div className="flex items-center gap-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "pl-0 text-left font-normal",
+                  !date && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {date ? format(date, "PPP") : "Add date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={setDate}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+
+          <div className="relative">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+              id="image-upload"
+            />
             <Button
               variant="ghost"
-              className={cn(
-                "pl-0 text-left font-normal",
-                !date && "text-muted-foreground"
-              )}
+              className="pl-0"
+              onClick={() => document.getElementById('image-upload')?.click()}
+              type="button"
             >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, "PPP") : "Add date"}
+              <ImageIcon className="mr-2 h-4 w-4" />
+              {imageUrl ? "Change image" : "Add image"}
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              initialFocus
+          </div>
+        </div>
+
+        <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
+
+        {imageUrl && (
+          <div className="mt-2">
+            <img
+              src={imageUrl}
+              alt="Preview"
+              className="max-h-48 rounded-md object-cover"
             />
-          </PopoverContent>
-        </Popover>
-
-        <div className="relative">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="hidden"
-            id="image-upload"
-          />
-          <Button
-            variant="ghost"
-            className="pl-0"
-            onClick={() => document.getElementById('image-upload')?.click()}
-            type="button"
-          >
-            <ImageIcon className="mr-2 h-4 w-4" />
-            {imageUrl ? "Change image" : "Add image"}
-          </Button>
-        </div>
+          </div>
+        )}
       </div>
-
-      <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
-
-      {imageUrl && (
-        <div className="mt-2">
-          <img
-            src={imageUrl}
-            alt="Preview"
-            className="max-h-48 rounded-md object-cover"
-          />
-        </div>
-      )}
 
       <div className="flex justify-end space-x-2 pt-4">
         <Button variant="outline" type="button" onClick={onClose}>

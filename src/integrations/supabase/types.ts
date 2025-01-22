@@ -256,6 +256,27 @@ export type Database = {
           },
         ]
       }
+      task_labels: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           created_at: string
@@ -294,6 +315,47 @@ export type Database = {
           },
         ]
       }
+      tasks_notes: {
+        Row: {
+          background_color: string | null
+          created_at: string
+          date: string | null
+          id: string
+          label_id: string | null
+          status: Database["public"]["Enums"]["task_status"] | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          background_color?: string | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          label_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"] | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          background_color?: string | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          label_id?: string | null
+          status?: Database["public"]["Enums"]["task_status"] | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_notes_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "task_labels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -304,6 +366,7 @@ export type Database = {
     Enums: {
       habit_frequency: "daily" | "three_times" | "custom"
       reminder_category: "all" | "today" | "scheduled" | "completed"
+      task_status: "pending" | "completed"
     }
     CompositeTypes: {
       [_ in never]: never
