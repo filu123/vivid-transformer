@@ -16,6 +16,11 @@ interface NoteFormDrawerProps {
     image_url?: string;
     background_color?: string;
   };
+  initialData?: {
+    title: string;
+    description?: string;
+    background_color?: string;
+  };
 }
 
 export const NoteFormDrawer = ({
@@ -23,6 +28,7 @@ export const NoteFormDrawer = ({
   onClose,
   onNoteAdded,
   editNote,
+  initialData,
 }: NoteFormDrawerProps) => {
   const { toast } = useToast();
 
@@ -114,7 +120,7 @@ export const NoteFormDrawer = ({
             <div className="max-w-3xl mx-auto">
               <NoteForm
                 onSubmit={handleSubmit}
-                initialData={editNote}
+                initialData={editNote || initialData}
                 onClose={onClose}
               />
             </div>

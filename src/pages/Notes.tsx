@@ -96,7 +96,12 @@ const Notes = () => {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
-              <h2 className="text-lg md:text-xl font-semibold">All Notes</h2>
+              <button 
+                onClick={() => setSelectedColor(null)}
+                className="text-lg md:text-xl font-semibold hover:opacity-80 transition-opacity"
+              >
+                All Notes
+              </button>
               <div className="flex items-center gap-2">
                 {COLORS.map((color) => (
                   <button
@@ -161,6 +166,11 @@ const Notes = () => {
           setIsAddModalOpen(false);
         }}
         onNoteAdded={refetch}
+        initialData={{
+          title: "New Note",
+          description: "Start writing your thoughts here...",
+          background_color: '#ff9b74'
+        }}
       />
     </div>
   );
