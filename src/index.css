@@ -50,7 +50,7 @@
 /* Placeholder for Title */
 .editable-title:empty::before {
   content: attr(data-placeholder);
-  color: rgba(75, 85, 99, 0.5); /* Tailwind's muted-foreground color */
+  color: rgba(75, 85, 99, 0.5);
   pointer-events: none;
   position: absolute;
   top: 0;
@@ -59,7 +59,7 @@
 
 .editable-description:empty::before {
   content: attr(data-placeholder);
-  color: #a0aec0; /* Tailwind's gray-400 */
+  color: #a0aec0;
 }
 
 /* Optional: Customize the editor's appearance */
@@ -67,9 +67,6 @@
   outline: none;
   min-height: 100px;
 }
-
-/* tailwind.css or a global CSS file */
-
 
 .editable-description ul {
   @apply list-disc ml-5;
@@ -129,7 +126,7 @@
   pointer-events: none;
   user-select: none;
   padding: 0.5em;
-  font-size: 1rem; /* Adjust to match your editor's font size */
+  font-size: 1rem;
 }
 
 .editable-title {
@@ -142,4 +139,19 @@
 
 .ProseMirror p {
   color: black;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }

@@ -8,9 +8,20 @@ import { NoteFormDrawer } from "@/components/notes/NoteFormDrawer";
 import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
 import { Drawer } from "vaul";
 
+const COLORS = [
+  '#ff9b74',
+  '#fdc971',
+  '#ebc49a',
+  '#322a2f',
+  '#c15626',
+  '#ebe3d6',
+  '#a2a8a5'
+];
+
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const { data: notes, refetch } = useQuery({
     queryKey: ["notes"],
@@ -24,6 +35,10 @@ const Notes = () => {
       return data;
     },
   });
+
+  const filteredNotes = selectedColor 
+    ? notes?.filter(note => note.background_color === selectedColor)
+    : notes;
 
   return (
     <div className="relative min-h-screen container mx-auto">
@@ -80,15 +95,36 @@ const Notes = () => {
 
         <div className="space-y-6">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg md:text-xl font-semibold">All Notes</h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg md:text-xl font-semibold">All Notes</h2>
+              <div className="flex items-center gap-2">
+                {COLORS.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(selectedColor === color ? null : color)}
+                    className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${
+                      selectedColor === color ? 'ring-2 ring-offset-2 ring-black scale-110' : ''
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
             <span className="text-sm text-muted-foreground">
-              {notes?.length || 0} Notes
+              {filteredNotes?.length || 0} Notes
             </span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-            {notes?.map((note) => (
-              <div key={note.id}>
+            {filteredNotes?.map((note, index) => (
+              <div 
+                key={note.id}
+                className="animate-fade-in"
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                  animationFillMode: 'backwards'
+                }}
+              >
                 <NoteCard
                   id={note.id}
                   title={note.title}
