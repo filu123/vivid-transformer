@@ -1,29 +1,38 @@
 import { format } from "date-fns";
+import { Calendar } from "lucide-react";
+import { Button } from "./ui/button";
+import { Calendar as CalendarComponent } from "./ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./ui/popover";
 
-export const DateDisplay = () => {
-  const today = new Date();
-  
+interface DateDisplayProps {
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
+}
+
+export const DateDisplay = ({ selectedDate, onDateChange }: DateDisplayProps) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 h-full">
-      <div className="text-lg text-secondary">{format(today, "EEEE")}</div>
-      <div className="flex items-baseline gap-2 mt-2">
-        <div className="text-5xl font-bold text-primary">
-          {format(today, "dd")}
-        </div>
-        <div className="text-3xl font-bold text-secondary">
-          {format(today, "MMM").toUpperCase()}
-        </div>
-      </div>
-      <div className="mt-6 space-y-3">
-        <div className="flex items-center justify-between text-sm text-secondary border-b border-gray-100 pb-2">
-          <span>New York</span>
-          <span>{format(today, "h:mm a")}</span>
-        </div>
-        <div className="flex items-center justify-between text-sm text-secondary">
-          <span>United Kingdom</span>
-          <span>{format(new Date(today.getTime() + 5 * 60 * 60 * 1000), "h:mm a")}</span>
-        </div>
-      </div>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-[280px] justify-start text-left font-normal"
+        >
+          <Calendar className="mr-2 h-4 w-4" />
+          {format(selectedDate, "PPP")}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <CalendarComponent
+          mode="single"
+          selected={selectedDate}
+          onSelect={(date) => date && onDateChange(date)}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
   );
 };

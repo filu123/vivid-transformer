@@ -16,7 +16,7 @@ const TimeboxPlanner = () => {
       const { data, error } = await supabase
         .from("habits")
         .select("*")
-        .eq("date", format(selectedDate, "yyyy-MM-dd"))
+        .eq("start_date", format(selectedDate, "yyyy-MM-dd"))
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -44,7 +44,7 @@ const TimeboxPlanner = () => {
       const { data, error } = await supabase
         .from("reminders")
         .select("*")
-        .eq("date", format(selectedDate, "yyyy-MM-dd"))
+        .eq("due_date", format(selectedDate, "yyyy-MM-dd"))
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -55,7 +55,10 @@ const TimeboxPlanner = () => {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
-        <DateDisplay date={selectedDate} onDateChange={setSelectedDate} />
+        <DateDisplay 
+          selectedDate={selectedDate} 
+          onDateChange={setSelectedDate} 
+        />
         <div className="flex items-center gap-4">
           <Button variant="outline" onClick={() => setSelectedDate(new Date())}>
             Today

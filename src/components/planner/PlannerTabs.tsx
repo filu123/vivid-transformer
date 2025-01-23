@@ -3,6 +3,7 @@ import { DayHabits } from "../calendar/DayHabits";
 import { DayNotes } from "../calendar/DayNotes";
 import { DayReminders } from "../calendar/DayReminders";
 import { TasksSection } from "../notes/sections/TasksSection";
+import { useState } from "react";
 
 interface PlannerTabsProps {
   habits: any[];
@@ -19,6 +20,8 @@ export const PlannerTabs = ({
   selectedDate,
   onHabitUpdated,
 }: PlannerTabsProps) => {
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+
   return (
     <Tabs defaultValue="tasks" className="w-full">
       <TabsList className="mb-4">
@@ -30,7 +33,10 @@ export const PlannerTabs = ({
       <TabsContent value="tasks">
         <div className="space-y-4">
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <TasksSection />
+            <TasksSection
+              selectedColor={selectedColor}
+              onColorSelect={setSelectedColor}
+            />
           </div>
         </div>
       </TabsContent>
