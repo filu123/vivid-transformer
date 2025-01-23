@@ -16,6 +16,7 @@ interface PriorityCardProps {
   endTime?: string;
   duration?: string;
   isDone?: boolean;
+  backgroundColor?: string;
   onPriorityUpdated?: () => void;
 }
 
@@ -27,6 +28,7 @@ export const PriorityCard = ({
   endTime,
   duration,
   isDone,
+  backgroundColor = '#ff9b74',
   onPriorityUpdated,
 }: PriorityCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -84,7 +86,7 @@ export const PriorityCard = ({
 
   return (
     <>
-      <Card className={`mb-4 ${isDone ? 'bg-green-50' : ''}`}>
+      <Card className={`mb-4 ${isDone ? 'bg-green-50' : ''}`} style={{ backgroundColor }}>
         <CardContent className="pt-6">
           <div className="flex items-start justify-between">
             <div className="flex-1">

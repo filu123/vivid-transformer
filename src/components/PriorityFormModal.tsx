@@ -32,6 +32,16 @@ interface PriorityFormModalProps {
   editItem?: DayItem | null;
 }
 
+const COLORS = [
+  '#F2FCE2',
+  '#FEF7CD',
+  '#FEC6A1',
+  '#E5DEFF',
+  '#FFDEE2',
+  '#FDE1D3',
+  '#D3E4FD',
+];
+
 export const PriorityFormModal = ({
   isOpen,
   onClose,
@@ -43,6 +53,7 @@ export const PriorityFormModal = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
+  const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -85,6 +96,7 @@ export const PriorityFormModal = ({
       setStartTime("");
       setEndTime("");
       setNote("");
+      setSelectedColor(COLORS[0]);
     }
   }, [editItem]);
 
@@ -107,6 +119,7 @@ export const PriorityFormModal = ({
             end_time: endTime || null,
             note: note || null,
             date: format(selectedDate, "yyyy-MM-dd"),
+            background_color: selectedColor,
           })
           .eq('id', editItem.id);
 
@@ -124,6 +137,7 @@ export const PriorityFormModal = ({
           note: note || null,
           date: format(selectedDate, "yyyy-MM-dd"),
           user_id: user.id,
+          background_color: selectedColor,
         });
 
         if (error) throw error;
@@ -140,6 +154,7 @@ export const PriorityFormModal = ({
       setStartTime("");
       setEndTime("");
       setNote("");
+      setSelectedColor(COLORS[0]);
     } catch (error) {
       toast({
         title: editItem ? "Error updating priority" : "Error adding priority",
@@ -186,6 +201,22 @@ export const PriorityFormModal = ({
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
               />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Background Color</Label>
+            <div className="flex gap-2">
+              {COLORS.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className={`w-8 h-8 rounded-full transition-transform ${
+                    selectedColor === color ? 'ring-2 ring-black ring-offset-2 scale-110' : ''
+                  }`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                />
+              ))}
             </div>
           </div>
           <div className="space-y-2">
