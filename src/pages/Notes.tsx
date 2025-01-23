@@ -10,7 +10,6 @@ import { NoteColorFilters } from "@/components/notes/filters/NoteColorFilters";
 import { NotesGrid } from "@/components/notes/grid/NotesGrid";
 import { ContentTypeFilter } from "@/components/notes/filters/ContentTypeFilter";
 import { TasksSection } from "@/components/notes/sections/TasksSection";
-import { RemindersSection } from "@/components/notes/sections/RemindersSection";
 
 type ContentType = "notes" | "tasks" | "reminders";
 
@@ -43,7 +42,12 @@ const Notes = () => {
   const renderContent = () => {
     switch (selectedType) {
       case "tasks":
-        return <TasksSection selectedDate={new Date()} />;
+        return (
+          <TasksSection
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
+        );
       case "reminders":
         return (
           <RemindersSection
