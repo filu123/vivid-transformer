@@ -9,6 +9,7 @@ import { CalendarGrid } from "./calendar/CalendarGrid";
 import { CalendarHeader } from "./calendar/CalendarHeader";
 import { DayHabits } from "./calendar/DayHabits";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -194,22 +195,40 @@ export const TimeboxPlanner = () => {
               <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-fade-in">
                 {format(selectedDate, "MMMM d, yyyy")}
               </h2>
-              <div className="space-y-4">
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <DayNotes notes={notes} />
-                </div>
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <DayReminders reminders={reminders} />
-                </div>
-                {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
-                  <div className="text-center text-gray-500 py-8 animate-fade-in">
-                    Nothing for today
+              <Tabs defaultValue="tasks" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                  <TabsTrigger value="habits">Habits</TabsTrigger>
+                  <TabsTrigger value="notes">Notes</TabsTrigger>
+                  <TabsTrigger value="reminders">Reminders</TabsTrigger>
+                </TabsList>
+                <TabsContent value="tasks">
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                      <DayItems
+                        date={selectedDate}
+                        items={priorities}
+                        onItemsChange={fetchPriorities}
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
+                </TabsContent>
+                <TabsContent value="habits">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
+                  </div>
+                </TabsContent>
+                <TabsContent value="notes">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <DayNotes notes={notes} />
+                  </div>
+                </TabsContent>
+                <TabsContent value="reminders">
+                  <div className="bg-white rounded-xl p-6 shadow-sm">
+                    <DayReminders reminders={reminders} />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
         </div>
