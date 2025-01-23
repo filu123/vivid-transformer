@@ -44,6 +44,7 @@ export const TaskCard = ({
   duration,
   isDone,
   variant,
+  background_color,
   onTaskUpdated,
   onDelete,
   onEdit,
@@ -90,7 +91,10 @@ export const TaskCard = ({
   return (
     <>
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Card className="mb-4 cursor-move">
+        <Card 
+          className="mb-4 cursor-move" 
+          style={{ backgroundColor: background_color || undefined }}
+        >
           <CardContent className="pt-6">
             <TaskCardContent
               title={title}

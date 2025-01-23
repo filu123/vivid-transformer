@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { PriorityFormModal } from "./priority/PriorityFormModal";
-import { PriorityCard } from "./priority/PriorityCard";
-import { AddPriorityButton } from "./priority/AddPriorityButton";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { PriorityFormDrawer } from "./PriorityFormDrawer";
+import { PriorityList } from "./priority/PriorityList";
 
 interface DayItem {
   id: string;
@@ -21,45 +22,76 @@ interface DayItemsProps {
 }
 
 export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editItem, setEditItem] = useState<DayItem | null>(null);
 
-  const canAddMorePriorities = items.length < 3;
+  const handleEdit = (item: DayItem) => {
+    setEditItem(item);
+    setIsFormOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsFormOpen(false);
+    setEditItem(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("priorities")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      onItemsChange();
+    } catch (error) {
+      console.error("Error deleting priority:", error);
+    }
+  };
+
+  const handleToggleDone = async (id: string, isDone: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("priorities")
+        .update({ is_done: !isDone })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      onItemsChange();
+    } catch (error) {
+      console.error("Error updating priority:", error);
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-4 ">
-        {items.map((item) => (
-          <PriorityCard
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            startTime={item.startTime}
-            endTime={item.endTime}
-            duration={item.duration}
-            note={item.note}
-            isDone={item.isDone}
-            onPriorityUpdated={onItemsChange}
-          />
-        ))}
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold">Priorities</h2>
+        {items.length < 4 && (
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            variant="outline"
+            size="sm"
+            className="gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Add Priority
+          </Button>
+        )}
       </div>
 
-      {items.length === 0 && (
-        <div className="mt-8 text-center text-gray-500">
-          Nothing for today
-        </div>
-      )}
+      <PriorityList
+        items={items}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onToggleDone={handleToggleDone}
+      />
 
-      {canAddMorePriorities && (
-        <AddPriorityButton onClick={() => setIsModalOpen(true)} />
-      )}
-
-      <PriorityFormModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditItem(null);
-        }}
+      <PriorityFormDrawer
+        isOpen={isFormOpen}
+        onClose={handleClose}
         selectedDate={date}
         onPriorityAdded={onItemsChange}
         editItem={editItem}
