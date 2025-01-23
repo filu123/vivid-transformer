@@ -1,12 +1,24 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Drawer } from "vaul";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { HabitTitleInput } from "./form/HabitTitleInput";
 import { HabitDurationInput } from "./form/HabitDurationInput";
 import { HabitFrequencySelect } from "./form/HabitFrequencySelect";
 import { HabitDurationSelect } from "./form/HabitDurationSelect";
+import { Label } from "@/components/ui/label";
+
+const COLORS = [
+  "#ff9b74",
+  "#fdc971",
+  "#ebc49a",
+  "#322a2f",
+  "#c15626",
+  "#ebe3d6",
+  "#a2a8a5",
+];
 
 interface HabitFormModalProps {
   isOpen: boolean;
@@ -19,6 +31,7 @@ interface HabitFormModalProps {
     custom_days?: number[];
     duration_months: number;
     duration_minutes: number;
+    background_color?: string;
   };
 }
 
@@ -28,6 +41,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
   const [customDays, setCustomDays] = useState<number[]>([]);
   const [durationMonths, setDurationMonths] = useState<number>(3);
   const [durationMinutes, setDurationMinutes] = useState<number>(0);
+  const [backgroundColor, setBackgroundColor] = useState(COLORS[0]);
 
   useEffect(() => {
     if (editHabit) {
@@ -36,6 +50,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
       setCustomDays(editHabit.custom_days || []);
       setDurationMonths(editHabit.duration_months);
       setDurationMinutes(editHabit.duration_minutes || 0);
+      setBackgroundColor(editHabit.background_color || COLORS[0]);
     } else {
       resetForm();
     }
@@ -61,6 +76,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
             custom_days: frequency === "custom" ? customDays : null,
             duration_months: durationMonths,
             duration_minutes: durationMinutes,
+            background_color: backgroundColor,
           })
           .eq('id', editHabit.id);
 
@@ -73,6 +89,7 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
           custom_days: frequency === "custom" ? customDays : null,
           duration_months: durationMonths,
           duration_minutes: durationMinutes,
+          background_color: backgroundColor,
           user_id: user.id
         });
 
@@ -94,39 +111,59 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
     setCustomDays([]);
     setDurationMonths(3);
     setDurationMinutes(0);
+    setBackgroundColor(COLORS[0]);
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{editHabit ? "Edit Habit" : "Create New Habit"}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <HabitTitleInput title={title} setTitle={setTitle} />
-          <HabitDurationInput 
-            durationMinutes={durationMinutes} 
-            setDurationMinutes={setDurationMinutes} 
-          />
-          <HabitFrequencySelect
-            frequency={frequency}
-            setFrequency={setFrequency}
-            customDays={customDays}
-            setCustomDays={setCustomDays}
-          />
-          <HabitDurationSelect
-            durationMonths={durationMonths}
-            setDurationMonths={setDurationMonths}
-          />
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" type="button" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">{editHabit ? "Update" : "Create"} Habit</Button>
+    <Drawer.Root open={isOpen} onOpenChange={onClose}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-[50%] translate-x-[-50%] w-[90%] max-w-[500px] h-[85vh]">
+          <div className="p-4 bg-background rounded-t-[10px] flex-1">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <HabitTitleInput title={title} setTitle={setTitle} />
+              <HabitDurationInput 
+                durationMinutes={durationMinutes} 
+                setDurationMinutes={setDurationMinutes} 
+              />
+              <HabitFrequencySelect
+                frequency={frequency}
+                setFrequency={setFrequency}
+                customDays={customDays}
+                setCustomDays={setCustomDays}
+              />
+              <HabitDurationSelect
+                durationMonths={durationMonths}
+                setDurationMonths={setDurationMonths}
+              />
+              <div className="space-y-2">
+                <Label>Color</Label>
+                <div className="flex gap-2">
+                  {COLORS.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ${
+                        backgroundColor === color ? "ring-2 ring-offset-2 ring-black" : ""
+                      }`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => setBackgroundColor(color)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" type="button" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button type="submit">{editHabit ? "Update" : "Create"} Habit</Button>
+              </div>
+            </form>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 };
