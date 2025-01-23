@@ -11,8 +11,10 @@ import { NotesGrid } from "@/components/notes/grid/NotesGrid";
 import { ContentTypeFilter } from "@/components/notes/filters/ContentTypeFilter";
 import { ReminderCard } from "@/components/notes/cards/ReminderCard";
 import { TasksSection } from "@/components/notes/sections/TasksSection";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ContentType = "notes" | "tasks" | "reminders";
+type ReminderCategory = "all" | "today" | "scheduled" | "completed";
 
 const Notes = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -21,6 +23,7 @@ const Notes = () => {
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isTaskMode, setIsTaskMode] = useState(false);
   const [selectedType, setSelectedType] = useState<ContentType>("notes");
+  const [reminderCategory, setReminderCategory] = useState<ReminderCategory>("all");
   const addButtonRef = useRef<HTMLButtonElement>(null);
 
   const { data: notes, refetch: refetchNotes } = useQuery({
@@ -57,6 +60,19 @@ const Notes = () => {
     ? reminders?.filter(reminder => reminder.background_color === selectedColor)
     : reminders;
 
+  const categorizedReminders = filteredReminders?.filter(reminder => {
+    switch (reminderCategory) {
+      case "completed":
+        return reminder.is_completed;
+      case "today":
+        return !reminder.is_completed && reminder.category === "today";
+      case "scheduled":
+        return !reminder.is_completed && reminder.category === "scheduled";
+      default:
+        return !reminder.is_completed;
+    }
+  });
+
   const renderContent = () => {
     switch (selectedType) {
       case "tasks":
@@ -68,15 +84,37 @@ const Notes = () => {
         );
       case "reminders":
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-            {filteredReminders?.map((reminder) => (
-              <ReminderCard 
-                key={reminder.id} 
-                reminder={reminder} 
-                onUpdate={refetchReminders}
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <NoteColorFilters
+                colors={['#F2FCE2', '#FEF7CD', '#FEC6A1', '#9b87f5', '#7E69AB', '#6E59A5', '#8E9196']}
+                selectedColor={selectedColor}
+                onColorSelect={setSelectedColor}
+                notesCount={categorizedReminders?.length || 0}
+                title="All reminders"
               />
-            ))}
-          </div>
+              <Select value={reminderCategory} onValueChange={(value: ReminderCategory) => setReminderCategory(value)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+              {categorizedReminders?.map((reminder) => (
+                <ReminderCard 
+                  key={reminder.id} 
+                  reminder={reminder} 
+                  onUpdate={refetchReminders}
+                />
+              ))}
+            </div>
+          </>
         );
       default:
         return (
