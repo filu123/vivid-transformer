@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import { Command, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Calendar, CheckSquare, ListTodo, StickyNote } from "lucide-react";
 
 interface SearchResult {
@@ -54,26 +54,28 @@ export const SearchResults = ({ results = [], onSelect }: SearchResultsProps) =>
   return (
     <Card className="w-[369px] absolute top-full mt-1 z-50">
       <Command>
-        <CommandEmpty>No results found.</CommandEmpty>
-        {results && results.length > 0 && (
-          <CommandGroup>
-            {results.map((result) => (
-              <CommandItem
-                key={`${result.type}-${result.id}`}
-                onSelect={() => handleSelect(result)}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                {getIcon(result.type)}
-                <div>
-                  <p className="text-sm font-medium">{result.title}</p>
-                  {result.date && (
-                    <p className="text-xs text-gray-500">{result.date}</p>
-                  )}
-                </div>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        )}
+        <CommandList>
+          <CommandEmpty>No results found.</CommandEmpty>
+          {results && results.length > 0 && (
+            <CommandGroup>
+              {results.map((result) => (
+                <CommandItem
+                  key={`${result.type}-${result.id}`}
+                  onSelect={() => handleSelect(result)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  {getIcon(result.type)}
+                  <div>
+                    <p className="text-sm font-medium">{result.title}</p>
+                    {result.date && (
+                      <p className="text-xs text-gray-500">{result.date}</p>
+                    )}
+                  </div>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+        </CommandList>
       </Command>
     </Card>
   );
