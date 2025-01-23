@@ -15,7 +15,7 @@ interface SearchResultsProps {
   onSelect: (result: SearchResult) => void;
 }
 
-export const SearchResults = ({ results, onSelect }: SearchResultsProps) => {
+export const SearchResults = ({ results = [], onSelect }: SearchResultsProps) => {
   const navigate = useNavigate();
 
   const getIcon = (type: string) => {
@@ -55,7 +55,7 @@ export const SearchResults = ({ results, onSelect }: SearchResultsProps) => {
     <Card className="w-[369px] absolute top-full mt-1 z-50">
       <Command>
         <CommandEmpty>No results found.</CommandEmpty>
-        {results.length > 0 && (
+        {results && results.length > 0 && (
           <CommandGroup>
             {results.map((result) => (
               <CommandItem
