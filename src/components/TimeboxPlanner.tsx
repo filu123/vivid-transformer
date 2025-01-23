@@ -162,7 +162,7 @@ export const TimeboxPlanner = () => {
     return (
       <div className="space-y-6 p-4 animate-fade-in">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-8 space-y-6">
             <Skeleton className="h-[200px] w-full" />
             <Skeleton className="h-[200px] w-full" />
           </div>
@@ -175,20 +175,48 @@ export const TimeboxPlanner = () => {
   }
 
   return (
-    <div className="space-y-6 p-4">
-      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-6 transition-opacity duration-300 ease-in-out ${isChangingDate ? 'opacity-50' : 'opacity-100'}`}>
-        <div className="lg:col-span-7 space-y-6">
+    <div className="p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left side - 70% */}
+        <div className="lg:col-span-8 space-y-6">
           <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
-            <DayItems
-              date={selectedDate}
-              items={priorities}
-              onItemsChange={fetchPriorities}
-            />
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <DayItems
+                date={selectedDate}
+                items={priorities}
+                onItemsChange={fetchPriorities}
+              />
+            </div>
+          </div>
+
+          <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
+            <div className="mt-8">
+              <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-fade-in">
+                {format(selectedDate, "MMMM d, yyyy")}
+              </h2>
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <DayNotes notes={notes} />
+                </div>
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <DayReminders reminders={reminders} />
+                </div>
+                {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
+                  <div className="text-center text-gray-500 py-8 animate-fade-in">
+                    Nothing for today
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
+        {/* Right side - 30% */}
         <div className="lg:col-span-4">
-          <Card className="p-4 md:p-6 bg-white animate-fade-in">
+          <Card className="p-4 md:p-6 bg-white shadow-sm">
             <CalendarHeader
               currentMonth={currentMonth}
               onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
@@ -200,24 +228,6 @@ export const TimeboxPlanner = () => {
               onDateClick={setSelectedDate}
             />
           </Card>
-        </div>
-      </div>
-
-      <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
-        <div className="mt-8">
-          <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-fade-in">
-            {format(selectedDate, "MMMM d, yyyy")}
-          </h2>
-          <div className="space-y-4">
-            <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
-            <DayNotes notes={notes} />
-            <DayReminders reminders={reminders} />
-            {priorities.length === 0 && notes.length === 0 && reminders.length === 0 && habits.length === 0 && (
-              <div className="text-center text-gray-500 py-8 animate-fade-in">
-                Nothing for today
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </div>
