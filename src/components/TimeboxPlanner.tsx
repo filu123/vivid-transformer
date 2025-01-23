@@ -164,11 +164,11 @@ export const TimeboxPlanner = () => {
       <div className="space-y-6 p-4 animate-fade-in">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 space-y-6">
-            <Skeleton className="h-[200px] w-full" />
-            <Skeleton className="h-[200px] w-full" />
+            <Skeleton className="h-[200px] w-full animate-pulse" />
+            <Skeleton className="h-[200px] w-full animate-pulse" />
           </div>
           <div className="lg:col-span-4">
-            <Skeleton className="h-[400px] w-full" />
+            <Skeleton className="h-[400px] w-full animate-pulse" />
           </div>
         </div>
       </div>
@@ -178,9 +178,8 @@ export const TimeboxPlanner = () => {
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left side - 70% */}
         <div className="lg:col-span-8 space-y-6">
-          <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
+          <div className={`transition-all duration-500 ${isChangingDate ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <DayItems
                 date={selectedDate}
@@ -190,9 +189,9 @@ export const TimeboxPlanner = () => {
             </div>
           </div>
 
-          <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
+          <div className={`transition-all duration-500 ${isChangingDate ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
             <div className="mt-8">
-              <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-fade-in">
+              <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-spring-in">
                 {format(selectedDate, "MMMM d, yyyy")}
               </h2>
               <Tabs defaultValue="tasks" className="w-full">
@@ -202,40 +201,41 @@ export const TimeboxPlanner = () => {
                   <TabsTrigger value="notes">Notes</TabsTrigger>
                   <TabsTrigger value="reminders">Reminders</TabsTrigger>
                 </TabsList>
-                <TabsContent value="tasks">
-                  <div className="space-y-4">
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
-                      <DayItems
-                        date={selectedDate}
-                        items={priorities}
-                        onItemsChange={fetchPriorities}
-                      />
+                <div className="relative">
+                  <TabsContent value="tasks" className="animate-spring-in">
+                    <div className="space-y-4">
+                      <div className="bg-white rounded-xl p-6 shadow-sm">
+                        <DayItems
+                          date={selectedDate}
+                          items={priorities}
+                          onItemsChange={fetchPriorities}
+                        />
+                      </div>
                     </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="habits">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="notes">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayNotes notes={notes} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="reminders">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayReminders reminders={reminders} />
-                  </div>
-                </TabsContent>
+                  </TabsContent>
+                  <TabsContent value="habits" className="animate-spring-in">
+                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                      <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="notes" className="animate-spring-in">
+                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                      <DayNotes notes={notes} />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="reminders" className="animate-spring-in">
+                    <div className="bg-white rounded-xl p-6 shadow-sm">
+                      <DayReminders reminders={reminders} />
+                    </div>
+                  </TabsContent>
+                </div>
               </Tabs>
             </div>
           </div>
         </div>
 
-        {/* Right side - 30% */}
         <div className="lg:col-span-4">
-          <Card className="p-4 md:p-6 bg-white shadow-sm">
+          <Card className="p-4 md:p-6 bg-white shadow-sm animate-slide-up">
             <CalendarHeader
               currentMonth={currentMonth}
               onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}

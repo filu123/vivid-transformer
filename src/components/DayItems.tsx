@@ -28,30 +28,37 @@ export const DayItems = ({ date, items, onItemsChange }: DayItemsProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4 ">
-        {items.map((item) => (
-          <PriorityCard
+      <div className="space-y-4">
+        {items.map((item, index) => (
+          <div
             key={item.id}
-            id={item.id}
-            title={item.title}
-            startTime={item.startTime}
-            endTime={item.endTime}
-            duration={item.duration}
-            note={item.note}
-            isDone={item.isDone}
-            onPriorityUpdated={onItemsChange}
-          />
+            className="animate-spring-in"
+            style={{ animationDelay: `${index * 0.1}s` }}
+          >
+            <PriorityCard
+              id={item.id}
+              title={item.title}
+              startTime={item.startTime}
+              endTime={item.endTime}
+              duration={item.duration}
+              note={item.note}
+              isDone={item.isDone}
+              onPriorityUpdated={onItemsChange}
+            />
+          </div>
         ))}
       </div>
 
       {items.length === 0 && (
-        <div className="mt-8 text-center text-gray-500">
+        <div className="mt-8 text-center text-gray-500 animate-fade-in">
           Nothing for today
         </div>
       )}
 
       {canAddMorePriorities && (
-        <AddPriorityButton onClick={() => setIsModalOpen(true)} />
+        <div className="animate-slide-up">
+          <AddPriorityButton onClick={() => setIsModalOpen(true)} />
+        </div>
       )}
 
       <PriorityFormModal
