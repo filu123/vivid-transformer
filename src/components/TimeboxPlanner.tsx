@@ -1,16 +1,10 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { format, addMonths, subMonths, startOfDay, endOfDay } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 import { DayItems } from "./DayItems";
 import { supabase } from "@/integrations/supabase/client";
-import { DayNotes } from "./calendar/DayNotes";
-import { DayReminders } from "./calendar/DayReminders";
-import { CalendarGrid } from "./calendar/CalendarGrid";
-import { CalendarHeader } from "./calendar/CalendarHeader";
-import { DayHabits } from "./calendar/DayHabits";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TasksSection } from "./notes/sections/TasksSection";
+import { PlannerCalendar } from "./planner/PlannerCalendar";
+import { PlannerTabs } from "./planner/PlannerTabs";
+import { PlannerSkeleton } from "./planner/PlannerSkeleton";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -77,7 +71,6 @@ export const TimeboxPlanner = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Get start and end of selected date
       const start = startOfDay(selectedDate);
       const end = endOfDay(selectedDate);
 
@@ -143,44 +136,13 @@ export const TimeboxPlanner = () => {
     loadData();
   }, [selectedDate]);
 
-  const getDaysInMonth = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days = [];
-
-    for (let i = 0; i < firstDay.getDay(); i++) {
-      days.push(null);
-    }
-
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push(new Date(year, month, i));
-    }
-
-    return days;
-  };
-
   if (isLoading) {
-    return (
-      <div className="space-y-6 p-4 animate-fade-in">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-8 space-y-6">
-            <Skeleton className="h-[200px] w-full" />
-            <Skeleton className="h-[200px] w-full" />
-          </div>
-          <div className="lg:col-span-4">
-            <Skeleton className="h-[400px] w-full" />
-          </div>
-        </div>
-      </div>
-    );
+    return <PlannerSkeleton />;
   }
 
   return (
     <div className="p-4">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left side - 70% */}
         <div className="lg:col-span-8 space-y-6">
           <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
             <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -197,57 +159,26 @@ export const TimeboxPlanner = () => {
               <h2 className="text-xl md:text-2xl font-semibold mb-6 animate-fade-in">
                 {format(selectedDate, "MMMM d, yyyy")}
               </h2>
-              <Tabs defaultValue="tasks" className="w-full">
-                <TabsList className="mb-4">
-                  <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                  <TabsTrigger value="habits">Habits</TabsTrigger>
-                  <TabsTrigger value="notes">Notes</TabsTrigger>
-                  <TabsTrigger value="reminders">Reminders</TabsTrigger>
-                </TabsList>
-                <TabsContent value="tasks">
-                  <div className="space-y-4">
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
-                      <TasksSection
-                        selectedColor={selectedColor}
-                        onColorSelect={setSelectedColor}
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="habits">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="notes">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayNotes notes={notes} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="reminders">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayReminders reminders={reminders} />
-                  </div>
-                </TabsContent>
-              </Tabs>
+              <PlannerTabs
+                habits={habits}
+                notes={notes}
+                reminders={reminders}
+                selectedDate={selectedDate}
+                onHabitUpdated={fetchHabits}
+                selectedColor={selectedColor}
+                onColorSelect={setSelectedColor}
+              />
             </div>
           </div>
         </div>
 
-        {/* Right side - 30% */}
         <div className="lg:col-span-4">
-          <Card className="p-4 md:p-6 bg-white shadow-sm">
-            <CalendarHeader
-              currentMonth={currentMonth}
-              onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              onNextMonth={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            />
-            <CalendarGrid
-              days={getDaysInMonth()}
-              selectedDate={selectedDate}
-              onDateClick={setSelectedDate}
-            />
-          </Card>
+          <PlannerCalendar
+            currentMonth={currentMonth}
+            setCurrentMonth={setCurrentMonth}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+          />
         </div>
       </div>
     </div>

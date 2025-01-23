@@ -1,13 +1,10 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { format, isValid, parse } from "date-fns";
 import { Drawer } from "vaul";
-import { ColorPicker } from "./notes/form/ColorPicker";
+import { PriorityFormFields } from "./priority/form/PriorityFormFields";
+import { PriorityFormActions } from "./priority/form/PriorityFormActions";
 
 interface DayItem {
   id: string;
@@ -48,7 +45,6 @@ export const PriorityFormDrawer = ({
       setTitle(editItem.title);
       setBackgroundColor(editItem.background_color || "#ff9b74");
       
-      // Safely format start time
       if (editItem.startTime) {
         try {
           const parsedStartTime = parse(editItem.startTime, 'HH:mm:ss', new Date());
@@ -63,7 +59,6 @@ export const PriorityFormDrawer = ({
         setStartTime('');
       }
 
-      // Safely format end time
       if (editItem.endTime) {
         try {
           const parsedEndTime = parse(editItem.endTime, 'HH:mm:ss', new Date());
@@ -155,61 +150,22 @@ export const PriorityFormDrawer = ({
           <div className="p-4 bg-background rounded-t-[10px] flex-1">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title">Task Name *</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  maxLength={70}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startTime">Start Time</Label>
-                  <Input
-                    id="startTime"
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endTime">End Time</Label>
-                  <Input
-                    id="endTime"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Color</Label>
-                <ColorPicker
-                  selectedColor={backgroundColor}
-                  onColorChange={setBackgroundColor}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="note">Note</Label>
-                <Textarea
-                  id="note"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  maxLength={100}
-                  className="resize-none"
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" type="button" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  {editItem ? "Update" : "Add"} Priority
-                </Button>
-              </div>
+              <PriorityFormFields
+                title={title}
+                setTitle={setTitle}
+                startTime={startTime}
+                setStartTime={setStartTime}
+                endTime={endTime}
+                setEndTime={setEndTime}
+                note={note}
+                setNote={setNote}
+                backgroundColor={backgroundColor}
+                setBackgroundColor={setBackgroundColor}
+              />
+              <PriorityFormActions
+                onClose={onClose}
+                isEditing={!!editItem}
+              />
             </form>
           </div>
         </Drawer.Content>
