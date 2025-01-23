@@ -50,19 +50,24 @@ export const DayReminders = ({ reminders, onUpdate }: DayRemindersProps) => {
         {reminders.map((reminder) => (
           <Card 
             key={reminder.id} 
-            className="p-4"
-            style={{ backgroundColor: reminder.background_color || "#F2FCE2" }}
+            className="p-4 flex flex-col justify-between"
+            style={{ backgroundColor: reminder.background_color || "#ff9b74" }}
           >
             <div className="space-y-3">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-start space-x-2">
                 <Checkbox
+                  id={`reminder-${reminder.id}`}
                   checked={reminder.is_completed}
                   onCheckedChange={() => handleToggle(reminder.id, reminder.is_completed)}
                   disabled={isLoading}
+                  className="mt-1"
                 />
-                <span className={reminder.is_completed ? "line-through text-muted-foreground" : ""}>
+                <label 
+                  htmlFor={`reminder-${reminder.id}`}
+                  className={`flex-1 ${reminder.is_completed ? "line-through text-muted-foreground" : ""}`}
+                >
                   {reminder.title}
-                </span>
+                </label>
               </div>
               {reminder.due_date && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">

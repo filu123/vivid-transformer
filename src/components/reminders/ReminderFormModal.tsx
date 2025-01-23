@@ -16,14 +16,13 @@ interface ReminderFormModalProps {
 }
 
 const COLORS = [
-  "#F2FCE2",
-  "#FEF7CD",
-  "#FEC6A1",
-  "#E5DEFF",
-  "#FFDEE2",
-  "#FDE1D3",
-  "#D3E4FD",
-  "#D6BCFA",
+  "#ff9b74",
+  "#fdc971",
+  "#ebc49a",
+  "#322a2f",
+  "#c15626",
+  "#ebe3d6",
+  "#a2a8a5",
 ];
 
 export const ReminderFormModal = ({
