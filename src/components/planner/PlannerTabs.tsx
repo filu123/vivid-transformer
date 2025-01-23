@@ -30,7 +30,7 @@ export const PlannerTabs = ({
       <TabsContent value="tasks">
         <div className="space-y-4">
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <TasksSection selectedDate={selectedDate} />
+            <TasksSection />
           </div>
         </div>
       </TabsContent>

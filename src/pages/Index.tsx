@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { TimeboxPlanner } from "@/components/TimeboxPlanner";
+import TimeboxPlanner from "@/components/TimeboxPlanner";
 import { useState } from "react";
 
 const Index = () => {

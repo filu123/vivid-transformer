@@ -49,12 +49,7 @@ const Notes = () => {
           />
         );
       case "reminders":
-        return (
-          <RemindersSection
-            selectedColor={selectedColor}
-            onColorSelect={setSelectedColor}
-          />
-        );
+        return null;
       default:
         return (
           <>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { DateDisplay } from "./DateDisplay";
-import { PlannerTabs } from "./PlannerTabs";
+import { PlannerTabs } from "./planner/PlannerTabs";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -64,9 +64,9 @@ const TimeboxPlanner = () => {
       </div>
 
       <PlannerTabs
-        habits={habits}
-        notes={notes}
-        reminders={reminders}
+        habits={habits || []}
+        notes={notes || []}
+        reminders={reminders || []}
         selectedDate={selectedDate}
         onHabitUpdated={fetchHabits}
       />
