@@ -10,8 +10,6 @@ interface PlannerTabsProps {
   reminders: any[];
   selectedDate: Date;
   onHabitUpdated: () => void;
-  selectedColor: string | null;
-  onColorSelect: (color: string | null) => void;
 }
 
 export const PlannerTabs = ({
@@ -20,8 +18,6 @@ export const PlannerTabs = ({
   reminders,
   selectedDate,
   onHabitUpdated,
-  selectedColor,
-  onColorSelect,
 }: PlannerTabsProps) => {
   return (
     <Tabs defaultValue="tasks" className="w-full">
@@ -34,10 +30,7 @@ export const PlannerTabs = ({
       <TabsContent value="tasks">
         <div className="space-y-4">
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <TasksSection
-              selectedColor={selectedColor}
-              onColorSelect={onColorSelect}
-            />
+            <TasksSection selectedDate={selectedDate} />
           </div>
         </div>
       </TabsContent>
