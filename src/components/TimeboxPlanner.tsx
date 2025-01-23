@@ -15,7 +15,6 @@ export const TimeboxPlanner = () => {
   const [habits, setHabits] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isChangingDate, setIsChangingDate] = useState(false);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const fetchPriorities = async () => {
     try {
@@ -165,8 +164,6 @@ export const TimeboxPlanner = () => {
                 reminders={reminders}
                 selectedDate={selectedDate}
                 onHabitUpdated={fetchHabits}
-                selectedColor={selectedColor}
-                onColorSelect={setSelectedColor}
               />
             </div>
           </div>
