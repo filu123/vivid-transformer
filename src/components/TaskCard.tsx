@@ -27,6 +27,7 @@ interface TaskCardProps {
   duration?: string;
   isDone?: boolean;
   variant?: string;
+  background_color?: string;
   onTaskUpdated?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;

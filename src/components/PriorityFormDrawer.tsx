@@ -32,7 +32,7 @@ interface PriorityFormModalProps {
   editItem?: DayItem | null;
 }
 
-export const PriorityFormModal = ({
+export const PriorityFormDrawer = ({
   isOpen,
   onClose,
   selectedDate,

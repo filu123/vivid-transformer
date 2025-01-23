@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { PriorityFormDrawer } from "./PriorityFormDrawer";
 import { PriorityList } from "./priority/PriorityList";
+import { supabase } from "@/integrations/supabase/client";
 
 interface DayItem {
   id: string;
