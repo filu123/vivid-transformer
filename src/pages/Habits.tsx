@@ -23,7 +23,7 @@ const Habits = () => {
   });
 
   return (
-    <main className="container mx-auto p-8">
+    <main className="container mx-auto p-4 md:p-8 animate-fade-in">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Habits</h1>
         <Button onClick={() => setIsModalOpen(true)}>

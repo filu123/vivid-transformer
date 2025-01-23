@@ -64,7 +64,7 @@ export const HabitCard = ({ habit, onHabitUpdated, selectedDate }: HabitCardProp
   };
 
   return (
-    <Card className="p-4">
+    <Card className="p-4" style={{ backgroundColor: "#ff9b74" }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Checkbox
