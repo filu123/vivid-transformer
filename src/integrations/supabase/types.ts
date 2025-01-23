@@ -112,7 +112,6 @@ export type Database = {
       }
       priorities: {
         Row: {
-          background_color: string | null
           created_at: string
           date: string
           end_time: string | null
@@ -124,7 +123,6 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          background_color?: string | null
           created_at?: string
           date: string
           end_time?: string | null
@@ -136,7 +134,6 @@ export type Database = {
           user_id: string
         }
         Update: {
-          background_color?: string | null
           created_at?: string
           date?: string
           end_time?: string | null

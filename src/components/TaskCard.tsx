@@ -27,7 +27,6 @@ interface TaskCardProps {
   duration?: string;
   isDone?: boolean;
   variant?: string;
-  background_color?: string;
   onTaskUpdated?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
@@ -45,7 +44,6 @@ export const TaskCard = ({
   duration,
   isDone,
   variant,
-  background_color,
   onTaskUpdated,
   onDelete,
   onEdit,
@@ -92,10 +90,7 @@ export const TaskCard = ({
   return (
     <>
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <Card 
-          className="mb-4 cursor-move" 
-          style={{ backgroundColor: background_color || undefined }}
-        >
+        <Card className="mb-4 cursor-move">
           <CardContent className="pt-6">
             <TaskCardContent
               title={title}
