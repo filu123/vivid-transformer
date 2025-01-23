@@ -7,6 +7,18 @@ import { ReminderDetailsDrawer } from "./ReminderDetailsDrawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface ReminderCardProps {
   reminder: {
@@ -22,7 +34,26 @@ interface ReminderCardProps {
 
 export const ReminderCard = ({ reminder, onUpdate }: ReminderCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const handleDelete = async () => {
+    try {
+      const { error } = await supabase
+        .from("reminders")
+        .delete()
+        .eq('id', reminder.id);
+
+      if (error) throw error;
+
+      toast.success("Reminder deleted successfully");
+      onUpdate();
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error("Error deleting reminder:", error);
+      toast.error("Failed to delete reminder");
+    }
+  };
 
   const handleToggle = async () => {
     setIsLoading(true);
@@ -51,39 +82,57 @@ export const ReminderCard = ({ reminder, onUpdate }: ReminderCardProps) => {
 
   return (
     <>
-      <Card
-        className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6"
-        style={{ backgroundColor: reminder.background_color || "#F2FCE2" }}
-        onClick={() => setIsDetailsOpen(true)}
+      <div 
+        className="animate-fade-in"
+        style={{
+          animationFillMode: 'backwards'
+        }}
       >
-        <div className="space-y-4 flex-1">
+        <Card
+          className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6"
+          style={{ backgroundColor: reminder.background_color || "#F2FCE2" }}
+          onClick={() => setIsDetailsOpen(true)}
+        >
           <div className="flex justify-between items-start">
             <div className="flex items-start gap-3">
               <Checkbox
                 checked={reminder.is_completed}
-                onCheckedChange={() => handleToggle()}
+                onCheckedChange={handleToggle}
                 disabled={isLoading}
                 onClick={(e) => e.stopPropagation()}
                 className="mt-1"
               />
-              <h3 className={`font-semibold text-xl line-clamp-2 ${
-                reminder.is_completed ? "line-through text-muted-foreground" : ""
-              }`}>
-                {reminder.title}
-              </h3>
+              <div>
+                <h3 className={`font-semibold text-xl ${
+                  reminder.is_completed ? "line-through text-muted-foreground" : ""
+                }`}>
+                  {reminder.title}
+                </h3>
+                <Badge variant="outline" className="mt-2 capitalize">
+                  {reminder.category}
+                </Badge>
+                {reminder.due_date && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                    <Clock className="h-4 w-4" />
+                    <span>{format(new Date(reminder.due_date), "PPp")}</span>
+                  </div>
+                )}
+              </div>
             </div>
-            <Badge variant="outline" className="capitalize">
-              {reminder.category}
-            </Badge>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-          {reminder.due_date && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span>{format(new Date(reminder.due_date), "PPp")}</span>
-            </div>
-          )}
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       <ReminderDetailsDrawer
         open={isDetailsOpen}
@@ -91,6 +140,23 @@ export const ReminderCard = ({ reminder, onUpdate }: ReminderCardProps) => {
         reminder={reminder}
         onUpdate={onUpdate}
       />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this reminder.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

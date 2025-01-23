@@ -6,6 +6,18 @@ import { TaskDetailsDrawer } from "./TaskDetailsDrawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface TaskCardProps {
   task: {
@@ -22,34 +34,29 @@ interface TaskCardProps {
 
 export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleToggleDone = async (checked: boolean) => {
+  const handleDelete = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
       const { error } = await supabase
         .from("tasks_notes")
-        .update({ 
-          is_done: checked,
-          user_id: user.id,
-          title: task.title // Include required fields
-        })
-        .eq("id", task.id);
+        .delete()
+        .eq('id', task.id);
 
       if (error) throw error;
 
-      onUpdate();
-      
       toast({
-        title: checked ? "Task completed" : "Task uncompleted",
-        description: `"${task.title}" has been ${checked ? 'marked as complete' : 'unmarked'}`,
+        title: "Task deleted",
+        description: "The task has been successfully deleted.",
       });
+      
+      onUpdate();
+      setIsDeleteDialogOpen(false);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update task status",
+        description: "Failed to delete the task. Please try again.",
         variant: "destructive",
       });
     }
@@ -57,43 +64,59 @@ export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
 
   return (
     <>
-      <Card
-        className={`min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6 ${
-          task.is_done ? 'bg-[#F2FCE2]' : ''
-        }`}
-        style={{ backgroundColor: task.is_done ? '#F2FCE2' : task.background_color }}
-        onClick={() => setIsDetailsOpen(true)}
+      <div 
+        className="animate-fade-in"
+        style={{
+          animationFillMode: 'backwards'
+        }}
       >
-        <div className="space-y-4 flex-1">
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-3 flex-1">
+        <Card
+          className={`min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6 ${
+            task.is_done ? 'bg-[#F2FCE2]' : ''
+          }`}
+          style={{ backgroundColor: task.is_done ? '#F2FCE2' : task.background_color }}
+          onClick={() => setIsDetailsOpen(true)}
+        >
+          <div className="flex justify-between items-start">
+            <div className="flex items-start gap-3">
               <Checkbox
                 checked={task.is_done}
-                onCheckedChange={(checked) => {
-                  handleToggleDone(checked as boolean);
-                }}
+                onCheckedChange={() => onUpdate()}
                 onClick={(e) => e.stopPropagation()}
-                className="mt-1.5"
+                className="mt-1"
               />
-              <div className="space-y-1 flex-1">
-                <h3 className={`font-semibold text-xl line-clamp-2 ${task.is_done ? 'line-through text-muted-foreground' : ''}`}>
+              <div>
+                <h3 className={`font-semibold text-xl ${
+                  task.is_done ? "line-through text-muted-foreground" : ""
+                }`}>
                   {task.title}
                 </h3>
                 {task.description && (
-                  <p className={`text-sm text-muted-foreground line-clamp-4 ${task.is_done ? 'line-through' : ''}`}>
+                  <p className="text-sm text-muted-foreground mt-2">
                     {task.description}
+                  </p>
+                )}
+                {task.date && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {format(new Date(task.date), "PPp")}
                   </p>
                 )}
               </div>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
-          {task.date && (
-            <p className="text-sm text-muted-foreground mt-auto">
-              {format(new Date(task.date), "MMM d, yyyy")}
-            </p>
-          )}
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       <TaskDetailsDrawer
         open={isDetailsOpen}
@@ -101,6 +124,23 @@ export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
         task={task}
         onUpdate={onUpdate}
       />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this task.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
