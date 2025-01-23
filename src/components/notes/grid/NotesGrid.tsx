@@ -20,7 +20,7 @@ export const NotesGrid = ({ notes, onNoteUpdated }: NotesGridProps) => {
       {notes?.map((note, index) => (
         <div 
           key={note.id}
-          className="animate-fade-in"
+          className="animate-spring-in"
           style={{
             animationDelay: `${index * 0.05}s`,
             animationFillMode: 'backwards'
