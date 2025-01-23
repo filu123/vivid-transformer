@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Calendar, Plus, RefreshCw, Search } from "lucide-react";
+import { Calendar, Menu, Plus, RefreshCw, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "./ui/input";
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +13,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { NoteFormDrawer } from "./notes/NoteFormDrawer";
 import { HabitFormModal } from "./habits/HabitFormModal";
 import { ReminderFormModal } from "./reminders/ReminderFormModal";
@@ -33,6 +40,7 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -113,8 +121,12 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
   };
 
   const handleSearchBlur = () => {
-    // Delay hiding results to allow clicking on them
     setTimeout(() => setShowResults(false), 200);
+  };
+
+  const navigateAndCloseMobileMenu = (path: string) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -158,37 +170,84 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden md:inline-flex">
-              <RefreshCw className="h-5 w-5" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => navigate("/calendar")}
-            >
-              <Calendar className="h-5 w-5" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Plus className="h-5 w-5" />
+            {isMobile ? (
+              <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px]">
+                  <SheetHeader>
+                    <SheetTitle>Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-4 mt-6">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => navigateAndCloseMobileMenu("/notes")}
+                    >
+                      Notes
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => navigateAndCloseMobileMenu("/habits")}
+                    >
+                      Habits
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => navigateAndCloseMobileMenu("/reminders")}
+                    >
+                      Reminders
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start"
+                      onClick={() => navigateAndCloseMobileMenu("/calendar")}
+                    >
+                      Calendar
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            ) : (
+              <>
+                <Button variant="ghost" size="icon" className="hidden md:inline-flex">
+                  <RefreshCw className="h-5 w-5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setIsNoteModalOpen(true)}>
-                  Notes
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsHabitModalOpen(true)}>
-                  Habits
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsTaskModalOpen(true)}>
-                  Tasks
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setIsReminderModalOpen(true)}>
-                  Reminders
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => navigate("/calendar")}
+                >
+                  <Calendar className="h-5 w-5" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Plus className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setIsNoteModalOpen(true)}>
+                      Notes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsHabitModalOpen(true)}>
+                      Habits
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsTaskModalOpen(true)}>
+                      Tasks
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setIsReminderModalOpen(true)}>
+                      Reminders
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
           </div>
         </div>
       </header>
