@@ -70,11 +70,12 @@ export const TasksSection = ({ selectedColor, onColorSelect }: TasksSectionProps
         />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-        {filteredTasks?.map((task) => (
+        {filteredTasks?.map((task, index) => (
           <TaskCard 
             key={task.id} 
             task={task} 
             onUpdate={refetchTasks}
+            index={index}
           />
         ))}
       </div>

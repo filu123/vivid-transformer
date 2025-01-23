@@ -112,11 +112,12 @@ export const RemindersSection = ({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-          {filteredReminders?.map((reminder) => (
+          {filteredReminders?.map((reminder, index) => (
             <ReminderCard
               key={reminder.id}
               reminder={reminder}
               onUpdate={refetchReminders}
+              index={index}
             />
           ))}
         </div>

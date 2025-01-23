@@ -5,7 +5,8 @@ import { useState } from "react";
 import { TaskDetailsDrawer } from "./TaskDetailsDrawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
+import { CardAnimation } from "../animations/CardAnimation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,12 +31,12 @@ interface TaskCardProps {
     is_done?: boolean;
   };
   onUpdate: () => void;
+  index?: number;
 }
 
-export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
+export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const { toast } = useToast();
 
   const handleDelete = async () => {
     try {
@@ -46,77 +47,61 @@ export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
 
       if (error) throw error;
 
-      toast({
-        title: "Task deleted",
-        description: "The task has been successfully deleted.",
-      });
-      
+      toast.success("Task deleted successfully");
       onUpdate();
       setIsDeleteDialogOpen(false);
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete the task. Please try again.",
-        variant: "destructive",
-      });
+      console.error("Error deleting task:", error);
+      toast.error("Failed to delete task");
     }
   };
 
   return (
-    <>
-      <div 
-        className="animate-fade-in"
-        style={{
-          animationFillMode: 'backwards'
-        }}
+    <CardAnimation index={index}>
+      <Card
+        className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6"
+        style={{ backgroundColor: task.is_done ? '#F2FCE2' : task.background_color }}
+        onClick={() => setIsDetailsOpen(true)}
       >
-        <Card
-          className={`min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6 ${
-            task.is_done ? 'bg-[#F2FCE2]' : ''
-          }`}
-          style={{ backgroundColor: task.is_done ? '#F2FCE2' : task.background_color }}
-          onClick={() => setIsDetailsOpen(true)}
-        >
-          <div className="flex justify-between items-start">
-            <div className="flex items-start gap-3">
-              <Checkbox
-                checked={task.is_done}
-                onCheckedChange={() => onUpdate()}
-                onClick={(e) => e.stopPropagation()}
-                className="mt-1"
-              />
-              <div>
-                <h3 className={`font-semibold text-xl ${
-                  task.is_done ? "line-through text-muted-foreground" : ""
-                }`}>
-                  {task.title}
-                </h3>
-                {task.description && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {task.description}
-                  </p>
-                )}
-                {task.date && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {format(new Date(task.date), "PPp")}
-                  </p>
-                )}
-              </div>
+        <div className="flex justify-between items-start">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              checked={task.is_done}
+              onCheckedChange={() => onUpdate()}
+              onClick={(e) => e.stopPropagation()}
+              className="mt-1"
+            />
+            <div>
+              <h3 className={`font-semibold text-xl ${
+                task.is_done ? "line-through text-muted-foreground" : ""
+              }`}>
+                {task.title}
+              </h3>
+              {task.description && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {task.description}
+                </p>
+              )}
+              {task.date && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {format(new Date(task.date), "PPp")}
+                </p>
+              )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDeleteDialogOpen(true);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
-        </Card>
-      </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDeleteDialogOpen(true);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
 
       <TaskDetailsDrawer
         open={isDetailsOpen}
@@ -141,6 +126,6 @@ export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </CardAnimation>
   );
 };

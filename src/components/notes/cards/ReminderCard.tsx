@@ -7,6 +7,7 @@ import { ReminderDetailsDrawer } from "./ReminderDetailsDrawer";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CardAnimation } from "../animations/CardAnimation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,9 +31,10 @@ interface ReminderCardProps {
     background_color?: string;
   };
   onUpdate: () => void;
+  index?: number;
 }
 
-export const ReminderCard = ({ reminder, onUpdate }: ReminderCardProps) => {
+export const ReminderCard = ({ reminder, onUpdate, index = 0 }: ReminderCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -81,58 +83,51 @@ export const ReminderCard = ({ reminder, onUpdate }: ReminderCardProps) => {
   };
 
   return (
-    <>
-      <div 
-        className="animate-fade-in"
-        style={{
-          animationFillMode: 'backwards'
-        }}
+    <CardAnimation index={index}>
+      <Card
+        className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6"
+        style={{ backgroundColor: reminder.background_color || "#F2FCE2" }}
+        onClick={() => setIsDetailsOpen(true)}
       >
-        <Card
-          className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6"
-          style={{ backgroundColor: reminder.background_color || "#F2FCE2" }}
-          onClick={() => setIsDetailsOpen(true)}
-        >
-          <div className="flex justify-between items-start">
-            <div className="flex items-start gap-3">
-              <Checkbox
-                checked={reminder.is_completed}
-                onCheckedChange={handleToggle}
-                disabled={isLoading}
-                onClick={(e) => e.stopPropagation()}
-                className="mt-1"
-              />
-              <div>
-                <h3 className={`font-semibold text-xl ${
-                  reminder.is_completed ? "line-through text-muted-foreground" : ""
-                }`}>
-                  {reminder.title}
-                </h3>
-                <Badge variant="outline" className="mt-2 capitalize">
-                  {reminder.category}
-                </Badge>
-                {reminder.due_date && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
-                    <Clock className="h-4 w-4" />
-                    <span>{format(new Date(reminder.due_date), "PPp")}</span>
-                  </div>
-                )}
-              </div>
+        <div className="flex justify-between items-start">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              checked={reminder.is_completed}
+              onCheckedChange={handleToggle}
+              disabled={isLoading}
+              onClick={(e) => e.stopPropagation()}
+              className="mt-1"
+            />
+            <div>
+              <h3 className={`font-semibold text-xl ${
+                reminder.is_completed ? "line-through text-muted-foreground" : ""
+              }`}>
+                {reminder.title}
+              </h3>
+              <Badge variant="outline" className="mt-2 capitalize">
+                {reminder.category}
+              </Badge>
+              {reminder.due_date && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+                  <Clock className="h-4 w-4" />
+                  <span>{format(new Date(reminder.due_date), "PPp")}</span>
+                </div>
+              )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsDeleteDialogOpen(true);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
-        </Card>
-      </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsDeleteDialogOpen(true);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </Card>
 
       <ReminderDetailsDrawer
         open={isDetailsOpen}
@@ -157,6 +152,6 @@ export const ReminderCard = ({ reminder, onUpdate }: ReminderCardProps) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </CardAnimation>
   );
 };
