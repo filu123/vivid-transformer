@@ -40,6 +40,7 @@ export type Database = {
       }
       habits: {
         Row: {
+          background_color: string | null
           created_at: string
           custom_days: number[] | null
           duration_minutes: number
@@ -51,6 +52,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          background_color?: string | null
           created_at?: string
           custom_days?: number[] | null
           duration_minutes?: number
@@ -62,6 +64,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          background_color?: string | null
           created_at?: string
           custom_days?: number[] | null
           duration_minutes?: number
@@ -103,7 +106,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           title?: string
-          user_id?: string
+          user_id: string
         }
         Relationships: []
       }
@@ -159,7 +162,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
-          id?: string
+          id: string
           username?: string | null
         }
         Relationships: []
@@ -177,7 +180,7 @@ export type Database = {
         Insert: {
           created_at?: string
           due_date: string
-          id?: string
+          id: string
           name: string
           status: string
           tasks_count?: number | null
@@ -203,15 +206,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: string
+          id: string
           name: string
           user_id: string
         }
         Update: {
           created_at?: string
-          id?: string
-          name?: string
-          user_id?: string
+          id: string
+          name: string
+          user_id: string
         }
         Relationships: []
       }
@@ -247,7 +250,7 @@ export type Database = {
           is_completed?: boolean
           list_id?: string | null
           title?: string
-          user_id?: string
+          user_id: string
         }
         Relationships: [
           {
@@ -268,15 +271,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: string
+          id: string
           name: string
           user_id: string
         }
         Update: {
           created_at?: string
-          id?: string
-          name?: string
-          user_id?: string
+          id: string
+          name: string
+          user_id: string
         }
         Relationships: []
       }
@@ -292,7 +295,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          id?: string
+          id: string
           is_done?: boolean | null
           note?: string | null
           project_id: string
@@ -306,7 +309,7 @@ export type Database = {
           note?: string | null
           project_id?: string
           status?: string
-          title?: string
+          title: string
         }
         Relationships: [
           {
@@ -352,8 +355,8 @@ export type Database = {
           is_done?: boolean | null
           label_id?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
-          title?: string
-          user_id?: string
+          title: string
+          user_id: string
         }
         Relationships: [
           {

@@ -9,16 +9,9 @@ import { HabitDurationInput } from "./form/HabitDurationInput";
 import { HabitFrequencySelect } from "./form/HabitFrequencySelect";
 import { HabitDurationSelect } from "./form/HabitDurationSelect";
 import { Label } from "@/components/ui/label";
+import { ColorPicker } from "../notes/form/ColorPicker";
 
-const COLORS = [
-  "#ff9b74",
-  "#fdc971",
-  "#ebc49a",
-  "#322a2f",
-  "#c15626",
-  "#ebe3d6",
-  "#a2a8a5",
-];
+const COLORS = ['#ff9b74', '#fdc971', '#ebc49a', '#322a2f', '#c15626', '#ebe3d6', '#a2a8a5'];
 
 interface HabitFormModalProps {
   isOpen: boolean;
@@ -140,19 +133,10 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
               />
               <div className="space-y-2">
                 <Label>Color</Label>
-                <div className="flex gap-2">
-                  {COLORS.map((color) => (
-                    <button
-                      key={color}
-                      type="button"
-                      className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ${
-                        backgroundColor === color ? "ring-2 ring-offset-2 ring-black" : ""
-                      }`}
-                      style={{ backgroundColor: color }}
-                      onClick={() => setBackgroundColor(color)}
-                    />
-                  ))}
-                </div>
+                <ColorPicker
+                  selectedColor={backgroundColor}
+                  onColorChange={setBackgroundColor}
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" type="button" onClick={onClose}>
