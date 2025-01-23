@@ -10,6 +10,7 @@ import { CalendarHeader } from "./calendar/CalendarHeader";
 import { DayHabits } from "./calendar/DayHabits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TasksSection } from "./notes/sections/TasksSection";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -20,6 +21,7 @@ export const TimeboxPlanner = () => {
   const [habits, setHabits] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isChangingDate, setIsChangingDate] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
 
   const fetchPriorities = async () => {
     try {
@@ -205,10 +207,9 @@ export const TimeboxPlanner = () => {
                 <TabsContent value="tasks">
                   <div className="space-y-4">
                     <div className="bg-white rounded-xl p-6 shadow-sm">
-                      <DayItems
-                        date={selectedDate}
-                        items={priorities}
-                        onItemsChange={fetchPriorities}
+                      <TasksSection
+                        selectedColor={selectedColor}
+                        onColorSelect={setSelectedColor}
                       />
                     </div>
                   </div>
