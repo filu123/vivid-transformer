@@ -43,12 +43,7 @@ const Notes = () => {
   const renderContent = () => {
     switch (selectedType) {
       case "tasks":
-        return (
-          <TasksSection
-            selectedColor={selectedColor}
-            onColorSelect={setSelectedColor}
-          />
-        );
+        return <TasksSection selectedDate={new Date()} />;
       case "reminders":
         return (
           <RemindersSection
