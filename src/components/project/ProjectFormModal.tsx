@@ -42,7 +42,9 @@ export const ProjectFormModal = ({ isOpen, onClose }: ProjectFormModalProps) => 
         throw new Error("No user found");
       }
 
+      const id = crypto.randomUUID();
       const { error } = await supabase.from("projects").insert({
+        id,
         name,
         status,
         due_date: dueDate,
@@ -56,7 +58,6 @@ export const ProjectFormModal = ({ isOpen, onClose }: ProjectFormModalProps) => 
         description: "Your new project has been created.",
       });
 
-      // Invalidate and refetch projects
       queryClient.invalidateQueries({ queryKey: ["projects"] });
 
       onClose();

@@ -25,9 +25,15 @@ export const DayReminders = ({ reminders, onUpdate }: DayRemindersProps) => {
   const handleToggle = async (id: string, currentState: boolean) => {
     setIsLoading(true);
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error } = await supabase
         .from("reminders")
-        .update({ is_completed: !currentState })
+        .update({ 
+          is_completed: !currentState,
+          user_id: user.id 
+        })
         .eq("id", id);
 
       if (error) throw error;

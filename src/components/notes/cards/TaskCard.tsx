@@ -26,9 +26,16 @@ export const TaskCard = ({ task, onUpdate }: TaskCardProps) => {
 
   const handleToggleDone = async (checked: boolean) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error } = await supabase
         .from("tasks_notes")
-        .update({ is_done: checked })
+        .update({ 
+          is_done: checked,
+          user_id: user.id,
+          title: task.title // Include required fields
+        })
         .eq("id", task.id);
 
       if (error) throw error;

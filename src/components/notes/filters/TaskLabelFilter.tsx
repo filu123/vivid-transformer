@@ -40,7 +40,7 @@ export const TaskLabelFilter = ({
 
   const handleCreateLabel = async (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent the dropdown from closing
+    e.stopPropagation();
 
     if (!newLabelName.trim()) return;
 
@@ -60,9 +60,11 @@ export const TaskLabelFilter = ({
         throw new Error("No user found");
       }
 
+      const id = crypto.randomUUID();
       const { error } = await supabase
         .from("task_labels")
         .insert({ 
+          id,
           name: newLabelName.trim(),
           user_id: user.id
         });

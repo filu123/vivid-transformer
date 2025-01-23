@@ -76,7 +76,9 @@ export const TaskFormModal = ({
           description: "Task updated successfully!",
         });
       } else {
+        const id = crypto.randomUUID();
         const { error } = await supabase.from("tasks").insert({
+          id,
           project_id: projectId,
           title,
           note,
