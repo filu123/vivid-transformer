@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { format, isValid, parse } from "date-fns";
+import { PriorityColorPicker } from "./priority/form/PriorityColorPicker";
+import { PriorityTimeInputs } from "./priority/form/PriorityTimeInputs";
 
 interface DayItem {
   id: string;
@@ -32,16 +34,6 @@ interface PriorityFormModalProps {
   editItem?: DayItem | null;
 }
 
-const COLORS = [
-  '#F2FCE2',
-  '#FEF7CD',
-  '#FEC6A1',
-  '#E5DEFF',
-  '#FFDEE2',
-  '#FDE1D3',
-  '#D3E4FD',
-];
-
 export const PriorityFormModal = ({
   isOpen,
   onClose,
@@ -53,50 +45,21 @@ export const PriorityFormModal = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [note, setNote] = useState("");
-  const [selectedColor, setSelectedColor] = useState(COLORS[0]);
+  const [selectedColor, setSelectedColor] = useState('#F2FCE2');
   const { toast } = useToast();
 
   useEffect(() => {
     if (editItem) {
       setTitle(editItem.title);
-      
-      // Safely format start time
-      if (editItem.startTime) {
-        try {
-          const parsedStartTime = parse(editItem.startTime, 'HH:mm:ss', new Date());
-          if (isValid(parsedStartTime)) {
-            setStartTime(format(parsedStartTime, 'HH:mm'));
-          }
-        } catch (error) {
-          console.error('Invalid start time:', error);
-          setStartTime('');
-        }
-      } else {
-        setStartTime('');
-      }
-
-      // Safely format end time
-      if (editItem.endTime) {
-        try {
-          const parsedEndTime = parse(editItem.endTime, 'HH:mm:ss', new Date());
-          if (isValid(parsedEndTime)) {
-            setEndTime(format(parsedEndTime, 'HH:mm'));
-          }
-        } catch (error) {
-          console.error('Invalid end time:', error);
-          setEndTime('');
-        }
-      } else {
-        setEndTime('');
-      }
-
+      setStartTime(editItem.startTime?.slice(0, 5) || "");
+      setEndTime(editItem.endTime?.slice(0, 5) || "");
       setNote(editItem.note || "");
     } else {
       setTitle("");
       setStartTime("");
       setEndTime("");
       setNote("");
-      setSelectedColor(COLORS[0]);
+      setSelectedColor('#F2FCE2');
     }
   }, [editItem]);
 
@@ -150,11 +113,6 @@ export const PriorityFormModal = ({
 
       onPriorityAdded();
       onClose();
-      setTitle("");
-      setStartTime("");
-      setEndTime("");
-      setNote("");
-      setSelectedColor(COLORS[0]);
     } catch (error) {
       toast({
         title: editItem ? "Error updating priority" : "Error adding priority",
@@ -183,42 +141,19 @@ export const PriorityFormModal = ({
               required
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Start Time</Label>
-              <Input
-                id="startTime"
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">End Time</Label>
-              <Input
-                id="endTime"
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Background Color</Label>
-            <div className="flex gap-2">
-              {COLORS.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    selectedColor === color ? 'ring-2 ring-black ring-offset-2 scale-110' : ''
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)}
-                />
-              ))}
-            </div>
-          </div>
+          
+          <PriorityTimeInputs
+            startTime={startTime}
+            endTime={endTime}
+            onStartTimeChange={setStartTime}
+            onEndTimeChange={setEndTime}
+          />
+
+          <PriorityColorPicker
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
+
           <div className="space-y-2">
             <Label htmlFor="note">Note</Label>
             <Textarea
@@ -229,6 +164,7 @@ export const PriorityFormModal = ({
               className="resize-none"
             />
           </div>
+
           <div className="flex justify-end space-x-2">
             <Button variant="outline" type="button" onClick={onClose}>
               Cancel
