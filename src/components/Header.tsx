@@ -16,6 +16,8 @@ import {
 import { NoteFormDrawer } from "./notes/NoteFormDrawer";
 import { HabitFormModal } from "./habits/HabitFormModal";
 import { ReminderFormModal } from "./reminders/ReminderFormModal";
+import { SearchResults } from "./search/SearchResults";
+import { format } from "date-fns";
 
 interface HeaderProps {
   onViewChange?: Dispatch<SetStateAction<"today" | "calendar">>;
@@ -29,6 +31,8 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
   const [isHabitModalOpen, setIsHabitModalOpen] = useState(false);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
@@ -45,6 +49,73 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
       return data;
     },
   });
+
+  const { data: searchResults = [] } = useQuery({
+    queryKey: ["search", searchQuery],
+    queryFn: async () => {
+      if (!searchQuery.trim()) return [];
+
+      const [notesRes, habitsRes, tasksRes, remindersRes] = await Promise.all([
+        supabase
+          .from("notes")
+          .select("id, title, date")
+          .ilike("title", `%${searchQuery}%`)
+          .limit(3),
+        supabase
+          .from("habits")
+          .select("id, title, start_date")
+          .ilike("title", `%${searchQuery}%`)
+          .limit(3),
+        supabase
+          .from("tasks_notes")
+          .select("id, title, date")
+          .ilike("title", `%${searchQuery}%`)
+          .eq("status", "pending")
+          .limit(3),
+        supabase
+          .from("reminders")
+          .select("id, title, due_date")
+          .ilike("title", `%${searchQuery}%`)
+          .eq("is_completed", false)
+          .limit(3),
+      ]);
+
+      const results = [
+        ...(notesRes.data?.map(note => ({
+          ...note,
+          type: 'note' as const,
+          date: note.date ? format(new Date(note.date), 'MMM dd, yyyy') : undefined
+        })) || []),
+        ...(habitsRes.data?.map(habit => ({
+          ...habit,
+          type: 'habit' as const,
+          date: format(new Date(habit.start_date), 'MMM dd, yyyy')
+        })) || []),
+        ...(tasksRes.data?.map(task => ({
+          ...task,
+          type: 'task' as const,
+          date: task.date ? format(new Date(task.date), 'MMM dd, yyyy') : undefined
+        })) || []),
+        ...(remindersRes.data?.map(reminder => ({
+          ...reminder,
+          type: 'reminder' as const,
+          date: reminder.due_date ? format(new Date(reminder.due_date), 'MMM dd, yyyy') : undefined
+        })) || [])
+      ];
+
+      return results;
+    },
+    enabled: searchQuery.length > 0
+  });
+
+  const handleSearchFocus = () => {
+    setShowResults(true);
+  };
+
+  const handleSearchBlur = () => {
+    // Delay hiding results to allow clicking on them
+    setTimeout(() => setShowResults(false), 200);
+  };
 
   return (
     <>
@@ -71,7 +142,17 @@ export const Header = ({ onViewChange, activeView }: HeaderProps) => {
                   type="search" 
                   placeholder="Search anything..." 
                   className="w-[369px] h-12 pl-14 border-0 rounded-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
                 />
+                {showResults && searchQuery && (
+                  <SearchResults 
+                    results={searchResults} 
+                    onSelect={() => setShowResults(false)} 
+                  />
+                )}
               </div>
             </div>
           </div>
