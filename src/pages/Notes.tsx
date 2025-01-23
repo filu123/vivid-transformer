@@ -6,7 +6,11 @@ import { DrawingPanel } from "@/components/notes/drawing/DrawingPanel";
 import { Drawer } from "vaul";
 import { ReminderFormModal } from "@/components/reminders/ReminderFormModal";
 import { NoteActionButtons } from "@/components/notes/actions/NoteActionButtons";
-import { MainContent } from "@/components/notes/sections/MainContent";
+import { NoteColorFilters } from "@/components/notes/filters/NoteColorFilters";
+import { NotesGrid } from "@/components/notes/grid/NotesGrid";
+import { ContentTypeFilter } from "@/components/notes/filters/ContentTypeFilter";
+import { TasksSection } from "@/components/notes/sections/TasksSection";
+import { RemindersSection } from "@/components/notes/sections/RemindersSection";
 
 type ContentType = "notes" | "tasks" | "reminders";
 
@@ -32,9 +36,57 @@ const Notes = () => {
     },
   });
 
+  const filteredNotes = selectedColor
+    ? notes?.filter((note) => note.background_color === selectedColor)
+    : notes;
+
+  const renderContent = () => {
+    switch (selectedType) {
+      case "tasks":
+        return (
+          <TasksSection
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
+        );
+      case "reminders":
+        return (
+          <RemindersSection
+            selectedColor={selectedColor}
+            onColorSelect={setSelectedColor}
+          />
+        );
+      default:
+        return (
+          <>
+            <NoteColorFilters
+              colors={[
+                "#ff9b74",
+                "#fdc971",
+                "#ebc49a",
+                "#322a2f",
+                "#c15626",
+                "#ebe3d6",
+                "#a2a8a5",
+              ]}
+              selectedColor={selectedColor}
+              onColorSelect={setSelectedColor}
+              notesCount={filteredNotes?.length || 0}
+            />
+            <NotesGrid notes={filteredNotes || []} onNoteUpdated={refetchNotes} />
+          </>
+        );
+    }
+  };
+
   return (
-    <div className="relative min-h-screen container mx-auto animate-fade-in">
+    <div className="relative min-h-screen container mx-auto">
       <div className="space-y-6">
+        <ContentTypeFilter
+          selectedType={selectedType}
+          onTypeSelect={setSelectedType}
+        />
+
         <NoteActionButtons
           onNoteClick={() => {
             setIsTaskMode(false);
@@ -49,20 +101,13 @@ const Notes = () => {
           addButtonRef={addButtonRef}
         />
 
-        <MainContent
-          selectedType={selectedType}
-          onTypeSelect={setSelectedType}
-          notes={notes || []}
-          selectedColor={selectedColor}
-          onColorSelect={setSelectedColor}
-          onNotesUpdated={refetchNotes}
-        />
+        {renderContent()}
       </div>
 
       <Drawer.Root open={isDrawingMode} onOpenChange={setIsDrawingMode}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-          <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 h-[85vh] animate-slide-up">
+          <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 h-[85vh]">
             <DrawingPanel
               isVisible={isDrawingMode}
               onClose={() => {
