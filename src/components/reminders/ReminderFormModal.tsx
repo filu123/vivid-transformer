@@ -4,15 +4,27 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { ReminderDateTime } from "./ReminderDateTime";
 import { ReminderListSelect } from "./ReminderListSelect";
+import { Label } from "@/components/ui/label";
 
 interface ReminderFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   triggerRef: React.RefObject<HTMLButtonElement>;
 }
+
+const COLORS = [
+  "#F2FCE2",
+  "#FEF7CD",
+  "#FEC6A1",
+  "#E5DEFF",
+  "#FFDEE2",
+  "#FDE1D3",
+  "#D3E4FD",
+  "#D6BCFA",
+];
 
 export const ReminderFormModal = ({
   isOpen,
@@ -23,8 +35,8 @@ export const ReminderFormModal = ({
   const [listId, setListId] = useState("");
   const [date, setDate] = useState<Date>();
   const [time, setTime] = useState<string>("");
+  const [backgroundColor, setBackgroundColor] = useState(COLORS[0]);
   const queryClient = useQueryClient();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,11 +45,7 @@ export const ReminderFormModal = ({
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast({
-          title: "Error",
-          description: "You must be logged in to create reminders",
-          variant: "destructive",
-        });
+        toast.error("You must be logged in to create reminders");
         return;
       }
 
@@ -65,28 +73,22 @@ export const ReminderFormModal = ({
         due_date: dueDate?.toISOString(),
         user_id: user.id,
         category,
+        background_color: backgroundColor,
       });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Reminder created successfully",
-      });
-
+      toast.success("Reminder created successfully");
       queryClient.invalidateQueries({ queryKey: ["reminders"] });
       onClose();
       setTitle("");
       setListId("");
       setDate(undefined);
       setTime("");
+      setBackgroundColor(COLORS[0]);
     } catch (error) {
       console.error("Error creating reminder:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create reminder",
-        variant: "destructive",
-      });
+      toast.error("Failed to create reminder");
     }
   };
 
@@ -122,6 +124,22 @@ export const ReminderFormModal = ({
                   onDateChange={setDate}
                   onTimeChange={setTime}
                 />
+                <div className="space-y-2">
+                  <Label>Color</Label>
+                  <div className="flex gap-2">
+                    {COLORS.map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        className={`w-8 h-8 rounded-full transition-transform hover:scale-110 ${
+                          backgroundColor === color ? "ring-2 ring-offset-2 ring-black" : ""
+                        }`}
+                        style={{ backgroundColor: color }}
+                        onClick={() => setBackgroundColor(color)}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-2 pt-4">
