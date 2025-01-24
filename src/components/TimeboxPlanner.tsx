@@ -13,6 +13,41 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TaskCard } from "./notes/cards/TaskCard";
 import { useQuery } from "@tanstack/react-query";
 
+interface DailyData {
+  priorities: Array<{
+    id: string;
+    title: string;
+    start_time: string | null;
+    end_time: string | null;
+    note: string | null;
+    is_done: boolean | null;
+  }>;
+  tasks: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+    is_done: boolean | null;
+  }>;
+  notes: Array<{
+    id: string;
+    title: string;
+    description: string | null;
+  }>;
+  habits: Array<{
+    id: string;
+    title: string;
+    duration_minutes: number;
+    isCompleted?: boolean;
+  }>;
+  reminders: Array<{
+    id: string;
+    title: string;
+    due_date: string | null;
+    is_completed: boolean;
+    background_color?: string;
+  }>;
+}
+
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -32,7 +67,7 @@ export const TimeboxPlanner = () => {
   });
 
   // Fetch daily data using RPC
-  const { data: dailyData, isLoading } = useQuery({
+  const { data: dailyData, isLoading } = useQuery<DailyData>({
     queryKey: ['dailyData', selectedDate, session?.user?.id],
     queryFn: async () => {
       if (!session?.user?.id) return null;
@@ -44,13 +79,13 @@ export const TimeboxPlanner = () => {
         });
 
       if (error) throw error;
-      return data;
+      return data as DailyData;
     },
     enabled: !!session?.user?.id,
   });
 
   // Format priorities data
-  const priorities = dailyData?.priorities?.map((priority: any) => ({
+  const priorities = dailyData?.priorities?.map((priority) => ({
     id: priority.id,
     title: priority.title,
     type: "task",
@@ -134,7 +169,7 @@ export const TimeboxPlanner = () => {
                 <TabsContent value="tasks">
                   <div className="space-y-4 grid grid-cols-3">
                     {dailyData?.tasks?.length > 0 ? (
-                      dailyData.tasks.map((task: any, index: number) => (
+                      dailyData.tasks.map((task, index) => (
                         <TaskCard
                           key={task.id}
                           task={task}
