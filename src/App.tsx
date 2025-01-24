@@ -7,7 +7,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import Auth from "@/pages/Auth";
-import Index from "@/pages/Index";
+import Landing from "@/pages/Landing";
+import Dashboard from "@/pages/Dashboard";
 import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
 import Notes from "@/pages/Notes";
@@ -24,9 +25,10 @@ function App() {
         <SidebarProvider>
           <Toaster />
           <Routes>
+            <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route
-              path="/"
+              path="/dashboard"
               element={
                 <ProtectedRoute>
                   <div className="flex min-h-screen w-full overflow-hidden">
@@ -41,7 +43,7 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Index />} />
+              <Route index element={<Dashboard />} />
               <Route path="projects" element={<Projects />} />
               <Route path="projects/:id" element={<ProjectDetails />} />
               <Route path="notes" element={<Notes />} />
