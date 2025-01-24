@@ -11,167 +11,63 @@ import { DayHabits } from "./calendar/DayHabits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TaskCard } from "./notes/cards/TaskCard";
+import { useQuery } from "@tanstack/react-query";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [priorities, setPriorities] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [reminders, setReminders] = useState([]);
-  const [habits, setHabits] = useState([]);
-  const [tasks, setTasks] = useState([]); // New state for tasks
-  const [isLoading, setIsLoading] = useState(true);
   const [isChangingDate, setIsChangingDate] = useState(false);
 
-  const fetchPriorities = async () => {
-    try {
-      setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("priorities")
-        .select("*")
-        .eq("date", format(selectedDate, "yyyy-MM-dd"));
-
-      if (error) throw error;
-
-      const formattedPriorities = data.map((priority) => ({
-        id: priority.id,
-        title: priority.title,
-        type: "task",
-        startTime: priority.start_time ? format(new Date(`2000-01-01T${priority.start_time}`), "h:mm a") : undefined,
-        endTime: priority.end_time ? format(new Date(`2000-01-01T${priority.end_time}`), "h:mm a") : undefined,
-        duration: priority.start_time && priority.end_time ? "1h" : undefined,
-        note: priority.note,
-        isDone: priority.is_done,
-      }));
-
-      setPriorities(formattedPriorities);
-    } catch (error) {
-      console.error("Error fetching priorities:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const fetchNotes = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("notes")
-        .select("*")
-        .eq("date", format(selectedDate, "yyyy-MM-dd"));
-
-      if (error) throw error;
-      setNotes(data || []);
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-    }
-  };
-
-  const fetchReminders = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      // Get start and end of selected date
-      const start = startOfDay(selectedDate);
-      const end = endOfDay(selectedDate);
-
-      const { data, error } = await supabase
-        .from("reminders")
-        .select("*")
-        .gte("due_date", start.toISOString())
-        .lte("due_date", end.toISOString());
-
-      if (error) throw error;
-      setReminders(data || []);
-    } catch (error) {
-      console.error("Error fetching reminders:", error);
-    }
-  };
-
-  const fetchHabits = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("habits")
-        .select("*, habit_completions(completed_date)")
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      const formattedHabits = data.map(habit => ({
-        ...habit,
-        isCompleted: habit.habit_completions?.some(
-          completion => completion.completed_date === format(selectedDate, 'yyyy-MM-dd')
-        )
-      }));
-
-      setHabits(formattedHabits);
-    } catch (error) {
-      console.error("Error fetching habits:", error);
-    }
-  };
-
-  const fetchTasks = async () => {
-    try {
-      setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("tasks_notes")
-        .select("*")
-        .eq("date", format(selectedDate, "yyyy-MM-dd"));
-
-      if (error) throw error;
-
-      setTasks(data || []);
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const checkSession = async () => {
+  // Fetch user session
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         window.location.href = '/auth';
-        return;
+        return null;
       }
-    };
+      return session;
+    },
+  });
 
-    const loadData = async () => {
-      setIsChangingDate(true);
-      await Promise.all([
-        fetchPriorities(),
-        fetchNotes(),
-        fetchReminders(),
-        fetchHabits(),
-        fetchTasks() // Fetch tasks
-      ]);
-      setIsChangingDate(false);
-    };
+  // Fetch daily data using RPC
+  const { data: dailyData, isLoading } = useQuery({
+    queryKey: ['dailyData', selectedDate, session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      
+      const { data, error } = await supabase
+        .rpc('get_daily_data', {
+          p_user_id: session.user.id,
+          p_date: format(selectedDate, "yyyy-MM-dd")
+        });
 
-    checkSession();
-    loadData();
-  }, [selectedDate]);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id,
+  });
 
-    // New function to handle local state update for isDone
-    const handleTogglePriorityDone = (id: string, newIsDone: boolean) => {
-      setPriorities((prevPriorities) =>
-        prevPriorities.map((priority) =>
-          priority.id === id ? { ...priority, isDone: newIsDone } : priority
-        )
-      );
-    };
+  // Format priorities data
+  const priorities = dailyData?.priorities?.map((priority: any) => ({
+    id: priority.id,
+    title: priority.title,
+    type: "task",
+    startTime: priority.start_time ? format(new Date(`2000-01-01T${priority.start_time}`), "h:mm a") : undefined,
+    endTime: priority.end_time ? format(new Date(`2000-01-01T${priority.end_time}`), "h:mm a") : undefined,
+    duration: priority.start_time && priority.end_time ? "1h" : undefined,
+    note: priority.note,
+    isDone: priority.is_done,
+  })) || [];
+
+  // Handle priority toggle
+  const handleTogglePriorityDone = (id: string, newIsDone: boolean) => {
+    const priority = priorities.find(p => p.id === id);
+    if (priority) {
+      priority.isDone = newIsDone;
+    }
+  };
 
   const getDaysInMonth = () => {
     const year = currentMonth.getFullYear();
@@ -213,13 +109,12 @@ export const TimeboxPlanner = () => {
         {/* Left side - 70% */}
         <div className="lg:col-span-8 space-y-6">
           <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
-            <div className="bg-white  rounded-xl p-6 shadow-sm">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
               <DayItems
                 date={selectedDate}
                 items={priorities}
-                onItemsChange={fetchPriorities}
-                onToggleDone={handleTogglePriorityDone} // Pass the callback
-
+                onItemsChange={() => {}} // Refetch will happen automatically through React Query
+                onToggleDone={handleTogglePriorityDone}
               />
             </div>
           </div>
@@ -237,13 +132,13 @@ export const TimeboxPlanner = () => {
                   <TabsTrigger value="reminders">Reminders</TabsTrigger>
                 </TabsList>
                 <TabsContent value="tasks">
-                <div className="space-y-4 grid grid-cols-3">
-                    {tasks.length > 0 ? (
-                      tasks.map((task, index) => (
+                  <div className="space-y-4 grid grid-cols-3">
+                    {dailyData?.tasks?.length > 0 ? (
+                      dailyData.tasks.map((task: any, index: number) => (
                         <TaskCard
                           key={task.id}
                           task={task}
-                          onUpdate={fetchTasks}
+                          onUpdate={() => {}} // Refetch will happen automatically through React Query
                           index={index}
                         />
                       ))
@@ -256,17 +151,17 @@ export const TimeboxPlanner = () => {
                 </TabsContent>
                 <TabsContent value="habits">
                   <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayHabits habits={habits} onHabitUpdated={fetchHabits} date={selectedDate} />
+                    <DayHabits habits={dailyData?.habits || []} onHabitUpdated={() => {}} date={selectedDate} />
                   </div>
                 </TabsContent>
                 <TabsContent value="notes">
                   <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayNotes notes={notes} />
+                    <DayNotes notes={dailyData?.notes || []} />
                   </div>
                 </TabsContent>
                 <TabsContent value="reminders">
                   <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayReminders reminders={reminders} />
+                    <DayReminders reminders={dailyData?.reminders || []} />
                   </div>
                 </TabsContent>
               </Tabs>

@@ -376,7 +376,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_daily_data: {
+        Args: {
+          p_user_id: string
+          p_date: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       habit_frequency: "daily" | "three_times" | "custom"
