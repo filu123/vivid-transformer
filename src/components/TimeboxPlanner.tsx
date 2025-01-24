@@ -31,7 +31,7 @@ export interface Priority {
 // Define other interfaces based on your RPC response
 export interface GetDailyDataResult {
   priorities: Priority[];
-  // Add other fields like notes, reminders, habits, tasks as needed
+  
 }
 
 export const TimeboxPlanner = () => {
