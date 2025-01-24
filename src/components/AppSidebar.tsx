@@ -21,11 +21,11 @@ const items = [
     url: "/",
     icon: LayoutDashboard,
   },
-  {
-    title: "Calendar",
-    url: "/calendar",
-    icon: Calendar,
-  },
+  // {
+  //   title: "Calendar",
+  //   url: "/calendar",
+  //   icon: Calendar,
+  // },
   {
     title: "Projects",
     url: "/projects",

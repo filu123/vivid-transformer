@@ -38,6 +38,23 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const handleToggleDone = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("tasks_notes")
+        .update({ is_done: !task.is_done })
+        .eq("id", task.id);
+
+      if (error) throw error;
+
+      toast.success("Task updated successfully");
+      onUpdate(); // Refresh tasks
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Failed to update task");
+    }
+  };
+
   const handleDelete = async () => {
     try {
       const { error } = await supabase
@@ -67,7 +84,7 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
           <div className="flex items-start gap-3">
             <Checkbox
               checked={task.is_done}
-              onCheckedChange={() => onUpdate()}
+              onCheckedChange={handleToggleDone} // Use handleToggleDone
               onClick={(e) => e.stopPropagation()}
               className="mt-1"
             />

@@ -2,16 +2,17 @@ import { Plus } from "lucide-react";
 
 interface AddPriorityButtonProps {
   onClick: () => void;
+  bgClass: string;
 }
 
-export const AddPriorityButton = ({ onClick }: AddPriorityButtonProps) => {
+export const AddPriorityButton = ({ onClick, bgClass }: AddPriorityButtonProps) => {
   return (
     <div 
-      className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl p-8 cursor-pointer hover:border-gray-400 transition-colors mt-4"
+      className={`flex flex-col items-center justify-center ${bgClass} rounded-xl p-8 cursor-pointer hover:border-gray-400 transition-colors mt-4`}
       onClick={onClick}
     >
-      <Plus className="h-8 w-8 text-gray-400 mb-2" />
-      <p className="text-gray-600">Add a priority for this day</p>
+      <Plus className="h-8 w-8 text-black mb-2" /> {/* Adjusted text color for better contrast */}
+      <p className="text-gray-800">Add a priority</p> {/* Adjusted text color for better contrast */}
     </div>
   );
 };

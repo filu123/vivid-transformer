@@ -10,6 +10,7 @@ import { CalendarHeader } from "./calendar/CalendarHeader";
 import { DayHabits } from "./calendar/DayHabits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TaskCard } from "./notes/cards/TaskCard";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -18,6 +19,7 @@ export const TimeboxPlanner = () => {
   const [notes, setNotes] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [habits, setHabits] = useState([]);
+  const [tasks, setTasks] = useState([]); // New state for tasks
   const [isLoading, setIsLoading] = useState(true);
   const [isChangingDate, setIsChangingDate] = useState(false);
 
@@ -52,7 +54,6 @@ export const TimeboxPlanner = () => {
       setIsLoading(false);
     }
   };
-
   const fetchNotes = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -117,6 +118,27 @@ export const TimeboxPlanner = () => {
     }
   };
 
+  const fetchTasks = async () => {
+    try {
+      setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("tasks_notes")
+        .select("*")
+        .eq("date", format(selectedDate, "yyyy-MM-dd"));
+
+      if (error) throw error;
+
+      setTasks(data || []);
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -125,14 +147,15 @@ export const TimeboxPlanner = () => {
         return;
       }
     };
-    
+
     const loadData = async () => {
       setIsChangingDate(true);
       await Promise.all([
         fetchPriorities(),
         fetchNotes(),
         fetchReminders(),
-        fetchHabits()
+        fetchHabits(),
+        fetchTasks() // Fetch tasks
       ]);
       setIsChangingDate(false);
     };
@@ -140,6 +163,15 @@ export const TimeboxPlanner = () => {
     checkSession();
     loadData();
   }, [selectedDate]);
+
+    // New function to handle local state update for isDone
+    const handleTogglePriorityDone = (id: string, newIsDone: boolean) => {
+      setPriorities((prevPriorities) =>
+        prevPriorities.map((priority) =>
+          priority.id === id ? { ...priority, isDone: newIsDone } : priority
+        )
+      );
+    };
 
   const getDaysInMonth = () => {
     const year = currentMonth.getFullYear();
@@ -181,11 +213,13 @@ export const TimeboxPlanner = () => {
         {/* Left side - 70% */}
         <div className="lg:col-span-8 space-y-6">
           <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="bg-white  rounded-xl p-6 shadow-sm">
               <DayItems
                 date={selectedDate}
                 items={priorities}
                 onItemsChange={fetchPriorities}
+                onToggleDone={handleTogglePriorityDone} // Pass the callback
+
               />
             </div>
           </div>
@@ -203,14 +237,21 @@ export const TimeboxPlanner = () => {
                   <TabsTrigger value="reminders">Reminders</TabsTrigger>
                 </TabsList>
                 <TabsContent value="tasks">
-                  <div className="space-y-4">
-                    <div className="bg-white rounded-xl p-6 shadow-sm">
-                      <DayItems
-                        date={selectedDate}
-                        items={priorities}
-                        onItemsChange={fetchPriorities}
-                      />
-                    </div>
+                <div className="space-y-4 grid grid-cols-3">
+                    {tasks.length > 0 ? (
+                      tasks.map((task, index) => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          onUpdate={fetchTasks}
+                          index={index}
+                        />
+                      ))
+                    ) : (
+                      <div className="mt-8 text-center text-gray-500">
+                        No tasks for today
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
                 <TabsContent value="habits">

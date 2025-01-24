@@ -124,7 +124,7 @@ export const NoteFormDrawer = ({
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
         <Drawer.Content 
           className={`bg-background flex flex-col rounded-t-[10px] fixed ${
-            isTaskMode ? 'max-w-lg w-full mx-auto left-1/2 -translate-x-1/2 top-[10%] h-auto rounded-b-[10px] shadow-lg' 
+            isTaskMode ? 'bottom-0 left-0 right-0 h-[85vh] mt-24' 
             : 'bottom-0 left-0 right-0 h-[85vh] mt-24'
           }`}
         >

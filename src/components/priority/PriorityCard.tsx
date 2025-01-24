@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, Trash2, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { PriorityFormModal } from "./PriorityFormModal";
-import { PriorityActions } from "./PriorityActions";
 import { PriorityDeleteDialog } from "./PriorityDeleteDialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CardAnimation } from "../notes/animations/CardAnimation";
 
 interface PriorityCardProps {
   id: string;
@@ -18,6 +19,8 @@ interface PriorityCardProps {
   isDone?: boolean;
   backgroundColor?: string;
   onPriorityUpdated?: () => void;
+  index: number; // Added index prop
+  onToggleDone: (id: string, newIsDone: boolean) => void; // New prop
 }
 
 export const PriorityCard = ({
@@ -30,27 +33,34 @@ export const PriorityCard = ({
   isDone,
   backgroundColor = '#ff9b74',
   onPriorityUpdated,
+  index, // Destructure index
+  onToggleDone, // Destructure the new prop
 }: PriorityCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleToggleDone = async () => {
+    const newIsDone = !isDone;
+    onToggleDone(id, newIsDone); // Optimistically update the parent state
+
     try {
       const { error } = await supabase
         .from("priorities")
-        .update({ is_done: !isDone })
+        .update({ is_done: newIsDone })
         .eq("id", id);
 
       if (error) throw error;
 
       toast({
-        title: isDone ? "Priority unmarked" : "Priority completed",
-        description: isDone ? "Priority has been unmarked" : "Priority has been marked as complete",
+        title: newIsDone ? "Priority completed" : "Priority unmarked",
+        description: newIsDone
+          ? "Priority has been marked as complete."
+          : "Priority has been unmarked.",
       });
-      
-      onPriorityUpdated?.();
     } catch (error) {
+      // Revert the change in case of an error
+      onToggleDone(id, isDone);
       toast({
         title: "Error",
         description: "Failed to update the priority. Please try again.",
@@ -85,31 +95,31 @@ export const PriorityCard = ({
   };
 
   return (
-    <>
-      <Card className={`mb-4 ${isDone ? 'bg-green-50' : ''}`} style={{ backgroundColor }}>
-        <CardContent className="pt-6">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={`h-6 w-6 ${isDone ? 'text-green-500' : ''}`}
-                  onClick={handleToggleDone}
-                >
-                  <Check className={`h-4 w-4 ${isDone ? 'text-green-500' : 'text-gray-400'}`} />
-                </Button>
-                <h3 className={`font-medium ${isDone ? 'line-through text-gray-500' : ''}`}>
-                  {title}
-                </h3>
-              </div>
+    <CardAnimation index={index}>
+      <Card
+        className={`min-h-[200px] max-h-[200px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6  ${isDone ? 'bg-green-50' : ''}`}
+        style={{ backgroundColor }}
+        onClick={() => setIsEditModalOpen(true)}
+      >
+        <div className="flex justify-between items-start">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              checked={isDone}
+              onCheckedChange={handleToggleDone}
+              onClick={(e) => e.stopPropagation()}
+              className="mt-1"
+            />
+            <div>
+              <h3 className={`font-semibold text-xl ${isDone ? "line-through text-muted-foreground" : ""}`}>
+                {title}
+              </h3>
               {note && (
-                <p className={`mt-1 text-sm text-gray-500 ${isDone ? 'line-through' : ''}`}>
+                <p className={`text-sm text-muted-foreground mt-2 ${isDone ? 'line-through' : ''}`}>
                   {note}
                 </p>
               )}
               {(startTime || endTime) && (
-                <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                   <span>{startTime}</span>
                   {endTime && (
                     <>
@@ -121,12 +131,33 @@ export const PriorityCard = ({
                 </div>
               )}
             </div>
-            <PriorityActions
-              onEdit={() => setIsEditModalOpen(true)}
-              onDelete={() => setIsDeleteDialogOpen(true)}
-            />
           </div>
-        </CardContent>
+          <div className="flex items-center gap-2">
+            {/* Edit button can be re-enabled if needed */}
+            {/* <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditModalOpen(true);
+              }}
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button> */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 bg-white rounded-full p-5"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsDeleteDialogOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </Card>
 
       <PriorityFormModal
@@ -150,6 +181,6 @@ export const PriorityCard = ({
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDelete}
       />
-    </>
+    </CardAnimation>
   );
 };

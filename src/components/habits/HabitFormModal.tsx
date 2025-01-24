@@ -112,10 +112,10 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
     <Drawer.Root open={isOpen} onOpenChange={onClose}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-[50%] translate-x-[-50%] w-[90%] max-w-[500px] h-[85vh]">
-          <div className="p-4 bg-background rounded-t-[10px] flex-1">
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] w-[70%] mx-auto fixed bottom-0 left-0 right-0 h-[85vh] mt-24">
+          <div className="p-4 bg-background rounded-t-[10px] flex-1 ">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl mx-auto">
               <HabitTitleInput title={title} setTitle={setTitle} />
               <HabitDurationInput 
                 durationMinutes={durationMinutes} 
