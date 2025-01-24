@@ -8,7 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { Header } from "@/components/Header";
 import Auth from "@/pages/Auth";
 import Landing from "@/pages/Landing";
-import Dashboard from "@/pages/Dashboard";
+import { TimeboxPlanner } from "@/components/TimeboxPlanner";
 import Projects from "@/pages/Projects";
 import ProjectDetails from "@/pages/ProjectDetails";
 import Notes from "@/pages/Notes";
@@ -43,7 +43,8 @@ function App() {
                 </ProtectedRoute>
               }
             >
-              <Route index element={<Dashboard />} />
+              <Route index element={<TimeboxPlanner />} />
+              <Route path="planner" element={<TimeboxPlanner />} />
               <Route path="projects" element={<Projects />} />
               <Route path="projects/:id" element={<ProjectDetails />} />
               <Route path="notes" element={<Notes />} />
