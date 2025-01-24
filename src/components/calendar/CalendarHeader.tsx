@@ -14,31 +14,27 @@ export const CalendarHeader = ({
   onNextMonth,
 }: CalendarHeaderProps) => {
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-between mb-6 bg-[#FFF7EA] rounded-2xl p-2">
       <Button
         variant="ghost"
         size="icon"
         onClick={onPreviousMonth}
-        className="rounded-lg"
+        className="rounded-lg bg-white rounded-full"
       >
-        <ChevronLeft className="h-5 w-5" />
+        <ChevronLeft className="  h-5 w-5" />
       </Button>
       <div className="flex items-center gap-4">
-        <span className="text-muted-foreground">
-          {format(subMonths(currentMonth, 1), "MMM")}
-        </span>
+        
         <span className="text-xl font-semibold">
-          {format(currentMonth, "MMM")}
+          {format(currentMonth, "MMMM YYY")}
         </span>
-        <span className="text-muted-foreground">
-          {format(addMonths(currentMonth, 1), "MMM")}
-        </span>
+    
       </div>
       <Button
         variant="ghost"
         size="icon"
         onClick={onNextMonth}
-        className="rounded-lg"
+        className="rounded-lg bg-white rounded-full"
       >
         <ChevronRight className="h-5 w-5" />
       </Button>

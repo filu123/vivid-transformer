@@ -97,7 +97,7 @@ export const PriorityCard = ({
   return (
     <CardAnimation index={index}>
       <Card
-        className={`min-h-[200px] max-h-[200px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6  ${isDone ? 'bg-green-50' : ''}`}
+        className={`min-h-[199px] max-h-[199px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6  ${isDone ? 'bg-green-50' : ''}`}
         style={{ backgroundColor }}
         onClick={() => setIsEditModalOpen(true)}
       >

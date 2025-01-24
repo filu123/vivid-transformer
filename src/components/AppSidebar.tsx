@@ -18,7 +18,7 @@ import { toast } from "sonner";
 const items = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: LayoutDashboard,
   },
   // {
@@ -28,22 +28,22 @@ const items = [
   // },
   {
     title: "Projects",
-    url: "/projects",
+    url: "/dashboard/projects",
     icon: FileText,
   },
   {
     title: "Habits",
-    url: "/habits",
+    url: "/dashboard/habits",
     icon: Activity,
   },
   {
     title: "Reminders",
-    url: "/reminders",
+    url: "/dashboard/reminders",
     icon: ListTodo,
   },
   {
     title: "Notes",
-    url: "/notes",
+    url: "/dashboard/notes",
     icon: StickyNote,
   },
   {

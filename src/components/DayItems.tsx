@@ -47,7 +47,7 @@ export const DayItems = ({ date, items, onItemsChange, onToggleDone }: DayItemsP
 
   return (
     <div className="space-y-1">
-      <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
+      <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 min-h-full">
         {items.map((item, index) => (
           <PriorityCard
             key={item.id}
@@ -73,11 +73,11 @@ export const DayItems = ({ date, items, onItemsChange, onToggleDone }: DayItemsP
           ))}
       </div>
 
-      {items.length === 0 && (
+      {/* {items.length === 0 && (
         <div className="mt-8 text-center text-gray-500">
           Nothing for today
         </div>
-      )}
+      )} */}
 
       <PriorityFormModal
         isOpen={isModalOpen}
