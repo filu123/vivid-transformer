@@ -1,10 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Star } from "lucide-react";
+import { Check, Menu, Star, X } from "lucide-react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check auth status
+  useState(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    };
+    checkAuth();
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#fff7ea] to-white">
@@ -15,20 +30,74 @@ const Landing = () => {
             <div className="flex items-center">
               <span className="text-xl font-bold">TaskMaster</span>
             </div>
-            <div className="flex items-center gap-4">
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-4">
+              {!isLoading && (
+                <>
+                  {!isAuthenticated && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => navigate("/auth")}
+                    >
+                      Sign In
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => navigate("/dashboard")}
+                  >
+                    Dashboard
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
               <Button
                 variant="ghost"
-                onClick={() => navigate("/auth")}
+                size="icon"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
-                Sign In
-              </Button>
-              <Button
-                onClick={() => navigate("/dashboard")}
-              >
-                Dashboard
+                {isMobileMenuOpen ? (
+                  <X className="h-6 w-6" />
+                ) : (
+                  <Menu className="h-6 w-6" />
+                )}
               </Button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden py-4 animate-fade-in">
+              {!isLoading && (
+                <div className="flex flex-col gap-2">
+                  {!isAuthenticated && (
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        navigate("/auth");
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full justify-start"
+                    >
+                      Sign In
+                    </Button>
+                  )}
+                  <Button
+                    onClick={() => {
+                      navigate("/dashboard");
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="w-full justify-start"
+                  >
+                    Dashboard
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </nav>
 
@@ -37,14 +106,14 @@ const Landing = () => {
         <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-fade-in">
           Organize Your Life, Effortlessly
         </h1>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
+        <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
           The all-in-one productivity app that helps you manage tasks, build habits, and stay organized with a beautiful, intuitive interface.
         </p>
-        <div className="flex gap-4 justify-center animate-fade-in [animation-delay:400ms]">
+        <div className="flex flex-col md:flex-row gap-4 justify-center animate-fade-in [animation-delay:400ms]">
           <Button
             size="lg"
             onClick={() => navigate("/auth")}
-            className="bg-primary hover:bg-primary/90"
+            className="bg-primary hover:bg-primary/90 w-full md:w-auto"
           >
             Get Started Free
           </Button>
@@ -55,6 +124,7 @@ const Landing = () => {
               const featuresSection = document.getElementById("features");
               featuresSection?.scrollIntoView({ behavior: "smooth" });
             }}
+            className="w-full md:w-auto"
           >
             See Features
           </Button>
@@ -66,7 +136,7 @@ const Landing = () => {
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
           Everything You Need to Stay Productive
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature, index) => (
             <Card
               key={feature.title}
@@ -112,7 +182,7 @@ const Landing = () => {
               <ul className="space-y-3 mb-6">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500" />
+                    <Check className="h-5 w-5 text-green-500 shrink-0" />
                     <span>{feature}</span>
                   </li>
                 ))}
