@@ -21,6 +21,7 @@ interface DailyData {
     end_time: string | null;
     note: string | null;
     is_done: boolean | null;
+    background_color?: string;
   }>;
   tasks: Array<{
     id: string;
@@ -46,6 +47,17 @@ interface DailyData {
     is_completed: boolean;
     background_color?: string;
   }>;
+}
+
+interface DayItem {
+  id: string;
+  title: string;
+  type: "task" | "habit" | "reminder" | "note";
+  startTime?: string;
+  endTime?: string;
+  duration?: string;
+  note?: string;
+  isDone?: boolean;
 }
 
 export const TimeboxPlanner = () => {
@@ -79,21 +91,21 @@ export const TimeboxPlanner = () => {
         });
 
       if (error) throw error;
-      return data as DailyData;
+      return data as unknown as DailyData;
     },
     enabled: !!session?.user?.id,
   });
 
   // Format priorities data
-  const priorities = dailyData?.priorities?.map((priority) => ({
+  const priorities: DayItem[] = dailyData?.priorities?.map((priority) => ({
     id: priority.id,
     title: priority.title,
-    type: "task",
+    type: "task" as const,
     startTime: priority.start_time ? format(new Date(`2000-01-01T${priority.start_time}`), "h:mm a") : undefined,
     endTime: priority.end_time ? format(new Date(`2000-01-01T${priority.end_time}`), "h:mm a") : undefined,
     duration: priority.start_time && priority.end_time ? "1h" : undefined,
-    note: priority.note,
-    isDone: priority.is_done,
+    note: priority.note || undefined,
+    isDone: priority.is_done || false,
   })) || [];
 
   // Handle priority toggle
