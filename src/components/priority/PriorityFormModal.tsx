@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useState, useEffect } from "react";
+import { Drawer } from "vaul";
 import { PriorityColorPicker } from "./form/PriorityColorPicker";
 import { PriorityTimeInputs } from "./form/PriorityTimeInputs";
-import { Drawer } from "vaul";
 
 interface DayItem {
   id: string;
