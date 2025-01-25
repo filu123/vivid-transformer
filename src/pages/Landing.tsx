@@ -22,7 +22,7 @@ const Landing = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fff7ea] to-white">
+    <div className="min-h-screen bg-gradient-to-b from-[#fff7ea] w-full to-white">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b">
         <div className="container mx-auto px-4">

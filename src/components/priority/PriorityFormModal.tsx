@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { PriorityForm } from "./PriorityForm";
+import { usePriorities } from "@/hooks/use-priorities";
 
 interface DayItem {
   id: string;

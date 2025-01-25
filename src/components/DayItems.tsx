@@ -60,6 +60,8 @@ export const DayItems = ({ date, items, onItemsChange, onToggleDone }: DayItemsP
             isDone={item.isDone}
             onToggleDone={onToggleDone}
             index={index}
+            onPriorityUpdated={onItemsChange} // Ensure this callback is passed
+
           />
         ))}
 

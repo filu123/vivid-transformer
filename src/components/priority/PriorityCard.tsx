@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { PriorityFormModal } from "./PriorityFormModal";
 import { PriorityDeleteDialog } from "./PriorityDeleteDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CardAnimation } from "../notes/animations/CardAnimation";
+import { PriorityFormModal } from "../PriorityFormModal";
 
 interface PriorityCardProps {
   id: string;
@@ -40,34 +40,10 @@ export const PriorityCard = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const { toast } = useToast();
 
-  const handleToggleDone = async () => {
-    const newIsDone = !isDone;
-    onToggleDone(id, newIsDone); // Optimistically update the parent state
-
-    try {
-      const { error } = await supabase
-        .from("priorities")
-        .update({ is_done: newIsDone })
-        .eq("id", id);
-
-      if (error) throw error;
-
-      toast({
-        title: newIsDone ? "Priority completed" : "Priority unmarked",
-        description: newIsDone
-          ? "Priority has been marked as complete."
-          : "Priority has been unmarked.",
-      });
-    } catch (error) {
-      // Revert the change in case of an error
-      onToggleDone(id, isDone);
-      toast({
-        title: "Error",
-        description: "Failed to update the priority. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleToggleDone = () => {
+    onToggleDone(id, !isDone);
   };
+
 
   const handleDelete = async () => {
     try {
