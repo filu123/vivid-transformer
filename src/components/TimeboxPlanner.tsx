@@ -11,10 +11,9 @@ import { DayHabits } from "./calendar/DayHabits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TaskCard } from "./notes/cards/TaskCard";
-import { useQuery, useQueryClient, QueryKey } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DailyData, DayItem } from "@/integrations/supabase/timeboxTypes";
 import { toast } from "@/hooks/use-toast";
-
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -22,6 +21,7 @@ export const TimeboxPlanner = () => {
   const [isChangingDate, setIsChangingDate] = useState(false);
 
   const queryClient = useQueryClient();
+
   // Fetch user session
   const { data: session } = useQuery({
     queryKey: ['session'],
@@ -34,8 +34,6 @@ export const TimeboxPlanner = () => {
       return session;
     },
   });
-
-  
 
   // Fetch daily data using RPC
   const { data: dailyData, isLoading } = useQuery<DailyData>({
@@ -67,8 +65,6 @@ export const TimeboxPlanner = () => {
     isDone: priority.is_done || false,
   })) || [];
 
-
-  
   // Handle priority toggle
   const handleTogglePriorityDone = async (id: string, newIsDone: boolean) => {
     if (!session?.user?.id) return;
@@ -115,11 +111,13 @@ export const TimeboxPlanner = () => {
     }
   };
 
-  // Define the onUpdate function
-  const handleTaskUpdate = () => {
-    queryClient.invalidateQueries({
-      queryKey: ['dailyData', selectedDate, session.user.id],
-    });
+  // Define the onUpdate function to handle priority updates
+  const handlePriorityUpdate = () => {
+    if (session?.user?.id) {
+      queryClient.invalidateQueries({
+        queryKey: ['dailyData', selectedDate, session.user.id],
+      });
+    }
   };
 
   const getDaysInMonth = () => {
@@ -162,23 +160,19 @@ export const TimeboxPlanner = () => {
         <h2 className="text-3xl font-bold">Planner</h2>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left side - 70% */}
         <div className="lg:col-span-7 flex flex-col space-y-6">
           <div className={`transition-all duration-300 ${isChangingDate ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
             <div className=" ">
               <DayItems
                 date={selectedDate}
                 items={priorities}
-                onItemsChange={() => { }} // Refetch will happen automatically through React Query
+                onItemsChange={handlePriorityUpdate}
                 onToggleDone={handleTogglePriorityDone}
               />
             </div>
           </div>
-
-          
         </div>
 
-        {/* Right side - 30% */}
         <div className="lg:col-span-5">
           <Card className="p-4 md:p-6 bg-white shadow-sm min-w-[410px] min-h-[410px] max-w-[410px] max-h-[410px]">
             <CalendarHeader
@@ -194,54 +188,55 @@ export const TimeboxPlanner = () => {
           </Card>
         </div>
       </div>
+      
       <div className={`transition-all md:max-w-[58%] duration-300 ${isLoading ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
-            <div className="mt-8">
-              <h2 className="text-xl md:text-xl font-semibold mb-4 mt-10 animate-fade-in">
-                {format(selectedDate, "MMMM d, yyyy")}
-              </h2>
-              <Tabs defaultValue="tasks" className="w-full">
-                <TabsList className="mb-4 gap-6 bg-transparent">
-                  <TabsTrigger className="p-0" value="tasks">Tasks</TabsTrigger>
-                  <TabsTrigger className="p-0" value="habits">Habits</TabsTrigger>
-                  <TabsTrigger className="p-0" value="notes">Notes</TabsTrigger>
-                  <TabsTrigger className="p-0" value="reminders">Reminders</TabsTrigger>
-                </TabsList>
-                <TabsContent value="tasks">
-                  <div className="space-y-4 grid grid-cols-2">
-                    {dailyData?.tasks?.length > 0 ? (
-                      dailyData.tasks.map((task, index) => (
-                        <TaskCard
-                          key={task.id}
-                          task={task}
-                          onUpdate={handleTaskUpdate} // Pass the handleTaskUpdate function
-                          index={index}
-                        />
-                      ))
-                    ) : (
-                      <div className="mt-8 text-center text-gray-500">
-                        No tasks for today
-                      </div>
-                    )}
+        <div className="mt-8">
+          <h2 className="text-xl md:text-xl font-semibold mb-4 mt-10 animate-fade-in">
+            {format(selectedDate, "MMMM d, yyyy")}
+          </h2>
+          <Tabs defaultValue="tasks" className="w-full">
+            <TabsList className="mb-4 gap-6 bg-transparent">
+              <TabsTrigger className="p-0" value="tasks">Tasks</TabsTrigger>
+              <TabsTrigger className="p-0" value="habits">Habits</TabsTrigger>
+              <TabsTrigger className="p-0" value="notes">Notes</TabsTrigger>
+              <TabsTrigger className="p-0" value="reminders">Reminders</TabsTrigger>
+            </TabsList>
+            <TabsContent value="tasks">
+              <div className="space-y-4 grid grid-cols-2">
+                {dailyData?.tasks?.length > 0 ? (
+                  dailyData.tasks.map((task, index) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      onUpdate={handlePriorityUpdate}
+                      index={index}
+                    />
+                  ))
+                ) : (
+                  <div className="mt-8 text-center text-gray-500">
+                    No tasks for today
                   </div>
-                </TabsContent>
-                <TabsContent value="habits">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayHabits habits={dailyData?.habits || []} onHabitUpdated={() => { }} date={selectedDate} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="notes">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayNotes notes={dailyData?.notes || []} />
-                  </div>
-                </TabsContent>
-                <TabsContent value="reminders">
-                  <div className="bg-white rounded-xl p-6 shadow-sm">
-                    <DayReminders reminders={dailyData?.reminders || []} />
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </div>
-          </div>
+                )}
+              </div>
+            </TabsContent>
+            <TabsContent value="habits">
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <DayHabits habits={dailyData?.habits || []} onHabitUpdated={() => { }} date={selectedDate} />
+              </div>
+            </TabsContent>
+            <TabsContent value="notes">
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <DayNotes notes={dailyData?.notes || []} />
+              </div>
+            </TabsContent>
+            <TabsContent value="reminders">
+              <div className="bg-white rounded-xl p-6 shadow-sm">
+                <DayReminders reminders={dailyData?.reminders || []} />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
   );
 };
