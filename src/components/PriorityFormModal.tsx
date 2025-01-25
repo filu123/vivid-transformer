@@ -11,9 +11,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { format, isValid, parse } from "date-fns";
+import { format } from "date-fns";
 import { PriorityColorPicker } from "./priority/form/PriorityColorPicker";
 import { PriorityTimeInputs } from "./priority/form/PriorityTimeInputs";
+import { Drawer } from "vaul";
 
 interface DayItem {
   id: string;
@@ -123,58 +124,64 @@ export const PriorityFormModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>
-            {editItem ? "Edit Priority" : "Add Priority"} for {format(selectedDate, "MMMM d, yyyy")}
-          </DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Task Name *</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              maxLength={70}
-              required
-            />
-          </div>
-          
-          <PriorityTimeInputs
-            startTime={startTime}
-            endTime={endTime}
-            onStartTimeChange={setStartTime}
-            onEndTimeChange={setEndTime}
-          />
+    <Drawer.Root open={isOpen} onOpenChange={onClose}>
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-0 right-0 max-h-[96%] max-w-lg mx-auto">
+          <div className="p-4 bg-background rounded-t-[10px] overflow-y-auto">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold">
+                {editItem ? "Edit Priority" : "Add Priority"} for {format(selectedDate, "MMMM d, yyyy")}
+              </h3>
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Task Name *</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  maxLength={70}
+                  required
+                />
+              </div>
+              
+              <PriorityTimeInputs
+                startTime={startTime}
+                endTime={endTime}
+                onStartTimeChange={setStartTime}
+                onEndTimeChange={setEndTime}
+              />
 
-          <PriorityColorPicker
-            selectedColor={selectedColor}
-            onColorSelect={setSelectedColor}
-          />
+              <PriorityColorPicker
+                selectedColor={selectedColor}
+                onColorSelect={setSelectedColor}
+              />
 
-          <div className="space-y-2">
-            <Label htmlFor="note">Note</Label>
-            <Textarea
-              id="note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              maxLength={100}
-              className="resize-none"
-            />
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="note">Note</Label>
+                <Textarea
+                  id="note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  maxLength={100}
+                  className="resize-none"
+                />
+              </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button variant="outline" type="button" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {editItem ? "Update" : "Add"} Priority
-            </Button>
+              <div className="flex justify-end space-x-2 pt-4">
+                <Button variant="outline" type="button" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {editItem ? "Update" : "Add"} Priority
+                </Button>
+              </div>
+            </form>
           </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   );
 };
