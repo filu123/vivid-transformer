@@ -7,6 +7,7 @@ export interface DailyData {
       note: string | null;
       is_done: boolean | null;
       background_color?: string;
+      created_at: string;
     }>;
     tasks: Array<{
       id: string;
