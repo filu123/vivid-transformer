@@ -31,17 +31,29 @@ export const TimeboxPlanner = () => {
   // Fetch daily data using custom hook
   const { data: dailyData, isLoading } = useDailyData(selectedDate, session?.user?.id);
 
-  // Format priorities data
-  const priorities: DayItem[] = dailyData?.priorities?.map((priority) => ({
-    id: priority.id,
-    title: priority.title,
-    type: "task" as const,
-    startTime: priority.start_time || undefined,
-    endTime: priority.end_time || undefined,
-    duration: priority.start_time && priority.end_time ? "1h" : undefined,
-    note: priority.note || undefined,
-    isDone: priority.is_done || false,
-  })) || [];
+  // Format priorities data and sort by created_at
+  const priorities: DayItem[] = (dailyData?.priorities || [])
+    .sort((a, b) => {
+      // First sort by is_done (false comes first)
+      if (a.is_done !== b.is_done) {
+        return a.is_done ? 1 : -1;
+      }
+      // Then sort by created_at if available
+      if (a.created_at && b.created_at) {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      }
+      return 0;
+    })
+    .map((priority) => ({
+      id: priority.id,
+      title: priority.title,
+      type: "task" as const,
+      startTime: priority.start_time || undefined,
+      endTime: priority.end_time || undefined,
+      duration: priority.start_time && priority.end_time ? "1h" : undefined,
+      note: priority.note || undefined,
+      isDone: priority.is_done || false,
+    }));
 
   // Handle priority toggle with cache invalidation
   const handleTogglePriorityDone = async (id: string, newIsDone: boolean) => {
