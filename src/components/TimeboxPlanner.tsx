@@ -1,26 +1,18 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { format, addMonths, subMonths, startOfDay, endOfDay } from "date-fns";
-import { DayItems } from "./DayItems";
-import { supabase } from "@/integrations/supabase/client";
-import { DayNotes } from "./calendar/DayNotes";
-import { DayReminders } from "./calendar/DayReminders";
-import { CalendarGrid } from "./calendar/CalendarGrid";
-import { CalendarHeader } from "./calendar/CalendarHeader";
-import { DayHabits } from "./calendar/DayHabits";
+import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TaskCard } from "./notes/cards/TaskCard";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { DailyData, DayItem } from "@/integrations/supabase/timeboxTypes";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { DayItems } from "./DayItems";
+import { PlannerCalendar } from "./planner/PlannerCalendar";
+import { PlannerDailyTabs } from "./planner/PlannerDailyTabs";
+import { useDailyData } from "@/hooks/useDailyData";
 import { toast } from "@/hooks/use-toast";
+import { DayItem } from "@/integrations/supabase/timeboxTypes";
 
 export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isChangingDate, setIsChangingDate] = useState(false);
-
-  const queryClient = useQueryClient();
 
   // Fetch user session
   const { data: session } = useQuery({
@@ -35,31 +27,16 @@ export const TimeboxPlanner = () => {
     },
   });
 
-  // Fetch daily data using RPC
-  const { data: dailyData, isLoading } = useQuery<DailyData>({
-    queryKey: ['dailyData', selectedDate, session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return null;
-
-      const { data, error } = await supabase
-        .rpc('get_daily_data', {
-          p_user_id: session.user.id,
-          p_date: format(selectedDate, "yyyy-MM-dd")
-        });
-
-      if (error) throw error;
-      return data as unknown as DailyData;
-    },
-    enabled: !!session?.user?.id,
-  });
+  // Fetch daily data using custom hook
+  const { data: dailyData, isLoading } = useDailyData(selectedDate, session?.user?.id);
 
   // Format priorities data
   const priorities: DayItem[] = dailyData?.priorities?.map((priority) => ({
     id: priority.id,
     title: priority.title,
     type: "task" as const,
-    startTime: priority.start_time ? format(new Date(`2000-01-01T${priority.start_time}`), "h:mm a") : undefined,
-    endTime: priority.end_time ? format(new Date(`2000-01-01T${priority.end_time}`), "h:mm a") : undefined,
+    startTime: priority.start_time || undefined,
+    endTime: priority.end_time || undefined,
     duration: priority.start_time && priority.end_time ? "1h" : undefined,
     note: priority.note || undefined,
     isDone: priority.is_done || false,
@@ -68,20 +45,6 @@ export const TimeboxPlanner = () => {
   // Handle priority toggle
   const handleTogglePriorityDone = async (id: string, newIsDone: boolean) => {
     if (!session?.user?.id) return;
-
-    // Optimistically update the cache
-    queryClient.setQueryData<DailyData | undefined>(
-      ['dailyData', selectedDate, session.user.id],
-      (oldData) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          priorities: oldData.priorities.map(priority =>
-            priority.id === id ? { ...priority, is_done: newIsDone } : priority
-          ),
-        };
-      }
-    );
 
     try {
       const { error } = await supabase
@@ -98,44 +61,12 @@ export const TimeboxPlanner = () => {
           : "Priority has been unmarked.",
       });
     } catch (error) {
-      // Revert the optimistic update in case of an error
-      queryClient.invalidateQueries({
-        queryKey: ['dailyData', selectedDate, session.user.id],
-      });
-
       toast({
         title: "Error",
         description: "Failed to update the priority. Please try again.",
         variant: "destructive",
       });
     }
-  };
-
-  // Define the onUpdate function to handle priority updates
-  const handlePriorityUpdate = () => {
-    if (session?.user?.id) {
-      queryClient.invalidateQueries({
-        queryKey: ['dailyData', selectedDate, session.user.id],
-      });
-    }
-  };
-
-  const getDaysInMonth = () => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const days = [];
-
-    for (let i = 0; i < firstDay.getDay(); i++) {
-      days.push(null);
-    }
-
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-      days.push(new Date(year, month, i));
-    }
-
-    return days;
   };
 
   if (isLoading) {
@@ -166,7 +97,7 @@ export const TimeboxPlanner = () => {
               <DayItems
                 date={selectedDate}
                 items={priorities}
-                onItemsChange={handlePriorityUpdate}
+                onItemsChange={() => {}}
                 onToggleDone={handleTogglePriorityDone}
               />
             </div>
@@ -174,68 +105,23 @@ export const TimeboxPlanner = () => {
         </div>
 
         <div className="lg:col-span-5">
-          <Card className="p-4 md:p-6 bg-white shadow-sm min-w-[410px] min-h-[410px] max-w-[410px] max-h-[410px]">
-            <CalendarHeader
-              currentMonth={currentMonth}
-              onPreviousMonth={() => setCurrentMonth(subMonths(currentMonth, 1))}
-              onNextMonth={() => setCurrentMonth(addMonths(currentMonth, 1))}
-            />
-            <CalendarGrid
-              days={getDaysInMonth()}
-              selectedDate={selectedDate}
-              onDateClick={setSelectedDate}
-            />
-          </Card>
+          <PlannerCalendar
+            currentMonth={currentMonth}
+            selectedDate={selectedDate}
+            onDateClick={setSelectedDate}
+            onPreviousMonth={() => setCurrentMonth((prev) => new Date(prev.setMonth(prev.getMonth() - 1)))}
+            onNextMonth={() => setCurrentMonth((prev) => new Date(prev.setMonth(prev.getMonth() + 1)))}
+          />
         </div>
       </div>
       
       <div className={`transition-all md:max-w-[58%] duration-300 ${isLoading ? 'translate-y-2 opacity-0' : 'translate-y-0 opacity-100'}`}>
-        <div className="mt-8">
-          <h2 className="text-xl md:text-xl font-semibold mb-4 mt-10 animate-fade-in">
-            {format(selectedDate, "MMMM d, yyyy")}
-          </h2>
-          <Tabs defaultValue="tasks" className="w-full">
-            <TabsList className="mb-4 gap-6 bg-transparent">
-              <TabsTrigger className="p-0" value="tasks">Tasks</TabsTrigger>
-              <TabsTrigger className="p-0" value="habits">Habits</TabsTrigger>
-              <TabsTrigger className="p-0" value="notes">Notes</TabsTrigger>
-              <TabsTrigger className="p-0" value="reminders">Reminders</TabsTrigger>
-            </TabsList>
-            <TabsContent value="tasks">
-              <div className="space-y-4 grid grid-cols-2">
-                {dailyData?.tasks?.length > 0 ? (
-                  dailyData.tasks.map((task, index) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onUpdate={handlePriorityUpdate}
-                      index={index}
-                    />
-                  ))
-                ) : (
-                  <div className="mt-8 text-center text-gray-500">
-                    No tasks for today
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-            <TabsContent value="habits">
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <DayHabits habits={dailyData?.habits || []} onHabitUpdated={() => { }} date={selectedDate} />
-              </div>
-            </TabsContent>
-            <TabsContent value="notes">
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <DayNotes notes={dailyData?.notes || []} />
-              </div>
-            </TabsContent>
-            <TabsContent value="reminders">
-              <div className="bg-white rounded-xl p-6 shadow-sm">
-                <DayReminders reminders={dailyData?.reminders || []} />
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
+        <PlannerDailyTabs
+          selectedDate={selectedDate}
+          dailyData={dailyData}
+          onTaskUpdate={() => {}}
+          isLoading={isLoading}
+        />
       </div>
     </div>
   );
