@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { DayItems } from "./DayItems";
 import { PlannerCalendar } from "./planner/PlannerCalendar";
@@ -13,6 +13,7 @@ export const TimeboxPlanner = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [isChangingDate, setIsChangingDate] = useState(false);
+  const queryClient = useQueryClient();
 
   // Fetch user session
   const { data: session } = useQuery({
@@ -42,7 +43,7 @@ export const TimeboxPlanner = () => {
     isDone: priority.is_done || false,
   })) || [];
 
-  // Handle priority toggle
+  // Handle priority toggle with cache invalidation
   const handleTogglePriorityDone = async (id: string, newIsDone: boolean) => {
     if (!session?.user?.id) return;
 
@@ -53,6 +54,9 @@ export const TimeboxPlanner = () => {
         .eq("id", id);
 
       if (error) throw error;
+
+      // Invalidate the dailyData query to trigger a refresh
+      queryClient.invalidateQueries({ queryKey: ['dailyData', selectedDate, session.user.id] });
 
       toast({
         title: newIsDone ? "Priority completed" : "Priority unmarked",
@@ -67,6 +71,12 @@ export const TimeboxPlanner = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Handle priority updates (add/edit)
+  const handlePriorityUpdate = () => {
+    // Invalidate the dailyData query to trigger a refresh
+    queryClient.invalidateQueries({ queryKey: ['dailyData', selectedDate, session?.user?.id] });
   };
 
   if (isLoading) {
@@ -97,7 +107,7 @@ export const TimeboxPlanner = () => {
               <DayItems
                 date={selectedDate}
                 items={priorities}
-                onItemsChange={() => {}}
+                onItemsChange={handlePriorityUpdate}
                 onToggleDone={handleTogglePriorityDone}
               />
             </div>
@@ -119,7 +129,7 @@ export const TimeboxPlanner = () => {
         <PlannerDailyTabs
           selectedDate={selectedDate}
           dailyData={dailyData}
-          onTaskUpdate={() => {}}
+          onTaskUpdate={handlePriorityUpdate}
           isLoading={isLoading}
         />
       </div>
