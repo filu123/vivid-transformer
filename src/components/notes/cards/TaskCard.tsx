@@ -80,7 +80,7 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
         style={{ backgroundColor: task.is_done ? '#F2FCE2' : task.background_color }}
         onClick={() => setIsDetailsOpen(true)}
       >
-        <div className="flex justify-between items-start">
+        <div className="flex   justify-between items-start">
           <div className="flex items-start gap-3">
             <Checkbox
               checked={task.is_done}
@@ -100,8 +100,8 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
                 </p>
               )}
               {task.date && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  {format(new Date(task.date), "PPp")}
+                <p className="text-sm text-black font-semibold mt-auto">
+                  {format(new Date(task.date), "MMM d")}
                 </p>
               )}
             </div>
@@ -109,13 +109,13 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 bg-white p-5 rounded-full"
             onClick={(e) => {
               e.stopPropagation();
               setIsDeleteDialogOpen(true);
             }}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 " />
           </Button>
         </div>
       </Card>

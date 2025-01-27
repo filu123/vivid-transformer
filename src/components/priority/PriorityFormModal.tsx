@@ -10,6 +10,7 @@ import { Drawer } from "vaul";
 import { PriorityColorPicker } from "./form/PriorityColorPicker";
 import { PriorityTimeInputs } from "./form/PriorityTimeInputs";
 
+//thi is the add drawer for priorities
 interface DayItem {
   id: string;
   title: string;
@@ -120,11 +121,11 @@ export const PriorityFormModal = ({
   return (
     <Drawer.Root open={isOpen} onOpenChange={onClose}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] mt-24 fixed bottom-0 left-0 right-0 max-h-[96%] max-w-lg mx-auto">
-          <div className="p-4 bg-background rounded-t-[10px] overflow-y-auto">
+      <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 h-[85vh] mt-24">
+          <div className={`p-4 bg-background rounded-t-[10px] flex-1`}>
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
-            <div className="mb-4">
+            <div className="p-4 bg-background rounded-t-[10px] overflow-y-auto max-w-3xl mx-auto">
               <h3 className="text-lg font-semibold">
                 {editItem ? "Edit Priority" : "Add Priority"} for {format(selectedDate, "MMMM d, yyyy")}
               </h3>
@@ -153,7 +154,7 @@ export const PriorityFormModal = ({
                 onColorSelect={setSelectedColor}
               />
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="note">Note</Label>
                 <Textarea
                   id="note"
@@ -162,7 +163,7 @@ export const PriorityFormModal = ({
                   maxLength={100}
                   className="resize-none"
                 />
-              </div>
+              </div> */}
 
               <div className="flex justify-end space-x-2 pt-4">
                 <Button 
@@ -170,7 +171,7 @@ export const PriorityFormModal = ({
                   variant="ghost" 
                   onClick={onClose}
                 >
-                  Cancel
+                  Cancelss
                 </Button>
                 <Button type="submit">
                   {editItem ? "Update" : "Add"} Priority

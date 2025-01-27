@@ -15,6 +15,7 @@ import Notes from "@/pages/Notes";
 import Reminders from "@/pages/Reminders";
 import Calendar from "@/pages/Calendar";
 import Habits from "@/pages/Habits";
+import CustomToaster from "./CustomToaster";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
         <SidebarProvider>
-          <Toaster />
+        <CustomToaster />
+
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />

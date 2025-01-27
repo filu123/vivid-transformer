@@ -67,10 +67,10 @@ export const NoteActionButtons = ({
         </div>
       </Button>
       
-      <Button
+      {/* <Button
         variant="ghost"
-        className="h-20 flex items-center justify-start p-4 bg-white hover:bg-accent/50"
-        onClick={onDrawingClick}
+        className="h-20 flex items-center justify-start p-4 bg-[#ff9b74] hover:bg-accent/50"
+        onClick={null}
       >
         <div className="flex items-center space-x-4">
           <div className="bg-[#f3f3f3] rounded-full p-3 flex-shrink-0">
@@ -81,7 +81,7 @@ export const NoteActionButtons = ({
             <h3 className="text-lg font-semibold">With Drawing</h3>
           </div>
         </div>
-      </Button>
+      </Button> */}
     </div>
   );
 };

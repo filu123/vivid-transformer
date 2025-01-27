@@ -4,6 +4,7 @@ import { DailyData } from "@/integrations/supabase/timeboxTypes";
 import { format } from "date-fns";
 
 export const useDailyData = (selectedDate: Date, userId: string | undefined) => {
+
   return useQuery<DailyData>({
     queryKey: ['dailyData', selectedDate, userId],
     queryFn: async () => {
@@ -14,7 +15,6 @@ export const useDailyData = (selectedDate: Date, userId: string | undefined) => 
           p_user_id: userId,
           p_date: format(selectedDate, "yyyy-MM-dd")
         });
-
       if (error) throw error;
       return data as unknown as DailyData;
     },

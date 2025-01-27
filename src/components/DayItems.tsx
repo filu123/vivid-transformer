@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PriorityFormModal } from "./priority/PriorityFormModal";
+import { PriorityFormModal } from "./PriorityFormModal";
 import { PriorityCard } from "./priority/PriorityCard";
 import { AddPriorityButton } from "./priority/AddPriorityButton";
 
@@ -68,6 +68,7 @@ export const DayItems = ({ date, items, onItemsChange, onToggleDone }: DayItemsP
         {remainingAddButtons > 0 &&
           Array.from({ length: remainingAddButtons }).map((_, idx) => (
             <AddPriorityButton
+            index={idx}
               key={idx}
               onClick={() => setIsModalOpen(true)}
               bgClass={addButtonBgColors[idx % addButtonBgColors.length]} // Assign bgClass based on index

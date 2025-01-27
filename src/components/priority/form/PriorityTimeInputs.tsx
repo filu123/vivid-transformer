@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 interface PriorityTimeInputsProps {
   startTime: string;
   endTime: string;
-  onStartTimeChange: (time: string) => void;
-  onEndTimeChange: (time: string) => void;
+  onStartTimeChange: (startTime: string) => void;
+  onEndTimeChange: (endTime: string) => void;
 }
 
 export const PriorityTimeInputs = ({
@@ -15,21 +15,21 @@ export const PriorityTimeInputs = ({
   onEndTimeChange,
 }: PriorityTimeInputsProps) => {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="flex space-x-4">
       <div className="space-y-2">
-        <Label htmlFor="startTime">Start Time</Label>
+        <Label htmlFor="start-time">Start Time</Label>
         <Input
-          id="startTime"
           type="time"
+          id="start-time"
           value={startTime}
           onChange={(e) => onStartTimeChange(e.target.value)}
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="endTime">End Time</Label>
+        <Label htmlFor="end-time">End Time</Label>
         <Input
-          id="endTime"
           type="time"
+          id="end-time"
           value={endTime}
           onChange={(e) => onEndTimeChange(e.target.value)}
         />

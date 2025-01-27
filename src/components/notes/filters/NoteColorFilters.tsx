@@ -21,12 +21,12 @@ export const NoteColorFilters = ({
       <Button
         variant="ghost"
         className={cn(
-          "px-3 py-1 h-auto text-sm font-medium",
-          !selectedColor && "bg-muted"
+          "px-3 py-1 h-auto text-xl hover:bg-transparent font-medium",
+          !selectedColor && " font-semibold"
         )}
         onClick={() => onColorSelect(null)}
       >
-        {title} ({notesCount})
+        {title} 
       </Button>
       {colors.map((color) => (
         <Button

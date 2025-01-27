@@ -34,6 +34,7 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        popover: "#FFFFFF",
         primary: {
           DEFAULT: "#1A1A1A",
           foreground: "#FFFFFF",
@@ -57,7 +58,7 @@ export default {
           foreground: "#4A4A4A",
         },
         accent: {
-          DEFAULT: "#F3E5F5",
+          DEFAULT: "#fff",
           foreground: "#1A1A1A",
         },
       },
@@ -90,6 +91,7 @@ export default {
         "fade-in": "fade-in 0.5s ease-out",
         shake: "shake 0.5s ease-in-out",
       },
+      
     },
   },
   plugins: [

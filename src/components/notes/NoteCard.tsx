@@ -153,8 +153,8 @@ export const NoteCard = ({
               />
             )}
             {date && (
-              <p className="text-sm text-muted-foreground mt-auto">
-                {format(new Date(date), "MMM d, yyyy")}
+              <p className="text-sm text-black font-semibold mt-auto">
+                {format(new Date(date), "MMM d")}
               </p>
             )}
           </div>

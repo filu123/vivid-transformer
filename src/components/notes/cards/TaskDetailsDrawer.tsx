@@ -82,10 +82,7 @@ export const TaskDetailsDrawer = ({ open, onClose, task, onUpdate }: TaskDetails
                   />
                 </div>
 
-                <TaskLabelSelect
-                  selectedLabelId={selectedLabelId}
-                  onSelectLabel={setSelectedLabelId}
-                />
+             
 
                 <div className="space-y-2">
                   <Label>Color</Label>

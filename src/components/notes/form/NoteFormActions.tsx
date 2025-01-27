@@ -86,7 +86,7 @@ export const NoteFormActions = ({
         </Button>
         <Button type="submit" disabled={isUploading}>
           {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isEditing ? "Update" : "Add"} Note
+          {!isEditing ? "Confirm" : "Confirm"} 
         </Button>
       </div>
     </>

@@ -37,22 +37,22 @@ export const ActionButtons = ({
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Plus className="h-5 w-5" />
+          <Button variant="ghost" className="bg-[#FF9B74]" size="icon">
+            <Plus className="h-5 w-5 " />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem onClick={onNoteClick}>
-            Notes
+            Note
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onHabitClick}>
-            Habits
+            Habit
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onTaskClick}>
-            Tasks
+            Task
           </DropdownMenuItem>
           <DropdownMenuItem onClick={onReminderClick}>
-            Reminders
+            Reminder
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

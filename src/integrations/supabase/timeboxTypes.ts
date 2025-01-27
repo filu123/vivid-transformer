@@ -1,3 +1,5 @@
+import { Database } from "./types";
+
 export interface DailyData {
   priorities: Array<{
     id: string;
@@ -19,12 +21,16 @@ export interface DailyData {
     id: string;
     title: string;
     description: string | null;
+    date: string;
+    background_color?: string;
   }>;
   habits: Array<{
     id: string;
     title: string;
     duration_minutes: number;
     isCompleted?: boolean;
+    frequency: Database["public"]["Enums"]["habit_frequency"]
+    custom_days: number[]; 
   }>;
   reminders: Array<{
     id: string;

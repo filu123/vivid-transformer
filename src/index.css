@@ -65,7 +65,7 @@
 /* Optional: Customize the editor's appearance */
 .ProseMirror {
   outline: none;
-  min-height: 100px;
+  min-height: 50px;
 }
 
 .editable-description ul {
@@ -154,4 +154,10 @@
 
 .animate-fade-in {
   animation: fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.flex.items-center.space-x-2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

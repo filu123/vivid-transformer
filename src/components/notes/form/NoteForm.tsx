@@ -80,12 +80,7 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }:
       <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
 
       <div className="space-y-4">
-        {isTaskMode && (
-          <TaskLabelSelect
-            selectedLabelId={selectedLabelId}
-            onSelectLabel={setSelectedLabelId}
-          />
-        )}
+        
 
         <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
 
