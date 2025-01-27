@@ -38,6 +38,7 @@ export interface DailyData {
     due_date: string | null;
     is_completed: boolean;
     background_color?: string;
+    category: Database["public"]["Enums"]["reminder_category"];
   }>;
 }
 

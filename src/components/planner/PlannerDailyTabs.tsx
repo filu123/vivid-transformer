@@ -1,7 +1,6 @@
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DayHabits } from "../calendar/DayHabits";
-import { DayNotes } from "../calendar/DayNotes";
 import { TaskCard } from "../notes/cards/TaskCard";
 import { DailyData } from "@/integrations/supabase/timeboxTypes";
 import { NoteCard } from "../notes/NoteCard";
@@ -96,7 +95,7 @@ export const PlannerDailyTabs = ({
                     title: reminder.title,
                     is_completed: reminder.is_completed,
                     due_date: reminder.due_date,
-                    category: reminder.category || 'all',
+                    category: reminder.category,
                     background_color: reminder.background_color
                   }}
                   onUpdate={onTaskUpdate}
