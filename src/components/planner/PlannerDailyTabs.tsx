@@ -7,7 +7,7 @@ import { TaskCard } from "../notes/cards/TaskCard";
 import { DailyData } from "@/integrations/supabase/timeboxTypes";
 import { NoteCard } from "../notes/NoteCard";
 import { useState } from "react";
-import { TaskDetailsDrawer } from "../notes/cards/TaskDetailsDrawer";
+import { NoteFormDrawer } from "../notes/NoteFormDrawer";
 
 interface PlannerDailyTabsProps {
   selectedDate: Date;
@@ -66,7 +66,7 @@ export const PlannerDailyTabs = ({
         </TabsContent>
         <TabsContent value="notes">
           <div className="bg-transparent rounded-xl  grid grid-cols-2">
-          {dailyData?.notes?.length > 0 ? (
+            {dailyData?.notes?.length > 0 ? (
               dailyData.notes.map((note, index) => (
                 <NoteCard
                   id={note.id}
@@ -93,14 +93,22 @@ export const PlannerDailyTabs = ({
       </Tabs>
 
       {selectedTask && (
-        <TaskDetailsDrawer
-          open={isDetailsOpen}
+        <NoteFormDrawer
+          isOpen={isDetailsOpen}
           onClose={() => {
             setIsDetailsOpen(false);
             setSelectedTask(null);
           }}
-          task={selectedTask}
-          onUpdate={onTaskUpdate}
+          onNoteAdded={onTaskUpdate}
+          editNote={{
+            id: selectedTask.id,
+            title: selectedTask.title,
+            description: selectedTask.description,
+            date: selectedTask.date,
+            background_color: selectedTask.background_color,
+            label_id: selectedTask.label_id,
+          }}
+          isTaskMode={true}
         />
       )}
     </div>
