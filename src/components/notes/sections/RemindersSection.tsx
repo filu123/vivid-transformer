@@ -4,6 +4,7 @@ import { ReminderCard } from "../cards/ReminderCard";
 import { NoteColorFilters } from "../filters/NoteColorFilters";
 import { Button } from "@/components/ui/button";
 import { Calendar, Bell, CheckSquare, ListTodo } from "lucide-react";
+import { useState } from "react";
 
 interface RemindersSectionProps {
   selectedColor: string | null;
@@ -14,6 +15,8 @@ export const RemindersSection = ({
   selectedColor,
   onColorSelect,
 }: RemindersSectionProps) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+
   const { data: reminders, refetch: refetchReminders } = useQuery({
     queryKey: ["reminders"],
     queryFn: async () => {
@@ -27,9 +30,25 @@ export const RemindersSection = ({
     },
   });
 
-  const filteredReminders = selectedColor
-    ? reminders?.filter((reminder) => reminder.background_color === selectedColor)
-    : reminders;
+  const filteredReminders = reminders?.filter((reminder) => {
+    // First apply color filter
+    if (selectedColor && reminder.background_color !== selectedColor) {
+      return false;
+    }
+
+    // Then apply category filter
+    switch (selectedCategory) {
+      case "completed":
+        return reminder.is_completed;
+      case "today":
+        return !reminder.is_completed && reminder.category === "today";
+      case "scheduled":
+        return !reminder.is_completed && reminder.category === "scheduled";
+      case "all":
+      default:
+        return !reminder.is_completed;
+    }
+  });
 
   const categories = [
     {
@@ -72,13 +91,13 @@ export const RemindersSection = ({
         <div className="flex justify-between items-center">
           <NoteColorFilters
             colors={[
-              "#F2FCE2",
-              "#FEF7CD",
-              "#FEC6A1",
-              "#9b87f5",
-              "#7E69AB",
-              "#6E59A5",
-              "#8E9196",
+              "#ff9b74",
+              "#fdc971",
+              "#ebc49a",
+              "#322a2f",
+              "#c15626",
+              "#ebe3d6",
+              "#a2a8a5",
             ]}
             selectedColor={selectedColor}
             onColorSelect={onColorSelect}
@@ -87,12 +106,15 @@ export const RemindersSection = ({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {categories.map((category) => (
             <Button
               key={category.id}
               variant="ghost"
-              className={`h-24 flex items-center justify-start p-4 ${category.color} hover:opacity-90`}
+              className={`h-24 flex items-center justify-start p-4 ${category.color} hover:opacity-90 ${
+                selectedCategory === category.id ? "ring-2 ring-primary" : ""
+              }`}
+              onClick={() => setSelectedCategory(category.id)}
             >
               <div className="flex items-center space-x-4 w-full">
                 <div className="bg-white/80 rounded-full p-3">
