@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DayHabits } from "../Calendar/DayHabits";
+import { DayHabits } from "../calendar/DayHabits";
 import { DayNotes } from "../calendar/DayNotes";
 import { DayReminders } from "../calendar/DayReminders";
 import { TaskCard } from "../notes/cards/TaskCard";
