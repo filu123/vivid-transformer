@@ -2,12 +2,12 @@ import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DayHabits } from "../calendar/DayHabits";
 import { DayNotes } from "../calendar/DayNotes";
-import { DayReminders } from "../calendar/DayReminders";
 import { TaskCard } from "../notes/cards/TaskCard";
 import { DailyData } from "@/integrations/supabase/timeboxTypes";
 import { NoteCard } from "../notes/NoteCard";
 import { useState } from "react";
 import { NoteFormDrawer } from "../notes/NoteFormDrawer";
+import { ReminderCard } from "../notes/cards/ReminderCard";
 
 interface PlannerDailyTabsProps {
   selectedDate: Date;
@@ -65,7 +65,7 @@ export const PlannerDailyTabs = ({
           </div>
         </TabsContent>
         <TabsContent value="notes">
-          <div className="bg-transparent rounded-xl  grid grid-cols-2">
+          <div className="bg-transparent rounded-xl grid grid-cols-2">
             {dailyData?.notes?.length > 0 ? (
               dailyData.notes.map((note, index) => (
                 <NoteCard
@@ -86,8 +86,28 @@ export const PlannerDailyTabs = ({
           </div>
         </TabsContent>
         <TabsContent value="reminders">
-          <div className="bg-transparent rounded-xl  ">
-            <DayReminders reminders={dailyData?.reminders || []} />
+          <div className="gap-3 grid grid-cols-2">
+            {dailyData?.reminders?.length > 0 ? (
+              dailyData.reminders.map((reminder, index) => (
+                <ReminderCard
+                  key={reminder.id}
+                  reminder={{
+                    id: reminder.id,
+                    title: reminder.title,
+                    is_completed: reminder.is_completed,
+                    due_date: reminder.due_date,
+                    category: reminder.category || 'all',
+                    background_color: reminder.background_color
+                  }}
+                  onUpdate={onTaskUpdate}
+                  index={index}
+                />
+              ))
+            ) : (
+              <div className="mt-8 text-center text-gray-500">
+                No reminders for today
+              </div>
+            )}
           </div>
         </TabsContent>
       </Tabs>
