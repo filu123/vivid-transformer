@@ -32,9 +32,10 @@ interface TaskCardProps {
   };
   onUpdate: () => void;
   index?: number;
+  onClick?: () => void;
 }
 
-export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
+export const TaskCard = ({ task, onUpdate, index = 0, onClick }: TaskCardProps) => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -73,18 +74,26 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
     }
   };
 
+  const handleCardClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      setIsDetailsOpen(true);
+    }
+  };
+
   return (
     <CardAnimation index={index}>
       <Card
         className="min-h-[270px] max-h-[270px] transition-all duration-200 hover:scale-[1.02] cursor-pointer overflow-hidden p-6"
         style={{ backgroundColor: task.is_done ? '#F2FCE2' : task.background_color }}
-        onClick={() => setIsDetailsOpen(true)}
+        onClick={handleCardClick}
       >
-        <div className="flex   justify-between items-start">
+        <div className="flex justify-between items-start">
           <div className="flex items-start gap-3">
             <Checkbox
               checked={task.is_done}
-              onCheckedChange={handleToggleDone} // Use handleToggleDone
+              onCheckedChange={handleToggleDone}
               onClick={(e) => e.stopPropagation()}
               className="mt-1"
             />
@@ -120,12 +129,14 @@ export const TaskCard = ({ task, onUpdate, index = 0 }: TaskCardProps) => {
         </div>
       </Card>
 
-      <TaskDetailsDrawer
-        open={isDetailsOpen}
-        onClose={() => setIsDetailsOpen(false)}
-        task={task}
-        onUpdate={onUpdate}
-      />
+      {!onClick && (
+        <TaskDetailsDrawer
+          open={isDetailsOpen}
+          onClose={() => setIsDetailsOpen(false)}
+          task={task}
+          onUpdate={onUpdate}
+        />
+      )}
 
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>

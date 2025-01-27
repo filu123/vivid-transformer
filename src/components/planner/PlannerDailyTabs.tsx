@@ -6,6 +6,8 @@ import { DayReminders } from "../calendar/DayReminders";
 import { TaskCard } from "../notes/cards/TaskCard";
 import { DailyData } from "@/integrations/supabase/timeboxTypes";
 import { NoteCard } from "../notes/NoteCard";
+import { useState } from "react";
+import { TaskDetailsDrawer } from "../notes/cards/TaskDetailsDrawer";
 
 interface PlannerDailyTabsProps {
   selectedDate: Date;
@@ -20,7 +22,9 @@ export const PlannerDailyTabs = ({
   onTaskUpdate,
   isLoading,
 }: PlannerDailyTabsProps) => {
-  console.log(dailyData)
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
   return (
     <div className="mt-8 ">
       <h2 className="text-xl md:text-xl font-semibold mb-4 mt-10 animate-fade-in">
@@ -42,6 +46,10 @@ export const PlannerDailyTabs = ({
                   task={task}
                   onUpdate={onTaskUpdate}
                   index={index}
+                  onClick={() => {
+                    setSelectedTask(task);
+                    setIsDetailsOpen(true);
+                  }}
                 />
               ))
             ) : (
@@ -83,6 +91,18 @@ export const PlannerDailyTabs = ({
           </div>
         </TabsContent>
       </Tabs>
+
+      {selectedTask && (
+        <TaskDetailsDrawer
+          open={isDetailsOpen}
+          onClose={() => {
+            setIsDetailsOpen(false);
+            setSelectedTask(null);
+          }}
+          task={selectedTask}
+          onUpdate={onTaskUpdate}
+        />
+      )}
     </div>
   );
 };
