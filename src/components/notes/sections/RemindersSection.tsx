@@ -5,6 +5,7 @@ import { NoteColorFilters } from "../filters/NoteColorFilters";
 import { Button } from "@/components/ui/button";
 import { Calendar, Bell, CheckSquare, ListTodo } from "lucide-react";
 import { useState } from "react";
+import { startOfDay, isToday, isFuture } from "date-fns";
 
 interface RemindersSectionProps {
   selectedColor: string | null;
@@ -40,10 +41,15 @@ export const RemindersSection = ({
     switch (selectedCategory) {
       case "completed":
         return reminder.is_completed;
-      case "today":
-        return !reminder.is_completed && reminder.category === "today";
-      case "scheduled":
-        return !reminder.is_completed && reminder.category === "scheduled";
+      case "today": {
+        if (!reminder.due_date) return false;
+        return !reminder.is_completed && isToday(new Date(reminder.due_date));
+      }
+      case "scheduled": {
+        if (!reminder.due_date) return false;
+        const dueDate = new Date(reminder.due_date);
+        return !reminder.is_completed && (isToday(dueDate) || isFuture(dueDate));
+      }
       case "all":
       default:
         return !reminder.is_completed;
@@ -62,8 +68,12 @@ export const RemindersSection = ({
       id: "today",
       name: "Today",
       count:
-        reminders?.filter((r) => !r.is_completed && r.category === "today")
-          .length || 0,
+        reminders?.filter(
+          (r) =>
+            !r.is_completed &&
+            r.due_date &&
+            isToday(new Date(r.due_date))
+        ).length || 0,
       icon: Calendar,
       color: "bg-card-blue",
     },
@@ -71,8 +81,13 @@ export const RemindersSection = ({
       id: "scheduled",
       name: "Scheduled",
       count:
-        reminders?.filter((r) => !r.is_completed && r.category === "scheduled")
-          .length || 0,
+        reminders?.filter(
+          (r) => {
+            if (!r.due_date || r.is_completed) return false;
+            const dueDate = new Date(r.due_date);
+            return isToday(dueDate) || isFuture(dueDate);
+          }
+        ).length || 0,
       icon: Bell,
       color: "bg-card-purple",
     },
