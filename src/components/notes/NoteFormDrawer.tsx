@@ -3,7 +3,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { NoteForm } from "./form/NoteForm";
-import { startOfDay } from "date-fns";
+import { startOfDay, format } from "date-fns";
 
 interface NoteFormDrawerProps {
   isOpen: boolean;
@@ -68,8 +68,10 @@ export const NoteFormDrawer = ({
         finalImageUrl = publicUrl;
       }
 
-      // Ensure date is set to start of day in local timezone
-      const dateToStore = formData.date ? startOfDay(formData.date).toISOString().split('T')[0] : null;
+      // Ensure date is set to start of day in local timezone and format as YYYY-MM-DD
+      const dateToStore = formData.date 
+        ? format(startOfDay(formData.date), 'yyyy-MM-dd')
+        : null;
 
       if (editNote) {
         const { error } = await supabase
