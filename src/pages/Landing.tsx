@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Check, Menu, Star, X } from "lucide-react";
+import { Menu, Star, X } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,13 +22,15 @@ const Landing = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#fff7ea] w-full to-white">
+    <div className="min-h-screen bg-white">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <span className="text-xl font-bold">TaskMaster</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                Lovable
+              </span>
             </div>
 
             {/* Desktop Navigation */}
@@ -45,8 +47,9 @@ const Landing = () => {
                   )}
                   <Button
                     onClick={() => navigate("/dashboard")}
+                    className="bg-gradient-to-r from-primary to-purple-600 text-white"
                   >
-                    Dashboard
+                    Get Started
                   </Button>
                 </>
               )}
@@ -90,9 +93,9 @@ const Landing = () => {
                       navigate("/dashboard");
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full justify-start"
+                    className="w-full justify-start bg-gradient-to-r from-primary to-purple-600 text-white"
                   >
-                    Dashboard
+                    Get Started
                   </Button>
                 </div>
               )}
@@ -102,150 +105,89 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-32 pb-20 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-fade-in">
-          Organize Your Life, Effortlessly
-        </h1>
-        <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
-          The all-in-one productivity app that helps you manage tasks, build habits, and stay organized with a beautiful, intuitive interface.
-        </p>
-        <div className="flex flex-col md:flex-row gap-4 justify-center animate-fade-in [animation-delay:400ms]">
-          <Button
+      <section className="pt-32 pb-20 px-4">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent animate-fade-in">
+            The AI Code Editor
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto animate-fade-in [animation-delay:200ms]">
+            Build software faster with an AI that understands your codebase
+          </p>
+          <Button 
             size="lg"
             onClick={() => navigate("/auth")}
-            className="bg-primary hover:bg-primary/90 w-full md:w-auto"
+            className="bg-gradient-to-r from-primary to-purple-600 text-white animate-fade-in [animation-delay:400ms]"
           >
-            Get Started Free
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            onClick={() => {
-              const featuresSection = document.getElementById("features");
-              featuresSection?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="w-full md:w-auto"
-          >
-            See Features
+            Try Lovable Now
           </Button>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Everything You Need to Stay Productive
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <Card
-              key={feature.title}
-              className="p-6 hover:shadow-lg transition-shadow animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="container mx-auto px-4 py-20 bg-gray-50">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          Simple, Transparent Pricing
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {pricingPlans.map((plan, index) => (
-            <Card
-              key={plan.name}
-              className={`p-6 animate-fade-in ${
-                plan.popular
-                  ? "border-2 border-primary relative shadow-lg"
-                  : "border shadow"
-              }`}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              {plan.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white px-3 py-1 rounded-full text-sm">
-                  Most Popular
-                </span>
-              )}
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-                <div className="flex items-end justify-center gap-1 mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-gray-600">/{plan.period}</span>
-                </div>
-              </div>
-              <ul className="space-y-3 mb-6">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2">
-                    <Check className="h-5 w-5 text-green-500 shrink-0" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button
-                className={`w-full ${
-                  plan.popular ? "bg-primary hover:bg-primary/90" : ""
-                }`}
-                variant={plan.popular ? "default" : "outline"}
-                onClick={() => navigate("/auth")}
+      <section className="py-20 px-4 bg-gradient-to-b from-gray-50">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, index) => (
+              <Card
+                key={feature.title}
+                className="p-6 bg-white/50 backdrop-blur border border-gray-100 hover:shadow-lg transition-all animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
-                {plan.cta}
-              </Button>
-            </Card>
-          ))}
+                <div className="h-12 w-12 mb-4 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Reviews Section */}
-      <section id="reviews" className="container mx-auto px-4 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-          What Our Users Say
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {reviews.map((review, index) => (
-            <Card
-              key={review.name}
-              className="p-6 animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex gap-1 mb-4">
-                {[...Array(review.rating)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="h-5 w-5 fill-yellow-400 text-yellow-400"
-                  />
-                ))}
-              </div>
-              <p className="text-gray-600 mb-4">{review.content}</p>
-              <div>
-                <div className="font-semibold">{review.name}</div>
-                <div className="text-sm text-gray-500">{review.role}</div>
-              </div>
-            </Card>
-          ))}
+      {/* Testimonials Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-12">
+            Loved by world-class devs
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card
+                key={testimonial.name}
+                className="p-6 hover:shadow-lg transition-all animate-fade-in"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-purple-600" />
+                  <div>
+                    <div className="font-semibold">{testimonial.name}</div>
+                    <div className="text-sm text-gray-500">{testimonial.role}</div>
+                  </div>
+                </div>
+                <p className="text-gray-600">{testimonial.content}</p>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-6">
-          Ready to Get Started?
-        </h2>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Join thousands of users who are already improving their productivity with our app.
-        </p>
-        <Button
-          size="lg"
-          onClick={() => navigate("/auth")}
-          className="bg-primary hover:bg-primary/90"
-        >
-          Start Your Free Trial
-        </Button>
+      <section className="py-20 px-4 bg-gradient-to-t from-gray-50">
+        <div className="container mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Start Building Today
+          </h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            Join thousands of developers who are already building faster with Lovable
+          </p>
+          <Button
+            size="lg"
+            onClick={() => navigate("/auth")}
+            className="bg-gradient-to-r from-primary to-purple-600 text-white"
+          >
+            Try Lovable Now
+          </Button>
+        </div>
       </section>
     </div>
   );
@@ -253,89 +195,37 @@ const Landing = () => {
 
 const features = [
   {
-    title: "Task Management",
-    description: "Organize your tasks with our intuitive interface. Set priorities, deadlines, and track progress effortlessly.",
-    icon: "📋",
+    title: "Familiar Intelligence",
+    description: "An AI that learns your codebase and helps you write better code faster.",
+    icon: <Star className="h-6 w-6 text-white" />,
   },
   {
-    title: "Smart Calendar",
-    description: "Visualize your schedule with our dynamic calendar view. Never miss an important deadline again.",
-    icon: "📅",
+    title: "Edit in Natural Language",
+    description: "Describe your changes in plain English and watch them come to life.",
+    icon: <Star className="h-6 w-6 text-white" />,
   },
   {
-    title: "Habit Tracking",
-    description: "Build and maintain positive habits with our comprehensive tracking system.",
-    icon: "✨",
-  },
-  {
-    title: "Notes & Reminders",
-    description: "Keep all your important notes in one place and set reminders for critical tasks.",
-    icon: "📝",
+    title: "Privacy Focused",
+    description: "Your code stays private and secure, always under your control.",
+    icon: <Star className="h-6 w-6 text-white" />,
   },
 ];
 
-const pricingPlans = [
+const testimonials = [
   {
-    name: "Free",
-    price: "$0",
-    period: "forever",
-    features: [
-      "Basic task management",
-      "Calendar view",
-      "Up to 3 projects",
-      "Basic note-taking",
-    ],
-    cta: "Get Started",
-    popular: false,
+    name: "Sarah Chen",
+    role: "Senior Developer",
+    content: "Lovable has transformed how I write code. It's like having a senior developer always ready to help.",
   },
   {
-    name: "Pro",
-    price: "$9",
-    period: "per month",
-    features: [
-      "Everything in Free",
-      "Unlimited projects",
-      "Advanced analytics",
-      "Priority support",
-      "Custom templates",
-    ],
-    cta: "Try Pro",
-    popular: true,
+    name: "Michael Rodriguez",
+    role: "Tech Lead",
+    content: "The natural language editing is a game-changer. It makes coding so much more accessible.",
   },
   {
-    name: "Enterprise",
-    price: "$29",
-    period: "per month",
-    features: [
-      "Everything in Pro",
-      "Team collaboration",
-      "Admin controls",
-      "API access",
-      "24/7 support",
-    ],
-    cta: "Contact Sales",
-    popular: false,
-  },
-];
-
-const reviews = [
-  {
-    name: "Sarah Johnson",
-    role: "Product Manager",
-    content: "This app has completely transformed how I manage my daily tasks. The interface is intuitive and the features are exactly what I needed.",
-    rating: 5,
-  },
-  {
-    name: "Michael Chen",
-    role: "Software Engineer",
-    content: "The habit tracking feature has helped me build better routines. It's simple yet powerful.",
-    rating: 5,
-  },
-  {
-    name: "Emily Rodriguez",
-    role: "Freelancer",
-    content: "I love how everything is organized. The calendar integration is seamless and the reminders keep me on track.",
-    rating: 4,
+    name: "Emma Thompson",
+    role: "Full Stack Developer",
+    content: "I'm amazed by how well it understands context and maintains consistency across the codebase.",
   },
 ];
 
