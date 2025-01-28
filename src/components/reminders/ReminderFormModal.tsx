@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ReminderDateTime } from "./ReminderDateTime";
 import { ReminderListSelect } from "./ReminderListSelect";
 import { Label } from "@/components/ui/label";
+import { startOfDay, setHours, setMinutes } from "date-fns";
 
 interface ReminderFormModalProps {
   isOpen: boolean;
@@ -42,20 +43,20 @@ export const ReminderFormModal = ({
 
       let dueDate: Date | null = null;
       if (date) {
-        dueDate = new Date(date);
+        // Start with the beginning of the selected day
+        dueDate = startOfDay(date);
         if (time) {
           const [hours, minutes] = time.split(':').map(Number);
-          dueDate.setHours(hours, minutes);
+          dueDate = setHours(dueDate, hours);
+          dueDate = setMinutes(dueDate, minutes);
         }
       }
 
       let category: "all" | "today" | "scheduled" = "all";
       if (date) {
-        const today = new Date();
-        const isToday = date.getDate() === today.getDate() &&
-                       date.getMonth() === today.getMonth() &&
-                       date.getFullYear() === today.getFullYear();
-        category = isToday ? "today" : "scheduled";
+        const today = startOfDay(new Date());
+        const selectedDate = startOfDay(date);
+        category = selectedDate.getTime() === today.getTime() ? "today" : "scheduled";
       }
 
       const { error } = await supabase.from("reminders").insert({
