@@ -1,20 +1,22 @@
 import { format } from "date-fns";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { DayHabits } from "./DayHabits";
+import { cn } from "@/lib/utils";
 
 interface DayCardProps {
   date: Date;
   habits: any[];
   onHabitUpdated: () => void;
   cardColor: string;
+  hasEvents?: boolean;
 }
 
-export const DayCard = ({ date, habits, onHabitUpdated, cardColor }: DayCardProps) => {
+export const DayCard = ({ date, cardColor, hasEvents }: DayCardProps) => {
   return (
     <Card
-      className={`p-6 bg-${cardColor} hover:shadow-md transition-shadow cursor-pointer relative group`}
+      className={cn(
+        "p-6 hover:shadow-md transition-shadow cursor-pointer relative group",
+        `bg-${cardColor}`
+      )}
     >
       <div className="flex flex-col">
         <span className="text-sm font-medium text-muted-foreground">
@@ -27,18 +29,9 @@ export const DayCard = ({ date, habits, onHabitUpdated, cardColor }: DayCardProp
           </span>
         </div>
       </div>
-      <Button
-        size="icon"
-        variant="ghost"
-        className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Plus className="h-5 w-5" />
-      </Button>
-      <DayHabits 
-        habits={habits}
-        onHabitUpdated={onHabitUpdated}
-        date={date}
-      />
+      {hasEvents && (
+        <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-primary animate-pulse" />
+      )}
     </Card>
   );
 };
