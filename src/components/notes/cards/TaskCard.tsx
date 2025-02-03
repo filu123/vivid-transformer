@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, RepeatIcon } from "lucide-react";
 
 interface TaskCardProps {
   task: {
@@ -29,6 +30,8 @@ interface TaskCardProps {
     background_color?: string;
     label_id?: string;
     is_done?: boolean;
+    frequency?: "daily" | "three_times" | "custom";
+    custom_days?: number[];
   };
   onUpdate: () => void;
   index?: number;
@@ -82,6 +85,23 @@ export const TaskCard = ({ task, onUpdate, index = 0, onClick }: TaskCardProps) 
     }
   };
 
+  const getFrequencyText = () => {
+    switch (task.frequency) {
+      case "daily":
+        return "Daily";
+      case "three_times":
+        return "3x per week";
+      case "custom":
+        if (task.custom_days && task.custom_days.length > 0) {
+          const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          return task.custom_days.map(day => days[day]).join(", ");
+        }
+        return "Custom";
+      default:
+        return "";
+    }
+  };
+
   return (
     <CardAnimation index={index}>
       <Card
@@ -109,9 +129,17 @@ export const TaskCard = ({ task, onUpdate, index = 0, onClick }: TaskCardProps) 
                 </p>
               )}
               {task.date && (
-                <p className="text-sm text-black font-semibold mt-auto">
+                <p className="text-sm text-black font-semibold mt-2">
                   {format(new Date(task.date), "MMM d")}
                 </p>
+              )}
+              {task.frequency && (
+                <div className="flex items-center gap-2 mt-2">
+                  <RepeatIcon className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">
+                    {getFrequencyText()}
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -124,7 +152,7 @@ export const TaskCard = ({ task, onUpdate, index = 0, onClick }: TaskCardProps) 
               setIsDeleteDialogOpen(true);
             }}
           >
-            <Trash2 className="h-4 w-4 " />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </Card>
