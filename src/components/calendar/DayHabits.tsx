@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { HabitCard } from "../habits/HabitCard";
 
@@ -16,7 +17,12 @@ export const DayHabits = ({ habits, onHabitUpdated, date }: DayHabitsProps) => {
         {habits.map((habit) => (
           <HabitCard
             key={habit.id}
-            habit={habit}
+            habit={{
+              ...habit,
+              isCompleted: habit.habit_completions?.some(
+                (completion: any) => completion.completed_date === date.toISOString().split('T')[0]
+              )
+            }}
             onHabitUpdated={onHabitUpdated}
             selectedDate={date}
           />
