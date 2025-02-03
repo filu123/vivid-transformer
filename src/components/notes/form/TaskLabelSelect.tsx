@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -14,12 +15,12 @@ import { cn } from "@/lib/utils";
 
 interface TaskLabelSelectProps {
   selectedLabelId: string | null;
-  onSelectLabel: (labelId: string | null) => void;
+  onLabelSelect: (labelId: string | null) => void;
 }
 
 export const TaskLabelSelect = ({
   selectedLabelId,
-  onSelectLabel,
+  onLabelSelect,
 }: TaskLabelSelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [newLabelName, setNewLabelName] = useState("");
@@ -125,7 +126,7 @@ export const TaskLabelSelect = ({
                 selectedLabelId === label.id && "bg-accent"
               )}
               onClick={() => {
-                onSelectLabel(label.id);
+                onLabelSelect(label.id);
                 setIsOpen(false);
               }}
             >
