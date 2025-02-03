@@ -328,8 +328,10 @@ export type Database = {
         Row: {
           background_color: string | null
           created_at: string
+          custom_days: number[] | null
           date: string | null
           description: string | null
+          frequency: Database["public"]["Enums"]["habit_frequency"]
           id: string
           is_done: boolean | null
           label_id: string | null
@@ -340,8 +342,10 @@ export type Database = {
         Insert: {
           background_color?: string | null
           created_at?: string
+          custom_days?: number[] | null
           date?: string | null
           description?: string | null
+          frequency?: Database["public"]["Enums"]["habit_frequency"]
           id?: string
           is_done?: boolean | null
           label_id?: string | null
@@ -352,8 +356,10 @@ export type Database = {
         Update: {
           background_color?: string | null
           created_at?: string
+          custom_days?: number[] | null
           date?: string | null
           description?: string | null
+          frequency?: Database["public"]["Enums"]["habit_frequency"]
           id?: string
           is_done?: boolean | null
           label_id?: string | null

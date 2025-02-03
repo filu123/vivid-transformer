@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { ColorPicker } from "./ColorPicker";
 import { TaskLabelSelect } from "./TaskLabelSelect";
@@ -5,6 +6,7 @@ import { NoteFormTitle } from "./NoteFormTitle";
 import { NoteFormDescription } from "./NoteFormDescription";
 import { NoteFormActions } from "./NoteFormActions";
 import { useToast } from "@/hooks/use-toast";
+import { HabitFrequencySelect } from "@/components/habits/form/HabitFrequencySelect";
 
 interface NoteFormProps {
   onSubmit: (formData: {
@@ -14,6 +16,8 @@ interface NoteFormProps {
     image?: File;
     selectedColor: string;
     labelId?: string | null;
+    frequency?: "daily" | "three_times" | "custom";
+    customDays?: number[];
   }) => Promise<void>;
   initialData?: {
     title: string;
@@ -22,6 +26,8 @@ interface NoteFormProps {
     image_url?: string;
     background_color?: string;
     label_id?: string;
+    frequency?: "daily" | "three_times" | "custom";
+    custom_days?: number[];
   };
   onClose: () => void;
   isTaskMode?: boolean;
@@ -39,6 +45,10 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }:
   const [isUploading, setIsUploading] = useState(false);
   const [selectedColor, setSelectedColor] = useState(initialData?.background_color || '#ff9b74');
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(initialData?.label_id || null);
+  const [frequency, setFrequency] = useState<"daily" | "three_times" | "custom">(
+    initialData?.frequency || "daily"
+  );
+  const [customDays, setCustomDays] = useState<number[]>(initialData?.custom_days || []);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,6 +78,8 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }:
         image: image || undefined,
         selectedColor,
         labelId: isTaskMode ? selectedLabelId : undefined,
+        frequency: isTaskMode ? frequency : undefined,
+        customDays: isTaskMode ? customDays : undefined,
       });
     } finally {
       setIsUploading(false);
@@ -80,7 +92,20 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }:
       <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
 
       <div className="space-y-4">
-        
+        {isTaskMode && (
+          <>
+            <TaskLabelSelect 
+              selectedLabelId={selectedLabelId} 
+              onLabelSelect={setSelectedLabelId} 
+            />
+            <HabitFrequencySelect
+              frequency={frequency}
+              setFrequency={setFrequency}
+              customDays={customDays}
+              setCustomDays={setCustomDays}
+            />
+          </>
+        )}
 
         <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
 

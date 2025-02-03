@@ -1,3 +1,4 @@
+
 import { Drawer } from "vaul";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,8 @@ interface NoteFormDrawerProps {
     image_url?: string;
     background_color?: string;
     label_id?: string;
+    frequency?: "daily" | "three_times" | "custom";
+    custom_days?: number[];
   };
   initialData?: {
     title: string;
@@ -43,6 +46,8 @@ export const NoteFormDrawer = ({
     image?: File;
     selectedColor: string;
     labelId?: string | null;
+    frequency?: "daily" | "three_times" | "custom";
+    customDays?: number[];
   }) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -83,6 +88,8 @@ export const NoteFormDrawer = ({
             image_url: finalImageUrl,
             background_color: formData.selectedColor,
             label_id: isTaskMode ? formData.labelId : undefined,
+            frequency: isTaskMode ? formData.frequency : undefined,
+            custom_days: isTaskMode ? formData.customDays : undefined,
           })
           .eq('id', editNote.id);
 
@@ -103,6 +110,8 @@ export const NoteFormDrawer = ({
             background_color: formData.selectedColor,
             label_id: isTaskMode ? formData.labelId : undefined,
             user_id: user.id,
+            frequency: isTaskMode ? formData.frequency : undefined,
+            custom_days: isTaskMode ? formData.customDays : undefined,
           });
 
         if (error) throw error;
