@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,22 +17,37 @@ export const HabitCheckbox = ({ habitId, title, isCompleted, onToggle }: HabitCh
   const handleToggle = async () => {
     setIsLoading(true);
     try {
+      const today = new Date().toISOString().split("T")[0];
+      
       if (!isCompleted) {
-        const { error } = await supabase
+        // First check if a completion already exists
+        const { data: existingCompletion } = await supabase
           .from("habit_completions")
-          .insert({
+          .select()
+          .match({
             habit_id: habitId,
-            completed_date: new Date().toISOString().split("T")[0],
-          });
+            completed_date: today,
+          })
+          .single();
 
-        if (error) throw error;
+        // Only insert if no completion exists
+        if (!existingCompletion) {
+          const { error } = await supabase
+            .from("habit_completions")
+            .insert({
+              habit_id: habitId,
+              completed_date: today,
+            });
+
+          if (error) throw error;
+        }
       } else {
         const { error } = await supabase
           .from("habit_completions")
           .delete()
           .match({
             habit_id: habitId,
-            completed_date: new Date().toISOString().split("T")[0],
+            completed_date: today,
           });
 
         if (error) throw error;
