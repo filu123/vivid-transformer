@@ -22,9 +22,14 @@ interface NoteFormDrawerProps {
     custom_days?: number[];
   };
   initialData?: {
+    id?: string;
     title: string;
     description?: string;
+    date?: string;
     background_color?: string;
+    label_id?: string;
+    frequency?: "daily" | "three_times" | "custom";
+    custom_days?: number[];
   };
   isTaskMode?: boolean;
 }
@@ -38,6 +43,7 @@ export const NoteFormDrawer = ({
   isTaskMode = false,
 }: NoteFormDrawerProps) => {
   const { toast } = useToast();
+  const isEditing = initialData?.id != null;
 
   const handleSubmit = async (formData: {
     title: string;
@@ -78,7 +84,7 @@ export const NoteFormDrawer = ({
         ? format(startOfDay(formData.date), 'yyyy-MM-dd')
         : null;
 
-      if (editNote) {
+      if (isEditing) {
         const { error } = await supabase
           .from(isTaskMode ? "tasks_notes" : "notes")
           .update({
@@ -91,7 +97,7 @@ export const NoteFormDrawer = ({
             frequency: isTaskMode ? formData.frequency : undefined,
             custom_days: isTaskMode ? formData.customDays : undefined,
           })
-          .eq('id', editNote.id);
+          .eq('id', initialData.id);
 
         if (error) throw error;
 
@@ -126,7 +132,7 @@ export const NoteFormDrawer = ({
       onClose();
     } catch (error) {
       toast({
-        title: editNote ? "Error updating note" : "Error adding note",
+        title: isEditing ? "Error updating note" : "Error adding note",
         description: "There was an error. Please try again.",
         variant: "destructive",
       });
@@ -148,7 +154,7 @@ export const NoteFormDrawer = ({
             <div className="max-w-3xl mx-auto">
               <NoteForm
                 onSubmit={handleSubmit}
-                initialData={editNote || initialData}
+                initialData={initialData}
                 onClose={onClose}
                 isTaskMode={isTaskMode}
               />
