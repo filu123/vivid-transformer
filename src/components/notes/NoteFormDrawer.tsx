@@ -26,6 +26,7 @@ interface NoteFormDrawerProps {
     title: string;
     description?: string;
     date?: string;
+    image_url?: string;
     background_color?: string;
     label_id?: string;
     frequency?: "daily" | "three_times" | "custom";
@@ -154,7 +155,10 @@ export const NoteFormDrawer = ({
             <div className="max-w-3xl mx-auto">
               <NoteForm
                 onSubmit={handleSubmit}
-                initialData={initialData}
+                initialData={{
+                  ...initialData,
+                  image_url: initialData?.image_url
+                }}
                 onClose={onClose}
                 isTaskMode={isTaskMode}
               />
