@@ -49,6 +49,7 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false, i
     initialData?.frequency || "daily"
   );
   const [customDays, setCustomDays] = useState<number[]>(initialData?.custom_days || []);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
