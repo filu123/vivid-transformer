@@ -1,4 +1,3 @@
-
 import { Drawer } from "vaul";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,7 +109,7 @@ export const NoteFormDrawer = ({
             .insert({
               title: formData.title,
               due_date: formData.date ? formData.date.toISOString() : null,
-              background_color: formData.selectedColor,
+              background_color: formData.selectedColor || null,
               user_id: user.id,
               category: 'all',
             });
@@ -242,4 +241,3 @@ export const NoteFormDrawer = ({
     </Drawer.Root>
   );
 };
-
