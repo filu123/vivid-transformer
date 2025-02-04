@@ -31,10 +31,10 @@ interface NoteFormProps {
   };
   onClose: () => void;
   isTaskMode?: boolean;
+  isReminderMode?: boolean;
 }
 
-export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }: NoteFormProps) => {
-  const { toast } = useToast();
+export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false, isReminderMode = false }: NoteFormProps) => {
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
   const [date, setDate] = useState<Date | undefined>(
@@ -49,22 +49,6 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }:
     initialData?.frequency || "daily"
   );
   const [customDays, setCustomDays] = useState<number[]>(initialData?.custom_days || []);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 4 * 1024 * 1024) {
-        toast({
-          title: "Error",
-          description: "Image size must be less than 4MB",
-          variant: "destructive",
-        });
-        return;
-      }
-      setImage(file);
-      setImageUrl(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,31 +73,49 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false }:
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <NoteFormTitle initialTitle={title} onTitleChange={setTitle} />
-      <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
+      
+      {!isReminderMode && !isTaskMode && (
+        <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
+      )}
+
+      {isTaskMode && (
+        <>
+          <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
+          <TaskLabelSelect 
+            selectedLabelId={selectedLabelId} 
+            onLabelSelect={setSelectedLabelId} 
+          />
+          <HabitFrequencySelect
+            frequency={frequency}
+            setFrequency={setFrequency}
+            customDays={customDays}
+            setCustomDays={setCustomDays}
+          />
+        </>
+      )}
 
       <div className="space-y-4">
-        {isTaskMode && (
-          <>
-            <TaskLabelSelect 
-              selectedLabelId={selectedLabelId} 
-              onLabelSelect={setSelectedLabelId} 
-            />
-            <HabitFrequencySelect
-              frequency={frequency}
-              setFrequency={setFrequency}
-              customDays={customDays}
-              setCustomDays={setCustomDays}
-            />
-          </>
-        )}
-
         <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
 
         <NoteFormActions
           date={date}
           onDateChange={setDate}
           imageUrl={imageUrl}
-          onImageChange={handleImageChange}
+          onImageChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              if (file.size > 4 * 1024 * 1024) {
+                toast({
+                  title: "Error",
+                  description: "Image size must be less than 4MB",
+                  variant: "destructive",
+                });
+                return;
+              }
+              setImage(file);
+              setImageUrl(URL.createObjectURL(file));
+            }
+          }}
           isUploading={isUploading}
           onClose={onClose}
           isEditing={!!initialData?.title}

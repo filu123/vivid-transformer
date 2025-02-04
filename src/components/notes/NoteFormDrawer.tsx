@@ -33,6 +33,7 @@ interface NoteFormDrawerProps {
     custom_days?: number[];
   };
   isTaskMode?: boolean;
+  isReminderMode?: boolean;
 }
 
 export const NoteFormDrawer = ({
@@ -42,6 +43,7 @@ export const NoteFormDrawer = ({
   editNote,
   initialData,
   isTaskMode = false,
+  isReminderMode = false,
 }: NoteFormDrawerProps) => {
   const { toast } = useToast();
   const isEditing = initialData?.id != null;
@@ -85,48 +87,121 @@ export const NoteFormDrawer = ({
         ? format(startOfDay(formData.date), 'yyyy-MM-dd')
         : null;
 
-      if (isEditing) {
-        const { error } = await supabase
-          .from(isTaskMode ? "tasks_notes" : "notes")
-          .update({
-            title: formData.title,
-            description: formData.description || null,
-            date: dateToStore,
-            image_url: finalImageUrl,
-            background_color: formData.selectedColor,
-            label_id: isTaskMode ? formData.labelId : undefined,
-            frequency: isTaskMode ? formData.frequency : undefined,
-            custom_days: isTaskMode ? formData.customDays : undefined,
-          })
-          .eq('id', initialData.id);
+      if (isReminderMode) {
+        if (isEditing) {
+          const { error } = await supabase
+            .from("reminders")
+            .update({
+              title: formData.title,
+              due_date: formData.date ? formData.date.toISOString() : null,
+              background_color: formData.selectedColor,
+            })
+            .eq('id', initialData.id);
 
-        if (error) throw error;
+          if (error) throw error;
 
-        toast({
-          title: `${isTaskMode ? "Task" : "Note"} updated successfully`,
-          description: `Your ${isTaskMode ? "task" : "note"} has been updated.`,
-        });
-      } else {
-        const { error } = await supabase
-          .from(isTaskMode ? "tasks_notes" : "notes")
-          .insert({
-            title: formData.title,
-            description: formData.description || null,
-            date: dateToStore,
-            image_url: finalImageUrl,
-            background_color: formData.selectedColor,
-            label_id: isTaskMode ? formData.labelId : undefined,
-            user_id: user.id,
-            frequency: isTaskMode ? formData.frequency : undefined,
-            custom_days: isTaskMode ? formData.customDays : undefined,
+          toast({
+            title: "Reminder updated successfully",
+            description: "Your reminder has been updated.",
           });
+        } else {
+          const { error } = await supabase
+            .from("reminders")
+            .insert({
+              title: formData.title,
+              due_date: formData.date ? formData.date.toISOString() : null,
+              background_color: formData.selectedColor,
+              user_id: user.id,
+              category: 'all',
+            });
 
-        if (error) throw error;
+          if (error) throw error;
 
-        toast({
-          title: `${isTaskMode ? "Task" : "Note"} added successfully`,
-          description: `Your new ${isTaskMode ? "task" : "note"} has been created.`,
-        });
+          toast({
+            title: "Reminder added successfully",
+            description: "Your new reminder has been created.",
+          });
+        }
+      } else if (isTaskMode) {
+        if (isEditing) {
+          const { error } = await supabase
+            .from("tasks_notes")
+            .update({
+              title: formData.title,
+              description: formData.description || null,
+              date: dateToStore,
+              background_color: formData.selectedColor,
+              label_id: formData.labelId,
+              frequency: formData.frequency,
+              custom_days: formData.customDays,
+            })
+            .eq('id', initialData.id);
+
+          if (error) throw error;
+
+          toast({
+            title: "Task updated successfully",
+            description: "Your task has been updated.",
+          });
+        } else {
+          const { error } = await supabase
+            .from("tasks_notes")
+            .insert({
+              title: formData.title,
+              description: formData.description || null,
+              date: dateToStore,
+              background_color: formData.selectedColor,
+              label_id: formData.labelId,
+              user_id: user.id,
+              frequency: formData.frequency,
+              custom_days: formData.customDays,
+            });
+
+          if (error) throw error;
+
+          toast({
+            title: "Task added successfully",
+            description: "Your new task has been created.",
+          });
+        }
+      } else {
+        if (isEditing) {
+          const { error } = await supabase
+            .from("notes")
+            .update({
+              title: formData.title,
+              description: formData.description || null,
+              date: dateToStore,
+              image_url: finalImageUrl,
+              background_color: formData.selectedColor,
+            })
+            .eq('id', initialData.id);
+
+          if (error) throw error;
+
+          toast({
+            title: "Note updated successfully",
+            description: "Your note has been updated.",
+          });
+        } else {
+          const { error } = await supabase
+            .from("notes")
+            .insert({
+              title: formData.title,
+              description: formData.description || null,
+              date: dateToStore,
+              image_url: finalImageUrl,
+              background_color: formData.selectedColor,
+              user_id: user.id,
+            });
+
+          if (error) throw error;
+
+          toast({
+            title: "Note added successfully",
+            description: "Your new note has been created.",
+          });
+        }
       }
 
       onNoteAdded();
@@ -145,12 +220,9 @@ export const NoteFormDrawer = ({
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
         <Drawer.Content 
-          className={`bg-background flex flex-col rounded-t-[10px] fixed ${
-            isTaskMode ? 'bottom-0 left-0 right-0 h-[85vh] mt-24' 
-            : 'bottom-0 left-0 right-0 h-[85vh] mt-24'
-          }`}
+          className={`bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 h-[85vh] mt-24`}
         >
-          <div className={`p-4 bg-background rounded-t-[10px] flex-1 ${isTaskMode ? 'rounded-b-[10px]' : ''}`}>
+          <div className="p-4 bg-background rounded-t-[10px] flex-1">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
             <div className="max-w-3xl mx-auto">
               <NoteForm
@@ -161,6 +233,7 @@ export const NoteFormDrawer = ({
                 }}
                 onClose={onClose}
                 isTaskMode={isTaskMode}
+                isReminderMode={isReminderMode}
               />
             </div>
           </div>
@@ -169,3 +242,4 @@ export const NoteFormDrawer = ({
     </Drawer.Root>
   );
 };
+
