@@ -51,20 +51,19 @@ export const WeekView = ({ habits }: WeekViewProps) => {
 
       const results = await Promise.all(dates);
       return results.map((result, index) => {
-        // Ensure we have a valid DailyData structure
         const dailyData: DailyData = {
-          priorities: (result.data as any)?.priorities || [],
-          tasks: (result.data as any)?.tasks || [],
-          notes: (result.data as any)?.notes || [],
-          habits: (result.data as any)?.habits || [],
-          reminders: (result.data as any)?.reminders || []
+          priorities: result.data?.priorities || [],
+          tasks: result.data?.tasks || [],
+          notes: result.data?.notes || [],
+          habits: result.data?.habits || [],
+          reminders: result.data?.reminders || []
         };
         
         return {
           date: getDaysInCurrentMonth()[index],
           data: dailyData
         };
-      }) as DayDataItem[];
+      });
     }
   });
 
@@ -81,9 +80,12 @@ export const WeekView = ({ habits }: WeekViewProps) => {
 
   const hasEventsOnDate = (date: Date) => {
     const dayData = dailyData?.find(d => format(d.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'));
-    return dayData?.data?.notes?.length > 0 || 
-           dayData?.data?.reminders?.length > 0 || 
-           dayData?.data?.priorities?.length > 0;
+    return (
+      dayData?.data?.notes?.length > 0 || 
+      dayData?.data?.reminders?.length > 0 || 
+      dayData?.data?.priorities?.length > 0 ||
+      dayData?.data?.tasks?.length > 0
+    );
   };
 
   return (
