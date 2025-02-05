@@ -331,7 +331,8 @@ export type Database = {
           custom_days: number[] | null
           date: string | null
           description: string | null
-          frequency: Database["public"]["Enums"]["habit_frequency"]
+          first_occurrence_date: string | null
+          frequency: Database["public"]["Enums"]["habit_frequency"] | null
           id: string
           is_done: boolean | null
           label_id: string | null
@@ -345,7 +346,8 @@ export type Database = {
           custom_days?: number[] | null
           date?: string | null
           description?: string | null
-          frequency?: Database["public"]["Enums"]["habit_frequency"]
+          first_occurrence_date?: string | null
+          frequency?: Database["public"]["Enums"]["habit_frequency"] | null
           id?: string
           is_done?: boolean | null
           label_id?: string | null
@@ -359,7 +361,8 @@ export type Database = {
           custom_days?: number[] | null
           date?: string | null
           description?: string | null
-          frequency?: Database["public"]["Enums"]["habit_frequency"]
+          first_occurrence_date?: string | null
+          frequency?: Database["public"]["Enums"]["habit_frequency"] | null
           id?: string
           is_done?: boolean | null
           label_id?: string | null
