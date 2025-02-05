@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DayCard } from "../calendar/DayCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { DailyData } from "@/integrations/supabase/timeboxTypes";
 
 interface WeekViewProps {
   habits: Habit[];
@@ -22,6 +23,11 @@ interface Habit {
   habit_completions: {
     completed_date: string;
   }[];
+}
+
+interface DayDataItem {
+  date: Date;
+  data: DailyData;
 }
 
 export const WeekView = ({ habits }: WeekViewProps) => {
@@ -46,8 +52,8 @@ export const WeekView = ({ habits }: WeekViewProps) => {
       const results = await Promise.all(dates);
       return results.map((result, index) => ({
         date: getDaysInCurrentMonth()[index],
-        data: result.data
-      }));
+        data: result.data as DailyData
+      })) as DayDataItem[];
     }
   });
 
