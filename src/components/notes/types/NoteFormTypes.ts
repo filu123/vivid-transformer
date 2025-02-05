@@ -7,7 +7,7 @@ export interface NoteFormData {
   image_url?: string;
   background_color?: string;
   label_id?: string;
-  frequency?: "daily" | "three_times" | "custom";
+  frequency?: "daily" | "three_times" | "custom" | null;
   custom_days?: number[];
 }
 
@@ -18,6 +18,6 @@ export interface FormSubmitData {
   image?: File;
   selectedColor: string;
   labelId?: string | null;
-  frequency?: "daily" | "three_times" | "custom";
+  frequency?: "daily" | "three_times" | "custom" | null;
   customDays?: number[];
 }

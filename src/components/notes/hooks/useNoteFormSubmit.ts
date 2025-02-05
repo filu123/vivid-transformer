@@ -91,8 +91,9 @@ export const useNoteFormSubmit = (
               date: dateToStore,
               background_color: formData.selectedColor,
               label_id: formData.labelId,
-              frequency: formData.frequency,
+              frequency: formData.frequency || null,
               custom_days: formData.customDays,
+              first_occurrence_date: dateToStore,
             })
             .eq('id', initialId);
 
@@ -112,8 +113,9 @@ export const useNoteFormSubmit = (
               background_color: formData.selectedColor,
               label_id: formData.labelId,
               user_id: user.id,
-              frequency: formData.frequency,
+              frequency: formData.frequency || null,
               custom_days: formData.customDays,
+              first_occurrence_date: dateToStore,
             });
 
           if (error) throw error;

@@ -16,7 +16,7 @@ interface NoteFormProps {
     image?: File;
     selectedColor: string;
     labelId?: string | null;
-    frequency?: "daily" | "three_times" | "custom";
+    frequency?: "daily" | "three_times" | "custom" | null;
     customDays?: number[];
   }) => Promise<void>;
   initialData?: {
@@ -26,7 +26,7 @@ interface NoteFormProps {
     image_url?: string;
     background_color?: string;
     label_id?: string;
-    frequency?: "daily" | "three_times" | "custom";
+    frequency?: "daily" | "three_times" | "custom" | null;
     custom_days?: number[];
   };
   onClose: () => void;
@@ -45,8 +45,8 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false, i
   const [isUploading, setIsUploading] = useState(false);
   const [selectedColor, setSelectedColor] = useState(initialData?.background_color || '#ff9b74');
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(initialData?.label_id || null);
-  const [frequency, setFrequency] = useState<"daily" | "three_times" | "custom">(
-    initialData?.frequency || "daily"
+  const [frequency, setFrequency] = useState<"daily" | "three_times" | "custom" | null>(
+    initialData?.frequency || null
   );
   const [customDays, setCustomDays] = useState<number[]>(initialData?.custom_days || []);
   const { toast } = useToast();
