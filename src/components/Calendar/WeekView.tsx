@@ -52,18 +52,18 @@ export const WeekView = ({ habits }: WeekViewProps) => {
       const results = await Promise.all(dates);
       return results.map((result, index) => {
         const dailyData: DailyData = {
-          priorities: result.data?.priorities || [],
-          tasks: result.data?.tasks || [],
-          notes: result.data?.notes || [],
-          habits: result.data?.habits || [],
-          reminders: result.data?.reminders || []
+          priorities: (result.data as any)?.priorities ?? [],
+          tasks: (result.data as any)?.tasks ?? [],
+          notes: (result.data as any)?.notes ?? [],
+          habits: (result.data as any)?.habits ?? [],
+          reminders: (result.data as any)?.reminders ?? []
         };
         
         return {
           date: getDaysInCurrentMonth()[index],
           data: dailyData
         };
-      });
+      }) as DayDataItem[];
     }
   });
 
