@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { format, addMonths, subMonths, getDaysInMonth, startOfMonth, addDays } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -18,7 +19,6 @@ interface Habit {
   custom_days: number[] | null;
   duration_months: number;
   start_date: string;
-  created_at: string;
   habit_completions: {
     completed_date: string;
   }[];
@@ -30,37 +30,24 @@ export const WeekView = ({ habits }: WeekViewProps) => {
   const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
   const previousMonth = () => setCurrentDate(subMonths(currentDate, 1));
 
-  const { data: dailyEvents } = useQuery({
-    queryKey: ['dailyEvents', format(currentDate, 'yyyy-MM')],
+  const { data: dailyData } = useQuery({
+    queryKey: ['monthlyData', format(currentDate, 'yyyy-MM')],
     queryFn: async () => {
-      const startDate = format(startOfMonth(currentDate), 'yyyy-MM-dd');
-      const endDate = format(addMonths(startOfMonth(currentDate), 1), 'yyyy-MM-dd');
-      
-      const [notesResponse, remindersResponse, tasksResponse] = await Promise.all([
-        supabase
-          .from('notes')
-          .select('date')
-          .gte('date', startDate)
-          .lt('date', endDate),
-        supabase
-          .from('reminders')
-          .select('due_date')
-          .gte('due_date', startDate)
-          .lt('due_date', endDate),
-        supabase
-          .from('tasks_notes')
-          .select('date')
-          .gte('date', startDate)
-          .lt('date', endDate)
-      ]);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
 
-      const events = new Set();
-      
-      notesResponse.data?.forEach(note => note.date && events.add(note.date));
-      remindersResponse.data?.forEach(reminder => reminder.due_date && events.add(format(new Date(reminder.due_date), 'yyyy-MM-dd')));
-      tasksResponse.data?.forEach(task => task.date && events.add(task.date));
-      
-      return Array.from(events) as string[];
+      const dates = getDaysInCurrentMonth().map(date => 
+        supabase.rpc('get_daily_data', {
+          p_user_id: user.id,
+          p_date: format(date, 'yyyy-MM-dd')
+        })
+      );
+
+      const results = await Promise.all(dates);
+      return results.map((result, index) => ({
+        date: getDaysInCurrentMonth()[index],
+        data: result.data
+      }));
     }
   });
 
@@ -76,8 +63,10 @@ export const WeekView = ({ habits }: WeekViewProps) => {
   };
 
   const hasEventsOnDate = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    return dailyEvents?.includes(dateStr);
+    const dayData = dailyData?.find(d => format(d.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd'));
+    return dayData?.data?.notes?.length > 0 || 
+           dayData?.data?.reminders?.length > 0 || 
+           dayData?.data?.priorities?.length > 0;
   };
 
   return (
@@ -113,16 +102,23 @@ export const WeekView = ({ habits }: WeekViewProps) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {getDaysInCurrentMonth().map((date, index) => (
-          <DayCard
-            key={date.toString()}
-            date={date}
-            habits={habits}
-            onHabitUpdated={() => {}}
-            cardColor={getCardColor(index)}
-            hasEvents={hasEventsOnDate(date)}
-          />
-        ))}
+        {getDaysInCurrentMonth().map((date, index) => {
+          const dayData = dailyData?.find(d => 
+            format(d.date, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd')
+          );
+
+          return (
+            <DayCard
+              key={date.toString()}
+              date={date}
+              habits={habits}
+              onHabitUpdated={() => {}}
+              cardColor={getCardColor(index)}
+              hasEvents={hasEventsOnDate(date)}
+              tasks={dayData?.data?.tasks || []}
+            />
+          );
+        })}
       </div>
     </div>
   );

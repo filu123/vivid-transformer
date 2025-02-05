@@ -1,3 +1,4 @@
+
 import { format } from "date-fns";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -8,13 +9,21 @@ interface DayCardProps {
   onHabitUpdated: () => void;
   cardColor: string;
   hasEvents?: boolean;
+  tasks?: Array<{
+    id: string;
+    title: string;
+    is_done?: boolean;
+    frequency?: "daily" | "three_times" | "custom" | null;
+  }>;
 }
 
-export const DayCard = ({ date, cardColor, hasEvents }: DayCardProps) => {
+export const DayCard = ({ date, cardColor, hasEvents, tasks = [] }: DayCardProps) => {
+  const hasRecurringTasks = tasks && tasks.length > 0;
+
   return (
     <Card
       className={cn(
-        "p-6 hover:shadow-md transition-shadow cursor-pointer relative group",
+        "p-6 hover:shadow-md transition-shadow cursor-pointer relative group min-h-[200px]",
         `bg-${cardColor}`
       )}
     >
@@ -29,6 +38,30 @@ export const DayCard = ({ date, cardColor, hasEvents }: DayCardProps) => {
           </span>
         </div>
       </div>
+      
+      {hasRecurringTasks && (
+        <div className="mt-4 space-y-2">
+          {tasks.map((task) => (
+            <div 
+              key={task.id}
+              className={cn(
+                "text-sm truncate",
+                task.is_done ? "line-through text-muted-foreground" : ""
+              )}
+            >
+              {task.title}
+              {task.frequency && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  {task.frequency === 'daily' ? '🔄' : 
+                   task.frequency === 'three_times' ? '3️⃣' : 
+                   task.frequency === 'custom' ? '📅' : ''}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {hasEvents && (
         <div className="absolute bottom-4 right-4 w-3 h-3 rounded-full bg-primary animate-pulse" />
       )}
