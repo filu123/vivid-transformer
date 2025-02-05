@@ -14,6 +14,7 @@ interface TaskDetailsDrawerProps {
     status?: string;
     frequency?: "daily" | "three_times" | "custom";
     custom_days?: number[];
+    first_occurrence_date?: string;
   };
   onUpdate: () => void;
 }
@@ -25,14 +26,14 @@ export const TaskDetailsDrawer = ({ open, onClose, task, onUpdate }: TaskDetails
       onClose={onClose}
       onNoteAdded={onUpdate}
       initialData={{
+        id: task.id,
         title: task.title,
-        description: task.description,
-        date: task.date,
+        description: task.description || "",
+        date: task.first_occurrence_date || task.date,
         background_color: task.background_color,
         label_id: task.label_id,
         frequency: task.frequency,
         custom_days: task.custom_days,
-        id: task.id
       }}
       isTaskMode={true}
     />

@@ -14,6 +14,7 @@ interface DayCardProps {
     title: string;
     is_done?: boolean;
     frequency?: "daily" | "three_times" | "custom" | null;
+    first_occurrence_date?: string;
   }>;
 }
 

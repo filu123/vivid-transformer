@@ -7,6 +7,9 @@ import { NoteFormDescription } from "./NoteFormDescription";
 import { NoteFormActions } from "./NoteFormActions";
 import { useToast } from "@/hooks/use-toast";
 import { HabitFrequencySelect } from "@/components/habits/form/HabitFrequencySelect";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Repeat } from "lucide-react";
 
 interface NoteFormProps {
   onSubmit: (formData: {
@@ -20,6 +23,7 @@ interface NoteFormProps {
     customDays?: number[];
   }) => Promise<void>;
   initialData?: {
+    id?: string;
     title: string;
     description?: string;
     date?: string;
@@ -71,28 +75,54 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false, i
     }
   };
 
+  const getFrequencyLabel = () => {
+    switch (frequency) {
+      case "daily":
+        return "Daily";
+      case "three_times":
+        return "Three times a week";
+      case "custom":
+        return "Custom days";
+      default:
+        return "Add frequency";
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <NoteFormTitle initialTitle={title} onTitleChange={setTitle} />
       
-      {!isReminderMode && !isTaskMode && (
+      {!isReminderMode && (
         <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
       )}
 
       {isTaskMode && (
-        <>
-          <NoteFormDescription initialDescription={description} onDescriptionChange={setDescription} />
+        <div className="space-y-4">
           <TaskLabelSelect 
             selectedLabelId={selectedLabelId} 
             onLabelSelect={setSelectedLabelId} 
           />
-          <HabitFrequencySelect
-            frequency={frequency}
-            setFrequency={setFrequency}
-            customDays={customDays}
-            setCustomDays={setCustomDays}
-          />
-        </>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-[200px] justify-start"
+              >
+                <Repeat className="mr-2 h-4 w-4" />
+                {getFrequencyLabel()}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[300px] p-4">
+              <HabitFrequencySelect
+                frequency={frequency}
+                setFrequency={setFrequency}
+                customDays={customDays}
+                setCustomDays={setCustomDays}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       )}
 
       <div className="space-y-4">
@@ -119,7 +149,7 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false, i
           }}
           isUploading={isUploading}
           onClose={onClose}
-          isEditing={!!initialData?.title}
+          isEditing={!!initialData?.id}
         />
       </div>
     </form>
