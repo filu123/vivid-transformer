@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import { Plus, Pencil } from "lucide-react";
 import { ColorLabelModal } from "./ColorLabelModal";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,11 @@ interface ColorPickerProps {
 
 export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingLabel, setEditingLabel] = useState<{
+    id: string;
+    color: string;
+    label: string;
+  } | null>(null);
   
   const { data: colorLabels } = useQuery({
     queryKey: ['colorLabels', type],
@@ -32,6 +37,16 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
       return data || [];
     },
   });
+
+  const handleEditClick = (e: React.MouseEvent, label: any) => {
+    e.stopPropagation(); // Prevent color selection when clicking edit
+    setEditingLabel({
+      id: label.id,
+      color: label.color,
+      label: label.label,
+    });
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-4">
@@ -57,8 +72,14 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
               )}
               style={{ backgroundColor: label.color }}
             />
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              {label.label}
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap flex items-center gap-2">
+              <span>{label.label}</span>
+              <button
+                onClick={(e) => handleEditClick(e, label)}
+                className="p-1 hover:bg-gray-700 rounded"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
             </div>
           </div>
         ))}
@@ -69,7 +90,10 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
             variant="outline"
             size="icon"
             className="w-6 h-6 rounded-full"
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setEditingLabel(null);
+              setIsModalOpen(true);
+            }}
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -78,9 +102,13 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
 
       <ColorLabelModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingLabel(null);
+        }}
         availableColors={AVAILABLE_COLORS}
         type={type}
+        editingLabel={editingLabel}
       />
     </div>
   );

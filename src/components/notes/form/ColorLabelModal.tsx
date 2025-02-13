@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,13 +13,28 @@ interface ColorLabelModalProps {
   onClose: () => void;
   availableColors: string[];
   type: "note" | "task" | "reminder";
+  editingLabel?: {
+    id: string;
+    color: string;
+    label: string;
+  } | null;
 }
 
-export const ColorLabelModal = ({ isOpen, onClose, availableColors, type }: ColorLabelModalProps) => {
+export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editingLabel }: ColorLabelModalProps) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [label, setLabel] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (editingLabel) {
+      setSelectedColor(editingLabel.color);
+      setLabel(editingLabel.label);
+    } else {
+      setSelectedColor(null);
+      setLabel("");
+    }
+  }, [editingLabel]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,21 +52,38 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type }: Colo
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { error } = await supabase
-        .from('color_labels')
-        .insert({
-          color: selectedColor,
-          label: label.trim(),
-          category: type,
-          user_id: user.id,
+      if (editingLabel) {
+        const { error } = await supabase
+          .from('color_labels')
+          .update({
+            color: selectedColor,
+            label: label.trim(),
+          })
+          .eq('id', editingLabel.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Color label updated successfully",
         });
+      } else {
+        const { error } = await supabase
+          .from('color_labels')
+          .insert({
+            color: selectedColor,
+            label: label.trim(),
+            category: type,
+            user_id: user.id,
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Color label added successfully",
-      });
+        toast({
+          title: "Success",
+          description: "Color label added successfully",
+        });
+      }
 
       queryClient.invalidateQueries({ queryKey: ['colorLabels', type] });
       setSelectedColor(null);
@@ -60,7 +92,7 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type }: Colo
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to add color label",
+        description: error.message || `Failed to ${editingLabel ? 'update' : 'add'} color label`,
         variant: "destructive",
       });
     }
@@ -70,7 +102,7 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type }: Colo
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Color Label</DialogTitle>
+          <DialogTitle>{editingLabel ? 'Edit' : 'Add New'} Color Label</DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -108,7 +140,7 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type }: Colo
               Cancel
             </Button>
             <Button type="submit">
-              Add Color
+              {editingLabel ? 'Update' : 'Add'} Color
             </Button>
           </div>
         </form>
