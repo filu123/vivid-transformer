@@ -38,7 +38,7 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Stop event from bubbling up
+    e.stopPropagation();
     
     if (!selectedColor || !label.trim()) {
       toast({
@@ -52,6 +52,28 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editin
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
+
+      // Check for existing color in the same category
+      const { data: existingColors } = await supabase
+        .from('color_labels')
+        .select('id, color')
+        .eq('category', type)
+        .eq('user_id', user.id)
+        .eq('color', selectedColor);
+
+      // If editing, filter out the current label from duplicate check
+      const hasDuplicate = editingLabel 
+        ? existingColors?.some(ec => ec.id !== editingLabel.id && ec.color === selectedColor)
+        : existingColors?.length > 0;
+
+      if (hasDuplicate) {
+        toast({
+          title: "Error",
+          description: "This color is already in use for this category. Please choose a different color.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       if (editingLabel) {
         const { error } = await supabase
