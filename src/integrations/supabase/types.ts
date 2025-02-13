@@ -9,6 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      color_labels: {
+        Row: {
+          category: Database["public"]["Enums"]["color_category"]
+          color: string
+          created_at: string
+          id: string
+          label: string
+          user_id: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["color_category"]
+          color: string
+          created_at?: string
+          id?: string
+          label: string
+          user_id: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["color_category"]
+          color?: string
+          created_at?: string
+          id?: string
+          label?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       habit_completions: {
         Row: {
           completed_date: string
@@ -80,6 +107,7 @@ export type Database = {
       notes: {
         Row: {
           background_color: string | null
+          color_label_id: string | null
           created_at: string
           date: string | null
           description: string | null
@@ -90,6 +118,7 @@ export type Database = {
         }
         Insert: {
           background_color?: string | null
+          color_label_id?: string | null
           created_at?: string
           date?: string | null
           description?: string | null
@@ -100,6 +129,7 @@ export type Database = {
         }
         Update: {
           background_color?: string | null
+          color_label_id?: string | null
           created_at?: string
           date?: string | null
           description?: string | null
@@ -108,7 +138,15 @@ export type Database = {
           title?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_color_label_id_fkey"
+            columns: ["color_label_id"]
+            isOneToOne: false
+            referencedRelation: "color_labels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       priorities: {
         Row: {
@@ -225,6 +263,7 @@ export type Database = {
         Row: {
           background_color: string | null
           category: Database["public"]["Enums"]["reminder_category"]
+          color_label_id: string | null
           created_at: string
           due_date: string | null
           id: string
@@ -236,6 +275,7 @@ export type Database = {
         Insert: {
           background_color?: string | null
           category?: Database["public"]["Enums"]["reminder_category"]
+          color_label_id?: string | null
           created_at?: string
           due_date?: string | null
           id?: string
@@ -247,6 +287,7 @@ export type Database = {
         Update: {
           background_color?: string | null
           category?: Database["public"]["Enums"]["reminder_category"]
+          color_label_id?: string | null
           created_at?: string
           due_date?: string | null
           id?: string
@@ -256,6 +297,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reminders_color_label_id_fkey"
+            columns: ["color_label_id"]
+            isOneToOne: false
+            referencedRelation: "color_labels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reminders_list_id_fkey"
             columns: ["list_id"]
@@ -327,6 +375,7 @@ export type Database = {
       tasks_notes: {
         Row: {
           background_color: string | null
+          color_label_id: string | null
           created_at: string
           custom_days: number[] | null
           date: string | null
@@ -342,6 +391,7 @@ export type Database = {
         }
         Insert: {
           background_color?: string | null
+          color_label_id?: string | null
           created_at?: string
           custom_days?: number[] | null
           date?: string | null
@@ -357,6 +407,7 @@ export type Database = {
         }
         Update: {
           background_color?: string | null
+          color_label_id?: string | null
           created_at?: string
           custom_days?: number[] | null
           date?: string | null
@@ -371,6 +422,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_notes_color_label_id_fkey"
+            columns: ["color_label_id"]
+            isOneToOne: false
+            referencedRelation: "color_labels"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_notes_label_id_fkey"
             columns: ["label_id"]
@@ -394,6 +452,7 @@ export type Database = {
       }
     }
     Enums: {
+      color_category: "note" | "task" | "reminder"
       habit_frequency: "daily" | "three_times" | "custom"
       reminder_category: "all" | "today" | "scheduled" | "completed"
       task_status: "pending" | "completed"
