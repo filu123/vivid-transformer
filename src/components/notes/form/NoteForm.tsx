@@ -126,7 +126,11 @@ export const NoteForm = ({ onSubmit, initialData, onClose, isTaskMode = false, i
       )}
 
       <div className="space-y-4">
-        <ColorPicker selectedColor={selectedColor} onColorChange={setSelectedColor} />
+        <ColorPicker 
+          selectedColor={selectedColor} 
+          onColorChange={(_, color) => setSelectedColor(color)} 
+          type={isTaskMode ? "task" : isReminderMode ? "reminder" : "note"}
+        />
 
         <NoteFormActions
           date={date}

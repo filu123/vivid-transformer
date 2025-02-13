@@ -135,7 +135,8 @@ export const HabitFormModal = ({ isOpen, onClose, onHabitAdded, editHabit }: Hab
                 <Label>Color</Label>
                 <ColorPicker
                   selectedColor={backgroundColor}
-                  onColorChange={setBackgroundColor}
+                  onColorChange={(_, color) => setBackgroundColor(color)}
+                  type="task"
                 />
               </div>
               <div className="flex justify-end space-x-2">
