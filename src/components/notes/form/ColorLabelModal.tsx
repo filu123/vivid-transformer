@@ -38,6 +38,7 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editin
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation(); // Stop event from bubbling up
     
     if (!selectedColor || !label.trim()) {
       toast({
@@ -100,7 +101,7 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editin
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent onClick={e => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{editingLabel ? 'Edit' : 'Add New'} Color Label</DialogTitle>
         </DialogHeader>
@@ -113,7 +114,10 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editin
                 <button
                   key={color}
                   type="button"
-                  onClick={() => setSelectedColor(color)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedColor(color);
+                  }}
                   className={cn(
                     "w-8 h-8 rounded-full transition-transform hover:scale-110",
                     selectedColor === color ? "ring-2 ring-offset-2 ring-black scale-110" : ""
@@ -132,11 +136,19 @@ export const ColorLabelModal = ({ isOpen, onClose, availableColors, type, editin
               onChange={(e) => setLabel(e.target.value)}
               placeholder="Enter a label (e.g., Groceries)"
               maxLength={20}
+              onClick={e => e.stopPropagation()}
             />
           </div>
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+            >
               Cancel
             </Button>
             <Button type="submit">

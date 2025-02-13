@@ -39,7 +39,8 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
   });
 
   const handleEditClick = (e: React.MouseEvent, label: any) => {
-    e.stopPropagation(); // Prevent color selection when clicking edit
+    e.preventDefault(); // Prevent any default behavior
+    e.stopPropagation(); // Stop event from bubbling up
     setEditingLabel({
       id: label.id,
       color: label.color,
@@ -48,8 +49,15 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
     setIsModalOpen(true);
   };
 
+  const handleAddClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any default behavior
+    e.stopPropagation(); // Stop event from bubbling up
+    setEditingLabel(null);
+    setIsModalOpen(true);
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" onClick={e => e.stopPropagation()}>
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -90,10 +98,7 @@ export const ColorPicker = ({ selectedColor, onColorChange, type }: ColorPickerP
             variant="outline"
             size="icon"
             className="w-6 h-6 rounded-full"
-            onClick={() => {
-              setEditingLabel(null);
-              setIsModalOpen(true);
-            }}
+            onClick={handleAddClick}
           >
             <Plus className="h-4 w-4" />
           </Button>
